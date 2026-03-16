@@ -342,7 +342,14 @@ function renderAdminSidebar(activeKey) {
     name: 'Admin User', initials: 'AU', role: 'manager',
   };
 
-  const sessionRole = session.role || 'manager';
+  const rawSessionRole = String(session.role || 'manager').toLowerCase();
+  // Supabase profiles may store admin roles as "admin" or "corporate".
+  // Normalize to the role keys used by ADMIN_SIDEBAR_PAGES so role filtering
+  // never strips all nav items for valid admin users.
+  const sessionRole = ({
+    admin: 'manager',
+    corporate: 'executive',
+  }[rawSessionRole]) || rawSessionRole;
 
   let sectioned = new Set();
   let navHTML = '';
