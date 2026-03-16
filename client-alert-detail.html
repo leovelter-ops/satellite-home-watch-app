@@ -1187,15 +1187,14 @@
   }
 
   try {
-    const resp = await fetch(`tables/alerts/${alertId}`);
-    if (!resp.ok) return;
-    const alert = await resp.json();
+    if (!window.SHW?.Alerts?.getAlert) return;
+    const { data: alert } = await SHW.Alerts.getAlert(alertId);
     if (!alert || !alert.id) return;
 
     const propResp = alert.property_id
-      ? await fetch(`tables/properties/${alert.property_id}`).then(r => r.ok ? r.json() : null).catch(() => null)
-      : null;
-    const prop = propResp || {};
+      ? await SHW.Properties.getProperty(alert.property_id)
+      : { data: null };
+    const prop = propResp?.data || {};
 
     const propName = prop.property_name || prop.name || 'Your Property';
     const title    = alert.alert_title || alert.title || 'Property Alert';

@@ -467,27 +467,25 @@
 // ── Load properties from API ──
 document.addEventListener('DOMContentLoaded', async () => {
   const sel = document.getElementById('rsProperty');
+  if (!sel || !window.SHW?.Properties?.getClientProperties) return;
+
   try {
-    const res = await fetch('tables/properties?limit=50');
-    if (res.ok) {
-      const json = await res.json();
-      const props = (json.data || []);
-      sel.innerHTML = '<option value="" disabled selected>Select a property\u2026</option>';
-      if (props.length === 0) {
-        sel.innerHTML = '<option value="" disabled selected>No properties on file</option>';
-      } else {
-        props.forEach(p => {
-          const opt = document.createElement('option');
-          opt.value = p.id;
-          opt.textContent = p.property_name || p.address || p.id;
-          sel.appendChild(opt);
-        });
-      }
-    } else {
-      sel.innerHTML = '<option value="" disabled selected>Select a property\u2026</option>';
+    const { data: props = [] } = await SHW.Properties.getClientProperties();
+    sel.innerHTML = '<option value="" disabled selected>Select a property…</option>';
+
+    if (props.length === 0) {
+      sel.innerHTML = '<option value="" disabled selected>No properties on file</option>';
+      return;
     }
-  } catch(e) {
-    sel.innerHTML = '<option value="" disabled selected>Select a property\u2026</option>';
+
+    props.forEach((p) => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.property_name || p.address || p.id;
+      sel.appendChild(opt);
+    });
+  } catch (e) {
+    sel.innerHTML = '<option value="" disabled selected>Select a property…</option>';
   }
 });
 
