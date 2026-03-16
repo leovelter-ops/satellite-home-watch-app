@@ -318,23 +318,23 @@
       <div class="crm-pipeline-bar" style="margin-bottom:20px;">
         <div class="crm-pipeline-segment new-s" onclick="filterByStatus('new')">
           <div class="crm-pipeline-label">New</div>
-          <div class="crm-pipeline-count">7</div>
-          <div class="crm-pipeline-pct">30%</div>
+          <div class="crm-pipeline-count" id="pipelineNewCount">0</div>
+          <div class="crm-pipeline-pct" id="pipelineNewPct">0%</div>
         </div>
         <div class="crm-pipeline-segment contacted-s" onclick="filterByStatus('contacted')">
           <div class="crm-pipeline-label">Contacted</div>
-          <div class="crm-pipeline-count">8</div>
-          <div class="crm-pipeline-pct">35%</div>
+          <div class="crm-pipeline-count" id="pipelineContactedCount">0</div>
+          <div class="crm-pipeline-pct" id="pipelineContactedPct">0%</div>
         </div>
         <div class="crm-pipeline-segment qualified-s" onclick="filterByStatus('qualified')">
           <div class="crm-pipeline-label">Qualified</div>
-          <div class="crm-pipeline-count">5</div>
-          <div class="crm-pipeline-pct">22%</div>
+          <div class="crm-pipeline-count" id="pipelineQualifiedCount">0</div>
+          <div class="crm-pipeline-pct" id="pipelineQualifiedPct">0%</div>
         </div>
         <div class="crm-pipeline-segment converted-s" onclick="filterByStatus('converted')">
           <div class="crm-pipeline-label">Converted</div>
-          <div class="crm-pipeline-count">3</div>
-          <div class="crm-pipeline-pct">13%</div>
+          <div class="crm-pipeline-count" id="pipelineConvertedCount">0</div>
+          <div class="crm-pipeline-pct" id="pipelineConvertedPct">0%</div>
         </div>
       </div>
 
@@ -585,12 +585,27 @@ async function loadApiLeads() {
   } catch (e) {
     // API unavailable — ALL_LEADS stays empty
   } finally {
+    const newCount = ALL_LEADS.filter(l => l.status === 'new').length;
+    const contactedCount = ALL_LEADS.filter(l => l.status === 'contacted').length;
+    const qualifiedCount = ALL_LEADS.filter(l => l.status === 'qualified').length;
+    const convertedCount = ALL_LEADS.filter(l => l.status === 'converted').length;
+    const total = ALL_LEADS.length;
+    const pct = (count) => `${total ? Math.round((count / total) * 100) : 0}%`;
+
     // Update stat cards
     const setV = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    setV('statNewLeads', ALL_LEADS.filter(l => l.status === 'new').length);
-    setV('statContacted', ALL_LEADS.filter(l => l.status === 'contacted').length);
-    setV('statQualified', ALL_LEADS.filter(l => l.status === 'qualified').length);
-    setV('statConverted', ALL_LEADS.filter(l => l.status === 'converted').length);
+    setV('statNewLeads', newCount);
+    setV('statContacted', contactedCount);
+    setV('statQualified', qualifiedCount);
+    setV('statConverted', convertedCount);
+    setV('pipelineNewCount', newCount);
+    setV('pipelineContactedCount', contactedCount);
+    setV('pipelineQualifiedCount', qualifiedCount);
+    setV('pipelineConvertedCount', convertedCount);
+    setV('pipelineNewPct', pct(newCount));
+    setV('pipelineContactedPct', pct(contactedCount));
+    setV('pipelineQualifiedPct', pct(qualifiedCount));
+    setV('pipelineConvertedPct', pct(convertedCount));
     filterLeads();
   }
 }
