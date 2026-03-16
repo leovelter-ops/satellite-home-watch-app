@@ -408,6 +408,47 @@ const PORTAL_ROUTES = {
 let currentInvitation = null;
 let activationSessionReady = false;
 
+
+function normalizeActivationEmail(email) {
+  if (window.SHWOnboarding?.normalizeEmail) return window.SHWOnboarding.normalizeEmail(email);
+  return String(email || '').trim().toLowerCase();
+}
+
+async function resolveInvitationCandidate({ token = '', email = '' } = {}) {
+  if (window.SHWOnboarding?.findInvitationCandidate) {
+    return window.SHWOnboarding.findInvitationCandidate({ token, email });
+  }
+
+  const emailVal = normalizeActivationEmail(email);
+  if (!token && !emailVal) return null;
+
+  const candidates = [];
+  if (token) {
+    const tokenRes = await shwTableFetch('tables/invitations?search=' + encodeURIComponent(token) + '&limit=10');
+    const tokenData = await tokenRes.json();
+    candidates.push(...((tokenData.data || tokenData) || []));
+  }
+  if (emailVal) {
+    const emailRes = await shwTableFetch('tables/invitations?email=ilike.' + encodeURIComponent(emailVal) + '&limit=25');
+    const emailData = await emailRes.json();
+    candidates.push(...((emailData.data || emailData) || []));
+  }
+
+  const byId = new Map();
+  candidates.forEach((inv) => {
+    if (inv && inv.id) byId.set(inv.id, inv);
+  });
+
+  const active = [...byId.values()].filter((inv) => {
+    if (!inv || inv.status === 'accepted' || inv.status === 'revoked') return false;
+    if (inv.expires_at && new Date(inv.expires_at) < new Date()) return false;
+    return true;
+  });
+
+  active.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  return active[0] || null;
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
   if (!window.SHWAuth?.isAuthReady()) {
@@ -461,16 +502,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    const res = await shwTableFetch('tables/invitations?search=' + encodeURIComponent(token) + '&limit=5');
-    const data = await res.json();
-    const invitation = (data.data || []).find(i => i.token === token || i.id === token);
+    const invitation = await resolveInvitationCandidate({ token });
 
-    if (!invitation || invitation.status === 'revoked' || invitation.status === 'accepted') {
-      showExpired();
-      return;
-    }
-
-    if (invitation.expires_at && new Date(invitation.expires_at) < new Date()) {
+    if (!invitation) {
       showExpired();
       return;
     }
@@ -616,7 +650,15 @@ async function handleActivation(e) {
 
     const { data: authData } = await supabase.auth.getUser();
     const authUser = authData?.user;
+    const authEmail = normalizeActivationEmail(authUser?.email || currentInvitation?.email || '');
+    const matchedInvitation = await resolveInvitationCandidate({
+      token: currentInvitation?.token || '',
+      email: authEmail,
+    });
+    if (matchedInvitation) currentInvitation = { ...currentInvitation, ...matchedInvitation };
+
     const role = currentInvitation.role || authUser?.user_metadata?.role || 'client';
+    const nowIso = new Date().toISOString();
 
     if (authUser?.id) {
       await supabase.from('profiles').upsert({
@@ -628,13 +670,63 @@ async function handleActivation(e) {
         full_name: fullName,
       }, { onConflict: 'id' });
       window.SHWAuth.persistLegacySession(authUser, { role, first_name: firstName, last_name: lastName, full_name: fullName });
+
+      if (role === 'client' && authEmail) {
+        const clientsRes = await shwTableFetch(`tables/clients?email=ilike.${encodeURIComponent(authEmail)}&limit=50`);
+        const clientsJson = await clientsRes.json();
+        const clients = (clientsJson.data || clientsJson || []).filter(Boolean);
+
+        const pendingStatuses = new Set(['pending', 'pending_invite', 'invited']);
+        const ranked = clients
+          .filter(c => normalizeActivationEmail(c.email) === authEmail)
+          .sort((a, b) => {
+            const aHasUser = !!a.user_id;
+            const bHasUser = !!b.user_id;
+            if (aHasUser !== bHasUser) return aHasUser ? -1 : 1;
+            const aPending = pendingStatuses.has(String(a.status || '').toLowerCase());
+            const bPending = pendingStatuses.has(String(b.status || '').toLowerCase());
+            if (aPending !== bPending) return aPending ? -1 : 1;
+            return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+          });
+
+        const primaryClient = ranked[0] || null;
+        if (primaryClient) {
+          const patch = {
+            user_id: authUser.id,
+            invitation_status: 'accepted',
+            status: pendingStatuses.has(String(primaryClient.status || '').toLowerCase()) ? 'active' : (primaryClient.status || 'active'),
+            updated_at: nowIso,
+          };
+          if (!primaryClient.activated_at) patch.activated_at = nowIso;
+
+          await shwTableFetch(`tables/clients/${primaryClient.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(patch),
+          });
+
+          for (const dupe of ranked.slice(1)) {
+            if (dupe.user_id) continue;
+            await shwTableFetch(`tables/clients/${dupe.id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                user_id: authUser.id,
+                status: pendingStatuses.has(String(dupe.status || '').toLowerCase()) ? 'active' : (dupe.status || 'active'),
+                invitation_status: 'accepted',
+                updated_at: nowIso,
+              }),
+            });
+          }
+        }
+      }
     }
 
     if (currentInvitation.id) {
       await shwTableFetch(`tables/invitations/${currentInvitation.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'accepted', accepted_at: new Date().toISOString() }),
+        body: JSON.stringify({ status: 'accepted', accepted_at: nowIso }),
       });
     }
 
