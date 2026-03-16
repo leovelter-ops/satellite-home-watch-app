@@ -603,6 +603,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script src="js/notifications-data.js"></script>
 <script src="js/notif-panel.js"></script>
@@ -658,7 +659,7 @@ function computeStats() {
 // ── API load ──────────────────────────────────────────────────────────────────
 async function loadApiRequests() {
   try {
-    const res = await fetch('tables/service_requests?limit=200&sort=created_at');
+    const res = await shwTableFetch('tables/service_requests?limit=200&sort=created_at');
     if (res.ok) {
       const json = await res.json();
       REQUESTS = (json.data || []).map(r => {

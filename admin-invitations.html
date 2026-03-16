@@ -416,6 +416,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script src="js/notifications-data.js"></script>
 <script src="js/notif-panel.js"></script>
@@ -452,7 +453,7 @@ function updateTopbarRole() {
 // ── Data loading ──────────────────────────────────────────────────────────────
 async function loadInvitations() {
   try {
-    const res  = await fetch('tables/invitations?limit=100&sort=created_at');
+    const res  = await shwTableFetch('tables/invitations?limit=100&sort=created_at');
     const data = await res.json();
     allInvitations = (data.data || []).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
     filteredInvitations = [...allInvitations];
@@ -656,7 +657,7 @@ async function resendInvitation(id, email) {
   try {
     const newExpiry = new Date(Date.now() + 7 * 86400000).toISOString();
     const newToken  = 'tok-' + Math.random().toString(36).slice(2, 12);
-    await fetch(`tables/invitations/${id}`, {
+    await shwTableFetch(`tables/invitations/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'pending', expires_at: newExpiry, token: newToken }),
@@ -697,7 +698,7 @@ async function confirmRevoke() {
   const btn = document.getElementById('revokeConfirmBtn');
   btn.disabled = true; btn.textContent = 'Revoking…';
   try {
-    await fetch(`tables/invitations/${revokeTargetId}`, {
+    await shwTableFetch(`tables/invitations/${revokeTargetId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'revoked' }),
@@ -772,7 +773,7 @@ async function sendInvitation() {
   const expiresAt = new Date(Date.now() + days * 86400000).toISOString();
 
   try {
-    await fetch('tables/invitations', {
+    await shwTableFetch('tables/invitations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

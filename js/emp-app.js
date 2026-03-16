@@ -514,60 +514,40 @@ const FMT = {
   initials: name => name ? name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : '??',
 };
 
-// ─── API HELPERS (mirrors db.js pattern for employee/admin) ─────────────────
+// ─── API HELPERS (delegates all table access through js/db.js service layer) ─
+function empDb() {
+  return (window.SHW && window.SHW.DB) || null;
+}
+
 async function empApiGet(table, params = {}) {
-  const qs = new URLSearchParams(params).toString();
-  const url = `tables/${table}${qs ? '?' + qs : ''}`;
-  try {
-    const res = await fetch(url);
-    if (!res.ok) return { data: null, error: `HTTP ${res.status}` };
-    const json = await res.json();
-    return { data: json, error: null };
-  } catch (e) {
-    return { data: null, error: e.message };
-  }
+  const db = empDb();
+  if (!db) return { data: null, error: 'DB service unavailable' };
+  return db.list(table, params);
 }
 
 async function empApiGetAll(table, params = {}) {
-  const { data, error } = await empApiGet(table, { limit: 500, page: 1, ...params });
-  return { data: data?.data || [], error };
+  const db = empDb();
+  if (!db) return { data: [], error: 'DB service unavailable' };
+  return db.listAll(table, params);
 }
 
 async function empApiPost(table, body) {
-  try {
-    const res = await fetch(`tables/${table}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) return { data: null, error: `HTTP ${res.status}` };
-    return { data: await res.json(), error: null };
-  } catch (e) {
-    return { data: null, error: e.message };
-  }
+  const db = empDb();
+  if (!db) return { data: null, error: 'DB service unavailable' };
+  return db.create(table, body);
 }
 
 async function empApiPatch(table, id, body) {
-  try {
-    const res = await fetch(`tables/${table}/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) return { data: null, error: `HTTP ${res.status}` };
-    return { data: await res.json(), error: null };
-  } catch (e) {
-    return { data: null, error: e.message };
-  }
+  const db = empDb();
+  if (!db) return { data: null, error: 'DB service unavailable' };
+  return db.update(table, id, body);
 }
 
 async function empApiDelete(table, id) {
-  try {
-    const res = await fetch(`tables/${table}/${id}`, { method: 'DELETE' });
-    return { error: res.ok ? null : `HTTP ${res.status}` };
-  } catch (e) {
-    return { error: e.message };
-  }
+  const db = empDb();
+  if (!db) return { error: 'DB service unavailable' };
+  const { error } = await db.remove(table, id);
+  return { error };
 }
 
 // Build a lookup map from array by a key field

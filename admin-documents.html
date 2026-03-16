@@ -501,6 +501,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script>
 // ─── SESSION ─────────────────────────────────────────────────────────────────
@@ -1130,7 +1131,7 @@ function escHtml(str) {
 
 async function empApiPatch(table, id, body) {
   try {
-    const res = await fetch(`tables/${table}/${id}`, {
+    const res = await shwTableFetch(`tables/${table}/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -1142,7 +1143,7 @@ async function empApiPatch(table, id, body) {
 
 async function empApiDelete(table, id) {
   try {
-    await fetch(`tables/${table}/${id}`, { method: 'DELETE' });
+    await shwTableFetch(`tables/${table}/${id}`, { method: 'DELETE' });
     return { error: null };
   } catch (e) { return { error: e.message }; }
 }

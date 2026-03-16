@@ -460,6 +460,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script src="js/notifications-data.js"></script>
 <script src="js/notif-panel.js"></script>
@@ -518,7 +519,7 @@ async function loadCustomers() {
   if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">Loading customers…</td></tr>`;
 
   try {
-    const res  = await fetch('tables/clients?limit=500&page=1');
+    const res  = await shwTableFetch('tables/clients?limit=500&page=1');
     const data = await res.json();
     _allCustomers = data.data || [];
     updateStatCards(_allCustomers);
@@ -749,7 +750,7 @@ async function sendInviteForProspect(custId, custName, custEmail) {
   const expiresAt = new Date(Date.now() + 7 * 86400000).toISOString();
 
   try {
-    await fetch('tables/invitations', {
+    await shwTableFetch('tables/invitations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -768,7 +769,7 @@ async function sendInviteForProspect(custId, custName, custEmail) {
     });
 
     // Update customer invitation status
-    await fetch(`tables/clients/${custId}`, {
+    await shwTableFetch(`tables/clients/${custId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ invitation_status: 'pending', updated_at: now }),
@@ -1268,7 +1269,7 @@ async function saveAddCustomer() {
 
   try {
     // Persist to DB
-    await fetch('tables/crm_prospects', {
+    await shwTableFetch('tables/crm_prospects', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(record),

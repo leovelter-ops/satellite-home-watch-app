@@ -629,6 +629,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script src="js/notifications-data.js"></script>
 <script src="js/notif-panel.js"></script>
@@ -1297,7 +1298,7 @@ async function deleteThread() {
   if (!_activeThread) return;
   if (!confirm('Permanently delete this entire conversation? This cannot be undone.')) return;
   try {
-    await fetch(`tables/message_threads/${_activeThread.id}`, { method: 'DELETE' });
+    await shwTableFetch(`tables/message_threads/${_activeThread.id}`, { method: 'DELETE' });
     _threads = _threads.filter(t => t.id !== _activeThread.id);
     _activeThread = null;
     document.getElementById('msgConvHeader').style.display  = 'none';
@@ -1320,7 +1321,7 @@ async function deleteThread() {
 async function deleteMessage(msgId) {
   if (!confirm('Delete this message?')) return;
   try {
-    await fetch(`tables/messages/${msgId}`, { method: 'DELETE' });
+    await shwTableFetch(`tables/messages/${msgId}`, { method: 'DELETE' });
     _messages = _messages.filter(m => m.id !== msgId);
     const el = document.getElementById(`msgwrap-${msgId}`);
     if (el) el.remove();
@@ -1485,7 +1486,7 @@ function escHtml(str) {
 
 async function empApiPatch(table, id, body) {
   try {
-    const res = await fetch(`tables/${table}/${id}`, {
+    const res = await shwTableFetch(`tables/${table}/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

@@ -218,55 +218,13 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script src="js/notifications-data.js"></script>
 <script src="js/notif-panel.js"></script>
 <script src="js/messages-panel.js"></script>
 <script>
 const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'executive', name: '', initials: '' };
-
-// ─── Built-in seed templates (mirrored from employee-visit-detail.html) ─────
-const SEED_TEMPLATES = [
-  {
-    id: 'tpl-routine',
-    name: 'Routine Inspection',
-    visit_type_key: 'routine_inspection',
-    is_builtin: true,
-    sections: [
-      { title: 'Exterior', items: ['Exterior walkthrough complete — no visible damage','All entry points secured (doors, windows, gates)','Roof and gutters — no visible damage or debris','Driveway and walkways clear','Landscaping reviewed — no overgrowth or storm damage','Exterior lighting functional','Pool/spa area checked (if applicable)','Garage / outbuilding checked'] },
-      { title: 'Interior', items: ['Interior walkthrough complete','No signs of water intrusion or leaks','No pest activity observed','HVAC/AC system functional and set correctly','Plumbing fixtures checked — no leaks','Electrical panel checked — no tripped breakers','Alarm/security system verified and armed','Appliances powered correctly (fridge, etc.)'] },
-    ]
-  },
-  {
-    id: 'tpl-storm-prep',
-    name: 'Storm Prep',
-    visit_type_key: 'storm_prep_check',
-    is_builtin: true,
-    sections: [
-      { title: 'Exterior Storm Prep', items: ['Outdoor furniture secured or stored','Pool equipment secured','Shutters/storm panels installed or ready','Generator tested and fueled (if applicable)','Loose items (pots, decor) removed from exterior','Entry doors and garage doors secured','Drains and gutters cleared'] },
-      { title: 'Interior Storm Prep', items: ['Valuables elevated / moved from flood-risk areas','Utilities status documented (leave on / turn off)','Water supply turned off if property will be vacant','Emergency contact info confirmed with owner','Storm documentation complete'] },
-    ]
-  },
-  {
-    id: 'tpl-post-storm',
-    name: 'Post-Storm Check',
-    visit_type_key: 'post_storm_check',
-    is_builtin: true,
-    sections: [
-      { title: 'Exterior Damage Assessment', items: ['Roof inspected for damage (shingles, tiles, flashing)','Gutters and downspouts inspected','Windows and doors — no breakage or entry','Structural walls — no visible damage','Pool/spa — inspected for debris and damage','Tree/landscaping damage documented','Flooding or standing water checked'] },
-      { title: 'Interior Post-Storm', items: ['No water intrusion detected','Interior ceilings and walls — no water stains','HVAC operational after storm','Power restored and no tripped breakers','Flooding evidence — none detected','Alert created if damage found'] },
-    ]
-  },
-  {
-    id: 'tpl-vendor',
-    name: 'Vendor Supervision',
-    visit_type_key: 'vendor_supervision',
-    is_builtin: true,
-    sections: [
-      { title: 'Vendor Visit', items: ['Vendor company and tech name recorded','Work scope confirmed matches service order','Property access provided to vendor','Work in progress documented','Inspector present throughout service','No damage caused by vendor observed','Work completion confirmed','Property secured after vendor departure'] },
-    ]
-  },
-];
 
 let _templates   = [];
 let _categories  = [];
@@ -282,31 +240,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function loadData() {
-  // Load templates from DB; fall back to seeds if none
+  // Load templates and categories from DB only (empty-state when no rows)
   const { data: dbTemplates } = await empApiGetAll('inspection_templates');
   const { data: dbCategories } = await empApiGetAll('visit_categories');
 
-  if (dbTemplates && dbTemplates.length > 0) {
-    _templates = dbTemplates.map(t => ({
-      ...t,
-      sections: typeof t.sections === 'string' ? JSON.parse(t.sections) : (t.sections || []),
-    }));
-  } else {
-    // Seed built-ins from static list
-    _templates = JSON.parse(JSON.stringify(SEED_TEMPLATES));
-  }
+  _templates = (dbTemplates || []).map(t => ({
+    ...t,
+    sections: typeof t.sections === 'string' ? JSON.parse(t.sections) : (t.sections || []),
+  }));
 
-  if (dbCategories && dbCategories.length > 0) {
-    _categories = dbCategories;
-  } else {
-    // Default categories matching the built-in templates
-    _categories = [
-      { id:'cat-1', key:'routine_inspection',  label:'Routine Inspection',  template_id:'tpl-routine' },
-      { id:'cat-2', key:'storm_prep_check',     label:'Storm Prep',          template_id:'tpl-storm-prep' },
-      { id:'cat-3', key:'post_storm_check',     label:'Post-Storm Check',    template_id:'tpl-post-storm' },
-      { id:'cat-4', key:'vendor_supervision',   label:'Vendor Supervision',  template_id:'tpl-vendor' },
-    ];
-  }
+  _categories = dbCategories || [];
+
 }
 
 function renderTemplates() {
@@ -403,7 +347,7 @@ async function addCategory() {
 
 async function deleteCategory(id) {
   if (!confirm('Delete this category? This will not delete the template.')) return;
-  await fetch(`tables/visit_categories/${id}`, { method: 'DELETE' });
+  await shwTableFetch(`tables/visit_categories/${id}`, { method: 'DELETE' });
   _categories = _categories.filter(c => c.id !== id);
   renderCategories();
   showToast('Category removed.', 'success');
@@ -558,7 +502,7 @@ async function saveTemplateFromModal() {
 async function deleteTemplate(id) {
   if (!confirm('Delete this template? This cannot be undone.')) return;
   try {
-    await fetch(`tables/inspection_templates/${id}`, { method: 'DELETE' });
+    await shwTableFetch(`tables/inspection_templates/${id}`, { method: 'DELETE' });
   } catch(e) {}
   _templates = _templates.filter(t => t.id !== id);
   // Unassign categories that used this template

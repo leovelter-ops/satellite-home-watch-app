@@ -469,6 +469,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script>
 const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
@@ -497,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadRequest(id) {
   try {
-    const res = await fetch('tables/service_requests/' + id);
+    const res = await shwTableFetch('tables/service_requests/' + id);
     if (!res.ok) throw new Error('not found');
     const r = await res.json();
     REQUEST_DATA = r;
@@ -585,7 +586,7 @@ function populateRequest(r) {
 
 async function loadClientInfo(clientId) {
   try {
-    const res=await fetch('tables/clients/'+clientId);
+    const res=await shwTableFetch('tables/clients/'+clientId);
     if(!res.ok) return;
     const c=await res.json();
     const name=c.full_name||c.name||'—';
@@ -605,7 +606,7 @@ async function loadClientInfo(clientId) {
 
 async function loadPropInfo(propId) {
   try {
-    const res=await fetch('tables/properties/'+propId);
+    const res=await shwTableFetch('tables/properties/'+propId);
     if(!res.ok) return;
     const p=await res.json();
     setRD('propInfoName',p.address||p.property_name||'—');
@@ -637,7 +638,7 @@ function setRDStatus(status) {
 
 function approveRequest() {
   setRDStatus('reviewing');
-  if(REQUEST_DATA) fetch('tables/service_requests/'+REQUEST_DATA.id,{
+  if(REQUEST_DATA) shwTableFetch('tables/service_requests/'+REQUEST_DATA.id,{
     method:'PATCH',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({status:'reviewing'})
   }).catch(()=>{});
@@ -647,7 +648,7 @@ function approveRequest() {
 function declineRequest() {
   if(confirm('Are you sure you want to decline this request? The client will be notified.')) {
     setRDStatus('declined');
-    if(REQUEST_DATA) fetch('tables/service_requests/'+REQUEST_DATA.id,{
+    if(REQUEST_DATA) shwTableFetch('tables/service_requests/'+REQUEST_DATA.id,{
       method:'PATCH',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({status:'declined'})
     }).catch(()=>{});
@@ -671,7 +672,7 @@ async function submitNote(e) {
   try {
     const existing = REQUEST_DATA.internal_notes ? REQUEST_DATA.internal_notes + '\n\n' : '';
     const updated = existing + text;
-    const res = await fetch('tables/service_requests/' + REQUEST_DATA.id, {
+    const res = await shwTableFetch('tables/service_requests/' + REQUEST_DATA.id, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ internal_notes: updated }),
