@@ -339,11 +339,40 @@
         <div style="font-size:11px;color:#94a3b8;margin-top:5px;" id="roleHelpText">Select a role to see requirements.</div>
       </div>
 
-      <!-- Customer field (shown only for client role) -->
-      <div class="inv-form-group" id="customerFieldWrap" style="display:none;">
-        <label class="inv-form-label">Related Customer Record <span style="color:#dc2626;">*</span></label>
-        <input type="text" class="inv-form-input" id="newInvCustomer" placeholder="Customer name or ID" />
-        <div style="font-size:11px;color:#94a3b8;margin-top:5px;">Properties must already be linked to this customer record before sending.</div>
+      <div class="inv-form-group" id="propertyFieldWrap" style="display:none;">
+        <label class="inv-form-label">Property <span style="color:#dc2626;">*</span></label>
+        <select class="inv-form-input" id="newInvPropertyMode" onchange="togglePropertyMode()">
+          <option value="existing">Choose existing property</option>
+          <option value="new">Create new property</option>
+        </select>
+      </div>
+
+      <div class="inv-form-group" id="existingPropertyWrap" style="display:none;">
+        <label class="inv-form-label">Select Property <span style="color:#dc2626;">*</span></label>
+        <select class="inv-form-input" id="newInvPropertyId">
+          <option value="">Select property…</option>
+        </select>
+      </div>
+
+      <div id="newPropertyWrap" style="display:none;">
+        <div class="inv-form-group">
+          <label class="inv-form-label">Property Name <span style="color:#dc2626;">*</span></label>
+          <input type="text" class="inv-form-input" id="newPropName" placeholder="e.g., Gulf Shore Residence" />
+        </div>
+        <div class="inv-form-group">
+          <label class="inv-form-label">Assign to Customer <span style="color:#dc2626;">*</span></label>
+          <select class="inv-form-input" id="newPropClientId">
+            <option value="">Select customer…</option>
+          </select>
+        </div>
+        <div class="inv-form-group">
+          <label class="inv-form-label">Address Line 1 <span style="color:#dc2626;">*</span></label>
+          <input type="text" class="inv-form-input" id="newPropAddr1" placeholder="Street address" />
+        </div>
+        <div class="inv-form-group">
+          <label class="inv-form-label">City <span style="color:#dc2626;">*</span></label>
+          <input type="text" class="inv-form-input" id="newPropCity" placeholder="City" />
+        </div>
       </div>
 
       <div class="inv-form-group">
@@ -432,12 +461,16 @@ let currentPage     = 1;
 const PAGE_SIZE     = 10;
 let revokeTargetId  = null;
 let revokeTargetEmail = null;
+let allProperties = [];
+let allClients = [];
+let allUsers = [];
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   updateTopbarRole();
   renderAdminSidebar('admin-invitations');
   loadInvitations();
+  loadInvitationFormData();
 });
 
 function updateTopbarRole() {
@@ -455,7 +488,7 @@ async function loadInvitations() {
   try {
     const res  = await shwTableFetch('tables/invitations?limit=100&sort=created_at');
     const data = await res.json();
-    allInvitations = (data.data || []).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+    allInvitations = (Array.isArray(data) ? data : (data.data || [])).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
     filteredInvitations = [...allInvitations];
     renderStats();
     filterInvitations();
@@ -485,7 +518,8 @@ function filterInvitations() {
     const matchSearch = !search ||
       (inv.email || '').toLowerCase().includes(search) ||
       (inv.invited_name || '').toLowerCase().includes(search) ||
-      (inv.related_customer_name || '').toLowerCase().includes(search);
+      (inv.related_customer_name || '').toLowerCase().includes(search) ||
+      (inv.property_name || '').toLowerCase().includes(search);
     const matchStatus = !status || inv.status === status;
     const matchRole   = !role   || inv.role === role;
     return matchSearch && matchStatus && matchRole;
@@ -570,8 +604,8 @@ function renderTable() {
         </td>
         <td>${rolePill}</td>
         <td>
-          ${inv.related_customer_name
-            ? `<span style="font-size:13px;color:#0f1e38;font-weight:500;">${escHtml(inv.related_customer_name)}</span>`
+          ${inv.property_name
+            ? `<span style="font-size:13px;color:#0f1e38;font-weight:500;">${escHtml(inv.property_name)}</span>`
             : '<span style="color:#94a3b8;font-size:12px;">—</span>'}
         </td>
         <td>${statusChip}</td>
@@ -596,7 +630,7 @@ function renderTable() {
         </div>
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;">
           ${rolePill}
-          ${inv.related_customer_name ? `<span style="font-size:12px;color:#475569;font-weight:500;">${escHtml(inv.related_customer_name)}</span>` : ''}
+          ${inv.property_name ? `<span style="font-size:12px;color:#475569;font-weight:500;">${escHtml(inv.property_name)}</span>` : ''}
         </div>
         <div style="display:flex;flex-direction:column;gap:5px;margin-top:10px;">
           <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b;">
@@ -621,7 +655,7 @@ function renderTable() {
           <tr>
             <th>Invited Email / Name</th>
             <th>Role</th>
-            <th>Related Customer</th>
+            <th>Property</th>
             <th>Status</th>
             <th>Sent Date</th>
             <th>Expiration</th>
@@ -712,6 +746,42 @@ async function confirmRevoke() {
   btn.disabled = false; btn.textContent = 'Revoke Invitation';
 }
 
+
+async function loadInvitationFormData() {
+  const [propsRes, clientsRes, usersRes] = await Promise.all([
+    empApiGetAll('properties'),
+    empApiGetAll('clients'),
+    empApiGetAll('users'),
+  ]);
+
+  allProperties = propsRes.data || [];
+  allClients = clientsRes.data || [];
+  allUsers = usersRes.data || [];
+
+  const userMap = buildMap(allUsers);
+  const propSel = document.getElementById('newInvPropertyId');
+  const clientSel = document.getElementById('newPropClientId');
+  if (!propSel || !clientSel) return;
+
+  propSel.innerHTML = '<option value="">Select property…</option>';
+  allProperties.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = [p.property_name || 'Unnamed property', p.city || ''].filter(Boolean).join(' · ');
+    opt.dataset.clientId = p.client_id || '';
+    propSel.appendChild(opt);
+  });
+
+  clientSel.innerHTML = '<option value="">Select customer…</option>';
+  allClients.forEach(c => {
+    const u = userMap[c.user_id] || {};
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = u.full_name || c.company_name || c.id;
+    clientSel.appendChild(opt);
+  });
+}
+
 // ── Send Invitation Modal ─────────────────────────────────────────────────────
 function openSendModal() {
   document.getElementById('newInvName').value    = '';
@@ -719,7 +789,15 @@ function openSendModal() {
   document.getElementById('newInvRole').value    = '';
   document.getElementById('newInvNote').value    = '';
   document.getElementById('newInvExpiry').value  = '7';
-  document.getElementById('customerFieldWrap').style.display = 'none';
+  document.getElementById('newInvPropertyMode').value = 'existing';
+  document.getElementById('newInvPropertyId').value = '';
+  document.getElementById('newPropName').value = '';
+  document.getElementById('newPropClientId').value = '';
+  document.getElementById('newPropAddr1').value = '';
+  document.getElementById('newPropCity').value = '';
+  document.getElementById('propertyFieldWrap').style.display = 'none';
+  document.getElementById('existingPropertyWrap').style.display = 'none';
+  document.getElementById('newPropertyWrap').style.display = 'none';
   document.getElementById('linkPreviewWrap').style.display   = 'none';
   document.getElementById('roleHelpText').textContent = 'Select a role to see requirements.';
   document.getElementById('sendModal').classList.add('open');
@@ -729,14 +807,22 @@ function closeSendModal() {
 }
 function toggleCustomerField() {
   const role = document.getElementById('newInvRole').value;
-  const wrap = document.getElementById('customerFieldWrap');
+  const propWrap = document.getElementById('propertyFieldWrap');
   const help = document.getElementById('roleHelpText');
-  wrap.style.display = role === 'client' ? 'block' : 'none';
+  const needsProperty = role === 'client';
+  propWrap.style.display = needsProperty ? 'block' : 'none';
+  if (!needsProperty) {
+    document.getElementById('existingPropertyWrap').style.display = 'none';
+    document.getElementById('newPropertyWrap').style.display = 'none';
+  } else {
+    togglePropertyMode();
+  }
+
   const messages = {
     executive: 'Executive: Full platform access. Admin portal only.',
     manager:   'Manager: Admin portal access. Operations and CRM management.',
     inspector: 'Inspector: Limited access to assigned visits and field workflow.',
-    client:    'Client: Access to client portal only. Must have properties pre-linked.',
+    client:    'Client: Access to client portal only. Invitation must be linked to a property.',
     '':        'Select a role to see requirements.',
   };
   help.textContent = messages[role] || '';
@@ -750,18 +836,21 @@ function toggleCustomerField() {
   }
 }
 
+function togglePropertyMode() {
+  const mode = document.getElementById('newInvPropertyMode').value;
+  document.getElementById('existingPropertyWrap').style.display = mode === 'existing' ? 'block' : 'none';
+  document.getElementById('newPropertyWrap').style.display = mode === 'new' ? 'block' : 'none';
+}
+
 async function sendInvitation() {
   const name     = document.getElementById('newInvName').value.trim();
   const email    = document.getElementById('newInvEmail').value.trim();
   const role     = document.getElementById('newInvRole').value;
-  const customer = document.getElementById('newInvCustomer').value.trim();
   const days     = parseInt(document.getElementById('newInvExpiry').value);
+  const propMode = document.getElementById('newInvPropertyMode').value;
 
   if (!email || !role) {
     showToast('Please enter email and select a role.', 'error'); return;
-  }
-  if (role === 'client' && !customer) {
-    showToast('Please enter a related customer name for client invitations.', 'error'); return;
   }
 
   const btn = document.getElementById('sendBtn');
@@ -773,24 +862,81 @@ async function sendInvitation() {
   const expiresAt = new Date(Date.now() + days * 86400000).toISOString();
 
   try {
+    let propertyId = null;
+    let propertyName = null;
+    let relatedCustomerName = null;
+
+    if (role === 'client') {
+      if (propMode === 'existing') {
+        const selectedPropertyId = document.getElementById('newInvPropertyId').value;
+        if (!selectedPropertyId) {
+          showToast('Please select a property for this client invitation.', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Invitation';
+          return;
+        }
+        const selectedProperty = allProperties.find(p => p.id === selectedPropertyId);
+        propertyId = selectedPropertyId;
+        propertyName = selectedProperty?.property_name || null;
+
+        const client = allClients.find(c => c.id === selectedProperty?.client_id);
+        const user = allUsers.find(u => u.id === client?.user_id);
+        relatedCustomerName = user?.full_name || client?.company_name || null;
+      } else {
+        const propName = document.getElementById('newPropName').value.trim();
+        const propClientId = document.getElementById('newPropClientId').value;
+        const propAddr1 = document.getElementById('newPropAddr1').value.trim();
+        const propCity = document.getElementById('newPropCity').value.trim();
+        if (!propName || !propClientId || !propAddr1 || !propCity) {
+          showToast('Complete all required new property fields before sending.', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Invitation';
+          return;
+        }
+
+        const createPropRes = await empApiPost('properties', {
+          property_name: propName,
+          client_id: propClientId,
+          address_line1: propAddr1,
+          city: propCity,
+          created_at: now,
+          updated_at: now,
+        });
+        if (createPropRes.error || !createPropRes.data?.id) {
+          throw new Error(createPropRes.error || 'Could not create property');
+        }
+
+        propertyId = createPropRes.data.id;
+        propertyName = createPropRes.data.property_name || propName;
+        const client = allClients.find(c => c.id === propClientId);
+        const user = allUsers.find(u => u.id === client?.user_id);
+        relatedCustomerName = user?.full_name || client?.company_name || null;
+
+        await loadInvitationFormData();
+      }
+    }
+
     await shwTableFetch('tables/invitations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        id: 'inv-' + Math.random().toString(36).slice(2, 10),
         email, role,
         invited_name: name || null,
-        related_customer_name: role === 'client' ? customer : null,
+        related_customer_name: relatedCustomerName,
+        property_id: propertyId,
+        property_name: propertyName,
         token, status: 'pending',
         created_at: now, expires_at: expiresAt,
         accepted_at: null,
         created_by_user_id: ADMIN_SESSION.userId,
         created_by_name: ADMIN_SESSION.name,
+        internal_note: document.getElementById('newInvNote').value.trim() || null,
       }),
     });
     showToast(`Invitation sent to ${email}!`, 'success');
     closeSendModal();
     loadInvitations();
+    loadInvitationFormData();
   } catch {
     showToast('Failed to send invitation. Please try again.', 'error');
   }
