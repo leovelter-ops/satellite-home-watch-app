@@ -42,22 +42,17 @@ function renderPropertiesSummaryBar(properties) {
   const items = bar.querySelectorAll('.properties-summary-item');
   if (items.length >= 3) {
     // Active Properties
-    const v0 = items[0].querySelector('.properties-summary-value');
+    const v0 = items[0].querySelector('.properties-summary-value, .properties-summary-count');
     if (v0) v0.textContent = activeCount;
-    const s0 = items[0].querySelector('.properties-summary-sub');
-    if (s0) s0.textContent = `${activeCount} active service plan${activeCount !== 1 ? 's' : ''}`;
 
-    // Active Alerts
-    const v1 = items[1].querySelector('.properties-summary-value');
-    if (v1) v1.textContent = alertTotal;
-    const s1 = items[1].querySelector('.properties-summary-sub');
-    if (s1) s1.textContent = alertTotal === 0 ? 'No active alerts' : `Across ${properties.length} properties`;
+    // Upcoming Visits
+    const upcomingCount = properties.filter(p => p.nextVisit).length;
+    const v1 = items[1].querySelector('.properties-summary-value, .properties-summary-count');
+    if (v1) v1.textContent = upcomingCount;
 
-    // Next Visit
-    const v2 = items[2].querySelector('.properties-summary-value');
-    if (v2) v2.textContent = nextVisit ? SHW.fmt.date(nextVisit.nextVisit.scheduled_start) : 'TBD';
-    const s2 = items[2].querySelector('.properties-summary-sub');
-    if (s2) s2.textContent = nextVisit ? nextVisit.property_name : 'No visits scheduled';
+    // Open Alerts
+    const v2 = items[2].querySelector('.properties-summary-value, .properties-summary-count');
+    if (v2) v2.textContent = alertTotal;
   }
 }
 

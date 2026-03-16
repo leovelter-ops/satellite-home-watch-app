@@ -30,25 +30,34 @@ async function initReportsPage() {
 // ─── SUMMARY BAR ──────────────────────────────────────────────────────────────
 
 function renderReportsSummaryBar(reports) {
-  const allClear  = reports.filter(r => r.overall_result === 'all_clear').length;
-  const withIssues = reports.filter(r => ['issues_found', 'urgent_action_required'].includes(r.overall_result)).length;
-  const totalPhotos = reports.reduce((sum, r) => sum + (r.photo_count || 0), 0);
+  const total = reports.length;
+  const isNew = reports.filter(r => {
+    const d = new Date(r.created_at || r.visit_date || r.published_at || 0);
+    if (Number.isNaN(d.getTime())) return false;
+    const ageDays = (Date.now() - d.getTime()) / 86400000;
+    return ageDays <= 14;
+  }).length;
+  const propCount = new Set(reports.map(r => r.property_id).filter(Boolean)).size;
 
-  const statEls = document.querySelectorAll('.reports-stat-item, .report-summary-item');
-  statEls.forEach(el => {
-    const label = el.querySelector('.stat-label, .summary-label')?.textContent?.toLowerCase() || '';
-    const valEl = el.querySelector('.stat-value, .summary-value');
-    if (!valEl) return;
-    if (label.includes('total') || label.includes('report')) valEl.textContent = reports.length;
-    else if (label.includes('clear') || label.includes('pass'))  valEl.textContent = allClear;
-    else if (label.includes('issue') || label.includes('action')) valEl.textContent = withIssues;
-    else if (label.includes('photo')) valEl.textContent = totalPhotos;
-  });
+  const statEls = document.querySelectorAll('.reports-summary-stat');
+  if (statEls[0]) statEls[0].querySelector('.reports-summary-stat-value').textContent = String(total);
+  if (statEls[1]) statEls[1].querySelector('.reports-summary-stat-value').textContent = String(isNew);
+  if (statEls[2]) statEls[2].querySelector('.reports-summary-stat-value').textContent = String(propCount);
 
-  const subtitle = document.querySelector('.reports-page-subtitle');
-  if (subtitle) {
-    subtitle.textContent = `${reports.length} report${reports.length !== 1 ? 's' : ''} from the last 90 days`;
+  const updatedEl = document.querySelector('.reports-summary-updated');
+  if (updatedEl) {
+    const last = reports[0]?.created_at || reports[0]?.visit_date || reports[0]?.published_at;
+    const txt = last ? `Last Updated ${SHW.fmt.date(last)}` : 'Last Updated —';
+    updatedEl.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      ${txt}`;
   }
+
+  const visible = document.getElementById('visibleCount');
+  if (visible) visible.textContent = String(total);
 }
 
 // ─── REPORTS LIST ─────────────────────────────────────────────────────────────
@@ -67,15 +76,19 @@ function renderReportsList(reports) {
     return;
   }
 
+  const empty = document.getElementById('reportsEmpty');
+  const visible = document.getElementById('visibleCount');
+
   if (reports.length === 0) {
-    container.innerHTML = `
-      <div style="padding:48px;text-align:center;color:var(--navy-400);">
-        <p style="font-size:15px;font-weight:600;color:var(--navy-600);">No inspection reports in the last 90 days</p>
-      </div>`;
+    container.innerHTML = '';
+    if (empty) empty.style.display = 'flex';
+    if (visible) visible.textContent = '0';
     return;
   }
 
+  if (empty) empty.style.display = 'none';
   container.innerHTML = reports.map(r => buildReportCard(r)).join('');
+  if (visible) visible.textContent = String(reports.length);
 }
 
 function buildReportCard(r) {
