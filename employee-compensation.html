@@ -238,20 +238,26 @@ async function loadCompensationData() {
   const allEmps   = empsRes.data  || [];
   const myEmp     = allEmps.find(e => e.user_id === EMP_SESSION.userId) || {};
 
-  // Pay structure — read from real employee record
-  const hourlyRate         = myEmp.hourly_rate            || 22.00;
-  const visitBonus         = myEmp.visit_bonus            || 5.00;
-  const payFrequency       = myEmp.pay_frequency          || 'Bi-weekly';
-  const otMultiplier       = myEmp.overtime_multiplier    || 1.5;
-  const otRate             = hourlyRate * otMultiplier;
-  const weeklyPayWeekday   = myEmp.weekly_pay_weekday     !== undefined ? myEmp.weekly_pay_weekday : 5;
-  const monthlyPayDay      = myEmp.monthly_pay_day        || 1;
+  // Pay structure — read from real employee record only (no demo defaults)
+  const toNumberOrNull = v => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  };
+  const hourlyRate       = toNumberOrNull(myEmp.hourly_rate);
+  const visitBonusRaw    = toNumberOrNull(myEmp.visit_bonus);
+  const visitBonus       = visitBonusRaw === null ? 0 : visitBonusRaw;
+  const payFrequencyRaw  = typeof myEmp.pay_frequency === 'string' ? myEmp.pay_frequency.trim() : '';
+  const payFrequency     = payFrequencyRaw || null;
+  const otMultiplier     = toNumberOrNull(myEmp.overtime_multiplier);
+  const otRate           = hourlyRate !== null && otMultiplier !== null ? hourlyRate * otMultiplier : null;
+  const weeklyPayWeekday = toNumberOrNull(myEmp.weekly_pay_weekday);
+  const monthlyPayDay    = toNumberOrNull(myEmp.monthly_pay_day);
   const biweeklyPayDays    = (() => {
     if (Array.isArray(myEmp.biweekly_pay_days)) return myEmp.biweekly_pay_days;
     if (typeof myEmp.biweekly_pay_days === 'string') {
-      try { return JSON.parse(myEmp.biweekly_pay_days); } catch(e) { return [1, 15]; }
+      try { return JSON.parse(myEmp.biweekly_pay_days); } catch(e) { return []; }
     }
-    return [1, 15];
+    return [];
   })();
 
   // Visits filter
@@ -264,29 +270,31 @@ async function loadCompensationData() {
   const mtdVisits  = myVisits.filter(v => v.status === 'completed' && new Date(v.actual_end || v.updated_at) >= monthStart);
   const ytdVisits  = myVisits.filter(v => v.status === 'completed' && new Date(v.actual_end || v.updated_at) >= yearStart);
 
-  const mtdHours = mtdVisits.reduce((sum, v) => sum + ((v.duration_minutes || 90) / 60), 0);
-  const ytdHours = ytdVisits.reduce((sum, v) => sum + ((v.duration_minutes || 90) / 60), 0);
+  const mtdHours = mtdVisits.reduce((sum, v) => sum + ((toNumberOrNull(v.duration_minutes) || 0) / 60), 0);
+  const ytdHours = ytdVisits.reduce((sum, v) => sum + ((toNumberOrNull(v.duration_minutes) || 0) / 60), 0);
   const mtdBonus = mtdVisits.length * visitBonus;
-  const ytdPay   = (ytdHours * hourlyRate) + (ytdVisits.length * visitBonus);
+  const ytdPay   = (ytdHours * (hourlyRate || 0)) + (ytdVisits.length * visitBonus);
 
   // Stat cards
   document.getElementById('statYTDPay').textContent      = `$${ytdPay.toFixed(2)}`;
-  document.getElementById('statPayPeriod').textContent   = payFrequency;
-  document.getElementById('statHourlyRate').textContent  = `$${hourlyRate.toFixed(2)}/hr`;
+  document.getElementById('statPayPeriod').textContent   = payFrequency || 'Not configured';
+  document.getElementById('statHourlyRate').textContent  = hourlyRate === null ? 'Not configured' : `$${hourlyRate.toFixed(2)}/hr`;
   document.getElementById('statVisitBonus').textContent  = `$${mtdBonus.toFixed(2)}`;
   // Show rate near visit bonus card
   const rateEl = document.getElementById('statVisitBonusRate');
-  if (rateEl) rateEl.textContent = `$${visitBonus.toFixed(2)}/visit · ${mtdVisits.length} visits`;
+  if (rateEl) rateEl.textContent = visitBonusRaw === null
+    ? 'Not configured'
+    : `$${visitBonus.toFixed(2)}/visit · ${mtdVisits.length} visits`;
 
   // Pay structure grid
   const grid = document.getElementById('payStructureGrid');
   const items = [
-    { label: 'Base Hourly Rate',     value: `$${hourlyRate.toFixed(2)}/hr` },
-    { label: 'Pay Frequency',        value: payFrequency },
-    { label: 'Per-Visit Bonus',      value: `$${visitBonus.toFixed(2)}/visit` },
-    { label: 'Overtime Rate',        value: `$${otRate.toFixed(2)}/hr (${otMultiplier}×)` },
-    { label: 'MTD Completed Visits', value: mtdVisits.length, sub: `$${visitBonus.toFixed(2)}/visit bonus · $${hourlyRate.toFixed(2)}/hr` },
-    { label: 'MTD Hours Worked',     value: `${mtdHours.toFixed(1)} hrs`, sub: `Base: $${hourlyRate.toFixed(2)}/hr` },
+    { label: 'Base Hourly Rate',     value: hourlyRate === null ? 'Not configured' : `$${hourlyRate.toFixed(2)}/hr` },
+    { label: 'Pay Frequency',        value: payFrequency || 'Not configured' },
+    { label: 'Per-Visit Bonus',      value: visitBonusRaw === null ? 'Not configured' : `$${visitBonus.toFixed(2)}/visit` },
+    { label: 'Overtime Rate',        value: otRate === null ? 'Not configured' : `$${otRate.toFixed(2)}/hr (${otMultiplier}×)` },
+    { label: 'MTD Completed Visits', value: mtdVisits.length, sub: visitBonusRaw === null && hourlyRate === null ? 'Compensation settings not configured' : `$${visitBonus.toFixed(2)}/visit bonus · ${hourlyRate === null ? '—' : `$${hourlyRate.toFixed(2)}/hr`}` },
+    { label: 'MTD Hours Worked',     value: `${mtdHours.toFixed(1)} hrs`, sub: `Base: ${hourlyRate === null ? 'Not configured' : `$${hourlyRate.toFixed(2)}/hr`}` },
   ];
   grid.innerHTML = items.map(i => `
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;">
@@ -296,22 +304,31 @@ async function loadCompensationData() {
     </div>`).join('');
 
   // ── Dynamic pay calculation explanation (Fix #2) ──────────────────────────
-  const visitBonusNote = visitBonus > 0
+  const visitBonusNote = visitBonusRaw !== null && visitBonus > 0
     ? ` Each completed visit earns a <strong>$${visitBonus.toFixed(2)} per-visit bonus</strong>.`
     : '';
-  const otNote = `Hours beyond 40 per week are paid at the <strong>overtime rate of $${otRate.toFixed(2)}/hr (${otMultiplier}×)</strong>.`;
+  const otNote = otRate === null
+    ? 'Overtime rate is not configured yet.'
+    : `Hours beyond 40 per week are paid at the <strong>overtime rate of $${otRate.toFixed(2)}/hr (${otMultiplier}×)</strong>.`;
   document.getElementById('payCalcExplanation').innerHTML =
-    `<strong>How your pay is calculated:</strong> Your base hourly rate of <strong>$${hourlyRate.toFixed(2)}/hr</strong> applies to all regular hours logged on visits.${visitBonusNote} ${otNote} Any special pay adjustments appear in your pay history below.`;
+    `<strong>How your pay is calculated:</strong> ${hourlyRate === null
+      ? 'Base hourly rate is not configured yet.'
+      : `Your base hourly rate of <strong>$${hourlyRate.toFixed(2)}/hr</strong> applies to all regular hours logged on visits.`}${visitBonusNote ? visitBonusNote : ''} ${otNote} Any special pay adjustments appear in your pay history below.`;
 
   // Next payday
   const nextPay = getNextPayday(payFrequency, weeklyPayWeekday, biweeklyPayDays, monthlyPayDay);
-  const daysUntil = Math.ceil((nextPay - now) / 86400000);
-  document.getElementById('nextPaydayDate').textContent = nextPay.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  document.getElementById('nextPaydayIn').textContent   = daysUntil === 0 ? 'Today!' : `In ${daysUntil} day${daysUntil !== 1 ? 's' : ''}`;
+  if (!nextPay) {
+    document.getElementById('nextPaydayDate').textContent = '—';
+    document.getElementById('nextPaydayIn').textContent   = 'Not configured';
+  } else {
+    const daysUntil = Math.ceil((nextPay - now) / 86400000);
+    document.getElementById('nextPaydayDate').textContent = nextPay.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    document.getElementById('nextPaydayIn').textContent   = daysUntil === 0 ? 'Today!' : `In ${daysUntil} day${daysUntil !== 1 ? 's' : ''}`;
+  }
 
   // Estimated next payment
   const periodHours = mtdHours;
-  const estPay = (periodHours * hourlyRate) + mtdBonus;
+  const estPay = (periodHours * (hourlyRate || 0)) + mtdBonus;
   document.getElementById('estNextPayment').textContent = `$${estPay.toFixed(2)}`;
 
   // Benefits & deductions — read from employee record (configured by executive)
@@ -363,20 +380,14 @@ async function loadCompensationData() {
 
   document.getElementById('benefitsDeductions').innerHTML = bdHtml;
 
-  // Bonus program (dynamic rates)
-  document.getElementById('bonusProgram').innerHTML = `
+  // Bonus program (real configured data only)
+  document.getElementById('bonusProgram').innerHTML = visitBonusRaw === null
+    ? '<div style="color:#64748b;">Not configured</div>'
+    : `
     <div style="display:flex;flex-direction:column;gap:10px;">
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 12px;">
         <div style="font-weight:700;color:#166534;">Per-Visit Completion</div>
         <div style="color:#166534;margin-top:2px;">$${visitBonus.toFixed(2)} per completed inspection visit</div>
-      </div>
-      <div style="background:#f0f5ff;border:1px solid #c7d8f5;border-radius:8px;padding:10px 12px;">
-        <div style="font-weight:700;color:#162d56;">Monthly Excellence Bonus</div>
-        <div style="color:#162d56;margin-top:2px;">$50 for completing 40+ visits in a calendar month</div>
-      </div>
-      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;">
-        <div style="font-weight:700;color:#b45309;">Referral Bonus</div>
-        <div style="color:#b45309;margin-top:2px;">$100 for each new client referral that signs a contract</div>
       </div>
     </div>`;
 
@@ -389,21 +400,22 @@ function _escHtmlComp(str) {
 }
 
 function getNextPayday(freq, weeklyWeekday, biweeklyDays, monthlyDay) {
+  if (!freq) return null;
   const now  = new Date();
   const next = new Date(now);
 
   if (freq === 'Weekly') {
+    if (!Number.isFinite(weeklyWeekday)) return null;
     // Find next occurrence of the configured weekday
-    const targetDay  = typeof weeklyWeekday === 'number' ? weeklyWeekday : 5; // default Friday
+    const targetDay  = weeklyWeekday;
     const dayOfWeek  = now.getDay();
     const daysAhead  = ((targetDay - dayOfWeek) + 7) % 7 || 7;
     next.setDate(now.getDate() + daysAhead);
 
   } else if (freq === 'Bi-weekly') {
+    if (!Array.isArray(biweeklyDays) || biweeklyDays.length === 0) return null;
     // Use configured dates — find the soonest future date this month, else first of next month
-    const days = Array.isArray(biweeklyDays) && biweeklyDays.length > 0
-      ? [...biweeklyDays].sort((a, b) => a - b)
-      : [1, 15];
+    const days = [...biweeklyDays].sort((a, b) => a - b);
     const today = now.getDate();
     // Find next day >= today in same month
     const upcomingThisMonth = days.find(d => d > today);
@@ -416,13 +428,16 @@ function getNextPayday(freq, weeklyWeekday, biweeklyDays, monthlyDay) {
     }
 
   } else if (freq === 'Monthly') {
-    const day = typeof monthlyDay === 'number' ? monthlyDay : 1;
+    if (!Number.isFinite(monthlyDay)) return null;
+    const day = monthlyDay;
     if (now.getDate() < day) {
       next.setDate(day);
     } else {
       next.setMonth(now.getMonth() + 1);
       next.setDate(day);
     }
+  } else {
+    return null;
   }
 
   return next;
