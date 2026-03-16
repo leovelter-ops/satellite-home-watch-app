@@ -34,7 +34,10 @@ const SHW_SESSION = window.SHW_SESSION_DATA || {
 };
 
 // ─── API BASE ─────────────────────────────────────────────────────────────────
-const API_BASE = 'tables';
+const SUPABASE_URL = 'https://kwkdhlrtfghuokqwtoqt.supabase.co';
+const SUPABASE_KEY = 'sb_publishable__3RmKaLuVGp7jn9FjcjRiw_Y-1oQv63';
+
+const API_BASE = `${SUPABASE_URL}/rest/v1`;
 
 // ─── PERMISSION RULES ─────────────────────────────────────────────────────────
 const PERMISSIONS = {
@@ -54,7 +57,12 @@ async function apiRequest(method, path, body = null) {
   try {
     const opts = {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        Prefer: 'return=representation',
+      },
     };
     if (body) opts.body = JSON.stringify(body);
     const res = await fetch(`${API_BASE}/${path}`, opts);
@@ -1255,5 +1263,4 @@ window.SHW = {
   Admin:           AdminService,
   Inspector:       InspectorService,
 };
-
 
