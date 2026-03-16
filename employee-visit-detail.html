@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visit Detail — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/employee.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <a href="employee-visits.html" onclick="event.preventDefault(); (typeof SHWNav !== 'undefined' ? SHWNav.back('employee-visits.html') : (history.length > 1 && document.referrer ? history.back() : window.location.href='employee-visits.html'))" style="font-size:12px;color:#64748b;text-decoration:none;">← Back to Visits</a>
+          <span class="topbar-title-text" id="pageTitle">Visit Detail</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <!-- Messages notification icon -->
+        <button
+          class="topbar-icon-btn emp-msg-notif-btn"
+          id="empMsgNotifBtn"
+          aria-label="Message notifications"
+          title="Messages"
+          type="button"
+          onclick="openEmpMsgNotif(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span class="topbar-notif-badge" id="empMsgBadge" style="display:none;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="employee"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="role-chip inspector">Inspector</span>
+        <div class="topbar-avatar" id="topbarAvatar"></div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;" id="pageMain">
+      <!-- Loading state -->
+      <div id="loadingState" style="text-align:center;padding:60px;">
+        <div style="font-size:15px;color:#94a3b8;">Loading visit details...</div>
+      </div>
+
+      <!-- Visit not found -->
+      <div id="notFoundState" style="display:none;">
+        <div class="emp-empty-state">
+          <div class="emp-empty-title">Visit not found</div>
+          <div class="emp-empty-text">This visit could not be loaded. <a href="employee-visits.html">Back to visits</a></div>
+        </div>
+      </div>
+
+      <!-- Main content (shown after load) -->
+      <div id="visitContent" style="display:none;">
+
+        <!-- Property Hero -->
+        <div class="vd-property-hero" id="propertyHero" style="margin-bottom:20px;border-radius:14px;">
+          <div class="vd-property-name" id="heroPropertyName">—</div>
+          <div class="vd-property-address" id="heroAddress">—</div>
+          <div class="vd-hero-meta" id="heroMeta"></div>
+        </div>
+
+        <!-- Status Action Bar -->
+        <div class="vd-status-bar" id="statusBar">
+          <div class="vd-status-info">
+            <div class="vd-status-label">Visit Status:</div>
+            <span class="emp-status-pill" id="statusPill">—</span>
+          </div>
+          <div class="vd-status-actions" id="statusActions"></div>
+        </div>
+
+        <!-- Completed Banner (shown when done) -->
+        <div id="completedBanner" style="display:none;" class="vd-completion-banner">
+          <div>
+            <h3>✓ Visit Completed</h3>
+            <p id="completedTime">Completed on —</p>
+          </div>
+          <a href="employee-reports.html" class="emp-btn-secondary" style="background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.3);">View Report →</a>
+        </div>
+
+        <!-- Report Status Panel (shown after visit completed) -->
+        <div id="reportStatusPanel" style="display:none;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 20px;margin-bottom:20px;">
+          <div style="font-size:14px;font-weight:700;color:#0f1e38;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Report Generation Flow
+          </div>
+          <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-bottom:16px;" id="reportFlowSteps">
+            <!-- Populated by JS -->
+          </div>
+          <div id="reportActions" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="vd-grid" id="mainGrid">
+
+          <!-- LEFT COLUMN -->
+          <div id="leftColumn">
+
+            <!-- Inspector Notes -->
+            <div class="vd-card">
+              <div class="vd-card-header">
+                <div class="vd-card-title">Inspector Notes</div>
+                <button class="emp-btn-secondary" id="saveNotesBtn" onclick="saveNotes()" style="font-size:12px;padding:6px 14px;">Save Notes</button>
+              </div>
+              <div class="vd-card-body">
+                <textarea class="vd-notes-area" id="notesArea" placeholder="Enter your inspection notes here. Document observations, findings, and any issues discovered during the visit..."></textarea>
+                <div style="font-size:11px;color:#94a3b8;margin-top:6px;text-align:right;" id="notesSavedLabel"></div>
+              </div>
+            </div>
+
+            <!-- Visit Type + Checklist Template Selector (visible before start) -->
+            <div class="vd-card" style="margin-top:20px;" id="checklistTemplateCard">
+              <div class="vd-card-header">
+                <div>
+                  <div class="vd-card-title">Inspection Checklist</div>
+                  <div style="font-size:11px;color:#94a3b8;margin-top:2px;" id="checklistTemplateLabel">Template auto-selected by visit type</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span id="checklistProgress" style="font-size:12px;color:#64748b;">0 / 0 items</span>
+                  <span id="checklistLockBadge" style="display:none;font-size:10px;font-weight:700;background:#fef3c7;color:#b45309;border-radius:20px;padding:2px 9px;border:1px solid #fde68a;">🔒 Locked</span>
+                </div>
+              </div>
+              <div class="vd-card-body">
+                <!-- Lock overlay (shown when visit not yet started) -->
+                <div id="checklistLockOverlay" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px;text-align:center;display:none;">
+                  <div style="width:44px;height:44px;border-radius:50%;background:#fff7ed;border:2px solid #fed7aa;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                  </div>
+                  <div style="font-size:14px;font-weight:700;color:#0f1e38;margin-bottom:6px;">Checklist Locked</div>
+                  <div style="font-size:12px;color:#64748b;line-height:1.5;">The inspection checklist is only available after you press <strong>Start Inspection</strong>. This ensures all inspection data is tied to a formally started visit.</div>
+                  <div style="margin-top:14px;font-size:11px;color:#94a3b8;">Template: <strong id="lockedTemplateName">—</strong></div>
+                </div>
+                <!-- Actual checklist (shown when in_progress or completed) -->
+                <div id="checklistContent" style="display:none;">
+                  <!-- Template selector (only shown before first item is checked) -->
+                  <div id="templateSwitcher" style="display:none;margin-bottom:14px;padding:10px 14px;background:#f0f5ff;border:1px solid #c7d8f5;border-radius:10px;">
+                    <div style="font-size:11px;font-weight:700;color:#162d56;margin-bottom:8px;">📋 Switch Checklist Template</div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;" id="templateBtns">
+                      <!-- Populated by JS -->
+                    </div>
+                  </div>
+                  <ul class="vd-checklist" id="checklistItems"></ul>
+                  <!-- Per-item note area -->
+                  <div style="margin-top:12px;">
+                    <button onclick="toggleTemplateSwitcher()" style="font-size:11px;color:#162d56;background:none;border:1px solid #e2e8f0;border-radius:6px;padding:4px 10px;cursor:pointer;">Switch Template</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Photo Upload Section -->
+            <div class="vd-card" style="margin-top:20px;">
+              <div class="vd-card-header">
+                <div class="vd-card-title">Photos</div>
+                <span id="photoCount" style="font-size:12px;color:#64748b;">0 photos</span>
+              </div>
+              <div class="vd-card-body">
+                <div class="vd-photo-grid" id="photoGrid">
+                  <label class="vd-photo-upload-btn" for="photoUpload">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    <span>Add Photo</span>
+                  </label>
+                  <input type="file" id="photoUpload" accept="image/*" multiple style="display:none;" onchange="handlePhotoUpload(this)">
+                </div>
+              </div>
+            </div>
+
+            <!-- Create Alert Section -->
+            <div class="vd-card" style="margin-top:20px;" id="alertSection">
+              <div class="vd-card-header">
+                <div class="vd-card-title">Create Alert</div>
+                <button class="emp-btn-secondary" onclick="toggleAlertForm()" id="toggleAlertBtn" style="font-size:12px;padding:6px 14px;">+ New Alert</button>
+              </div>
+              <div class="vd-card-body">
+                <div id="alertFormContainer" style="display:none;">
+                  <div class="vd-alert-form">
+                    <div class="vd-form-group">
+                      <label class="vd-form-label">Alert Title *</label>
+                      <input type="text" class="vd-form-input" id="alertTitle" placeholder="e.g., Water Intrusion Detected" />
+                    </div>
+                    <div class="vd-form-row">
+                      <div class="vd-form-group">
+                        <label class="vd-form-label">Category *</label>
+                        <select class="vd-form-select" id="alertCategory">
+                          <option value="">Select category...</option>
+                          <option value="water_damage">Water Damage</option>
+                          <option value="structural">Structural</option>
+                          <option value="security">Security</option>
+                          <option value="hvac">HVAC</option>
+                          <option value="pest">Pest</option>
+                          <option value="electrical">Electrical</option>
+                          <option value="plumbing">Plumbing</option>
+                          <option value="general_maintenance">General Maintenance</option>
+                          <option value="weather_damage">Weather Damage</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                      <div class="vd-form-group">
+                        <label class="vd-form-label">Severity *</label>
+                        <select class="vd-form-select" id="alertSeverity">
+                          <option value="">Select severity...</option>
+                          <option value="urgent">Urgent</option>
+                          <option value="high">High</option>
+                          <option value="medium">Medium</option>
+                          <option value="low">Low</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="vd-form-group">
+                      <label class="vd-form-label">Description *</label>
+                      <textarea class="vd-notes-area" id="alertDescription" rows="3" placeholder="Describe the issue in detail..."></textarea>
+                    </div>
+                    <div class="vd-form-row">
+                      <div class="vd-form-group">
+                        <label class="vd-form-label">Recommended Action</label>
+                        <input type="text" class="vd-form-input" id="alertRecommendedAction" placeholder="e.g., Contact roofing contractor" />
+                      </div>
+                      <div class="vd-form-group">
+                        <label class="vd-form-label">Requires Vendor</label>
+                        <select class="vd-form-select" id="alertRequiresVendor">
+                          <option value="false">No</option>
+                          <option value="true">Yes</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:6px;">
+                      <button class="emp-btn-start" onclick="submitAlert()">Create Alert</button>
+                      <button class="emp-btn-secondary" onclick="toggleAlertForm()">Cancel</button>
+                    </div>
+                  </div>
+                </div>
+                <!-- Existing alerts for this visit -->
+                <div id="visitAlertsList"></div>
+              </div>
+            </div>
+
+            <!-- Complete Visit Section -->
+            <div class="vd-card" style="margin-top:20px;" id="completeSection">
+              <div class="vd-card-header">
+                <div class="vd-card-title">Complete Visit &amp; Generate Report</div>
+              </div>
+              <div class="vd-card-body">
+                <div style="background:#f0f5ff;border:1px solid #c7d8f5;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#162d56;">
+                  <strong>After completing this visit:</strong> A report draft will be automatically created from your checklist, notes, and photos. You can then generate and publish the PDF report.
+                </div>
+                <div class="vd-form-row">
+                  <div class="vd-form-group">
+                    <label class="vd-form-label">Overall Result</label>
+                    <select class="vd-form-select" id="overallResult">
+                      <option value="passed">Passed — No Issues</option>
+                      <option value="passed_with_notes">Passed with Notes</option>
+                      <option value="attention_required">Attention Required</option>
+                      <option value="failed">Failed — Issues Found</option>
+                    </select>
+                  </div>
+                  <div class="vd-form-group">
+                    <label class="vd-form-label">Duration (minutes)</label>
+                    <input type="number" class="vd-form-input" id="durationMins" placeholder="e.g., 45" min="5" max="480" />
+                  </div>
+                </div>
+                <div class="vd-form-group" style="margin-top:10px;">
+                  <label class="vd-form-label">Completion Summary</label>
+                  <textarea class="vd-notes-area" id="completionSummary" rows="3" placeholder="Brief summary for the completion report..."></textarea>
+                </div>
+                <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+                  <button class="emp-btn-start in-progress" id="completeBtn" onclick="completeVisit()" style="padding:10px 24px;">
+                    ✓ Mark Visit Complete &amp; Generate Report
+                  </button>
+                  <button class="emp-btn-secondary" onclick="generateReport()">Generate Report Draft Only</button>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /#leftColumn -->
+
+          <!-- RIGHT COLUMN -->
+          <div id="rightColumn">
+
+            <!-- Visit Details -->
+            <div class="vd-side-section">
+              <div class="vd-side-header"><div class="vd-side-title">Visit Details</div></div>
+              <div class="vd-side-body">
+                <div class="vd-detail-list" id="visitDetailList"></div>
+              </div>
+            </div>
+
+            <!-- Client Info -->
+            <div class="vd-side-section" style="margin-top:0;">
+              <div class="vd-side-header"><div class="vd-side-title">Client & Property</div></div>
+              <div class="vd-side-body">
+                <div class="vd-detail-list" id="clientDetailList"></div>
+              </div>
+            </div>
+
+            <!-- Message Customer (shown when visit is en_route, arrived, or in_progress — available as soon as "Start Visit" / Mark En Route is triggered) -->
+            <div class="vd-side-section" id="customerMsgPanel" style="margin-top:0;display:none;border-left:3px solid #0891b2;">
+              <div class="vd-side-header" style="background:#ecfeff;">
+                <div class="vd-side-title" style="color:#0e7490;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px;vertical-align:middle;"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                  Message Customer
+                </div>
+              </div>
+              <div class="vd-side-body">
+                <div id="customerMsgStatus" style="font-size:12px;color:#64748b;margin-bottom:12px;">
+                  Send a direct message to the property owner. You can message them as soon as the visit begins.
+                </div>
+                <div id="customerMsgActiveThread" style="display:none;margin-bottom:10px;">
+                  <!-- Shown when a live thread exists -->
+                </div>
+                <button
+                  class="emp-btn-start in-progress"
+                  id="customerMsgBtn"
+                  onclick="openCustomerMessageThread()"
+                  style="width:100%;text-align:center;justify-content:center;font-size:13px;padding:10px 16px;"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                  Start / Open Customer Message
+                </button>
+                <div style="font-size:11px;color:#94a3b8;margin-top:8px;line-height:1.5;">
+                  Available as soon as your visit starts. This conversation is specific to this visit.
+                </div>
+              </div>
+            </div>
+
+            <!-- Event Timeline -->
+            <div class="vd-side-section" style="margin-top:0;">
+              <div class="vd-side-header">
+                <div class="vd-side-title">Tracking Timeline</div>
+              </div>
+              <div class="vd-side-body">
+                <div class="vd-timeline" id="trackingTimeline">
+                  <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">No events yet</div>
+                </div>
+                <div id="addEventSection" style="margin-top:12px;">
+                  <div style="display:flex;gap:8px;">
+                    <select class="vd-form-select" id="trackEventType" style="flex:1;font-size:12px;">
+                      <option value="">Add tracking event...</option>
+                      <option value="departed_office">Departed Office</option>
+                      <option value="en_route">En Route to Property</option>
+                      <option value="arrived">Arrived at Property</option>
+                      <option value="inspection_started">Inspection Started</option>
+                      <option value="inspection_completed">Inspection Completed</option>
+                      <option value="note">General Note</option>
+                    </select>
+                    <button class="emp-btn-start" onclick="addTrackingEvent()" style="white-space:nowrap;font-size:12px;padding:8px 14px;">Add</button>
+                  </div>
+                  <input type="text" class="vd-form-input" id="trackEventNote" placeholder="Optional note..." style="margin-top:8px;font-size:12px;" />
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /#rightColumn -->
+
+        </div><!-- /.vd-grid -->
+      </div><!-- /#visitContent -->
+    </main>
+  </div>
+</div>
+
+<!-- Message Notifications Panel -->
+<div id="empMsgNotifPanel" style="display:none;position:fixed;top:60px;right:16px;width:340px;max-width:calc(100vw - 32px);background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 32px rgba(22,45,86,.15);z-index:9999;">
+  <div style="padding:14px 16px 10px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:14px;font-weight:700;color:#0f1e38;">Message Notifications</div>
+    <button onclick="closeEmpMsgNotif()" style="background:none;border:none;font-size:18px;color:#94a3b8;cursor:pointer;line-height:1;">×</button>
+  </div>
+  <div id="empMsgNotifList" style="max-height:340px;overflow-y:auto;padding:8px 0;">
+    <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No new messages</div>
+  </div>
+  <div style="padding:10px 16px;border-top:1px solid #f1f5f9;text-align:center;">
+    <a href="employee-messages.html" style="font-size:13px;font-weight:600;color:#162d56;text-decoration:none;">View All Messages →</a>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/emp-msg-notif.js"></script>
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let _visit     = null;
+let _property  = null;
+let _client    = null;
+let _photos    = [];
+
+let _checklist = [
+  'Exterior walkthrough complete',
+  'All entry points secure',
+  'No signs of water intrusion',
+  'HVAC/AC system functional',
+  'Pool/spa area checked',
+  'Landscaping reviewed',
+  'Interior walk-through complete',
+  'No pest activity observed',
+  'Garage / storage areas checked',
+  'Alarm/security system verified',
+];
+let _checklistState = {};
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderEmpSidebar('emp-visits');
+  initEmpMsgNotif();
+  const params  = new URLSearchParams(window.location.search);
+  const visitId = params.get('visitId');
+  if (!visitId) { showNotFound(); return; }
+
+  await loadVisit(visitId);
+});
+
+// ─── Shared page-fill helper (used by the real data path) ────────────────────
+function _applyVisitToPage(visit, prop, client, inspectorName, trackEvents, visitAlerts) {
+  // Page title
+  document.title = `${prop.property_name || 'Visit'} — Satellite Home Watch`;
+  document.getElementById('pageTitle').textContent = prop.property_name || 'Visit Detail';
+
+  // Property hero
+  document.getElementById('heroPropertyName').textContent = prop.property_name || '—';
+  document.getElementById('heroAddress').textContent = [prop.address_line1, prop.city, prop.state, prop.zip].filter(Boolean).join(', ');
+  document.getElementById('heroMeta').innerHTML = `
+    <div class="vd-hero-meta-item"><label>Visit Type</label><span>${FMT.snakeToTitle(visit.visit_type)}</span></div>
+    <div class="vd-hero-meta-item"><label>Scheduled</label><span>${FMT.date(visit.scheduled_start)} · ${FMT.time(visit.scheduled_start)}</span></div>
+    <div class="vd-hero-meta-item"><label>Inspector</label><span>${inspectorName}</span></div>
+  `;
+
+  // Status bar
+  const pillClass = { scheduled:'pill-scheduled', en_route:'pill-en_route', arrived:'pill-arrived', in_progress:'pill-in_progress', completed:'pill-completed' }[visit.status] || 'pill-scheduled';
+  document.getElementById('statusPill').className  = `emp-status-pill ${pillClass}`;
+  document.getElementById('statusPill').textContent = FMT.snakeToTitle(visit.status);
+  renderStatusActions(visit.status);
+
+  // Visit detail list
+  document.getElementById('visitDetailList').innerHTML = [
+    ['Visit ID',  visit.id.slice(0,8) + '…'],
+    ['Type',      FMT.snakeToTitle(visit.visit_type)],
+    ['Status',    FMT.snakeToTitle(visit.status)],
+    ['Scheduled', FMT.date(visit.scheduled_start)],
+    ['Time',      FMT.time(visit.scheduled_start)],
+    ['Arrived',   visit.actual_arrival ? FMT.time(visit.actual_arrival) : '—'],
+    ['Started',   visit.actual_start   ? FMT.time(visit.actual_start)   : '—'],
+    ['Completed', visit.actual_end     ? FMT.time(visit.actual_end)     : '—'],
+  ].map(([k,v]) => `
+    <div class="vd-detail-item">
+      <span class="vd-detail-label">${k}</span>
+      <span class="vd-detail-value">${v}</span>
+    </div>`).join('');
+
+  // Client & property detail list
+  document.getElementById('clientDetailList').innerHTML = [
+    ['Client',    client.company_name || inspectorName.split(' ')[1] + ' Family' || '—'],
+    ['Address',   prop.address_line1  || '—'],
+    ['City',      [prop.city, prop.state, prop.zip].filter(Boolean).join(', ') || '—'],
+    ['Type',      FMT.snakeToTitle(prop.property_type) || '—'],
+    ['Beds/Baths',(prop.bedrooms ? `${prop.bedrooms} bd` : '') + (prop.bathrooms ? ` / ${prop.bathrooms} ba` : '') || '—'],
+  ].map(([k,v]) => `
+    <div class="vd-detail-item">
+      <span class="vd-detail-label">${k}</span>
+      <span class="vd-detail-value">${v}</span>
+    </div>`).join('');
+
+  // Notes
+  if (visit.inspector_notes) {
+    document.getElementById('notesArea').value = visit.inspector_notes;
+  }
+
+  // Checklist
+  renderChecklist();
+
+  // Completed banner
+  if (visit.status === 'completed') {
+    document.getElementById('completedBanner').style.display = 'flex';
+    document.getElementById('completedTime').textContent = `Completed on ${FMT.dateTime(visit.actual_end)}`;
+    document.getElementById('completeSection').style.display = 'none';
+  }
+
+  // Tracking timeline
+  renderTrackingTimeline(trackEvents);
+
+  // Alerts
+  renderVisitAlerts(visitAlerts);
+
+  // Show content
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('visitContent').style.display = '';
+}
+
+async function loadVisit(visitId) {
+  const [vRes, propsRes, clientsRes, empsRes, usersRes, alertsRes, trackRes] = await Promise.all([
+    empApiGet(`visits/${visitId}`),
+    empApiGetAll('properties'),
+    empApiGetAll('clients'),
+    empApiGetAll('employees'),
+    empApiGetAll('users'),
+    empApiGetAll('alerts'),
+    empApiGetAll('visit_tracking_events'),
+  ]);
+
+  const visit = vRes.data;
+  if (!visit || vRes.error) { showNotFound(); return; }
+  _visit = visit;
+
+  const propMap   = buildMap(propsRes.data   || []);
+  const clientMap = buildMap(clientsRes.data || []);
+  const empMap    = buildMap(empsRes.data    || []);
+  const userMap   = buildMap(usersRes.data   || []);
+
+  _property = propMap[visit.property_id]             || {};
+  const emp  = empMap[visit.assigned_employee_id]    || {};
+  const empU = userMap[emp.user_id]                  || {};
+  _client   = clientMap[_property.client_id]         || {};
+
+  const inspectorName = empU.full_name || 'Unassigned';
+
+  const events = (trackRes.data || [])
+    .filter(e => e.visit_id === visitId)
+    .sort((a,b) => new Date(a.event_time) - new Date(b.event_time));
+
+  const visitAlerts = (alertsRes.data || []).filter(a => a.related_visit_id === visitId);
+
+  _applyVisitToPage(visit, _property, _client, inspectorName, events, visitAlerts);
+}
+
+function renderStatusActions(status) {
+  const actions = {
+    scheduled: [
+      { label: 'Mark En Route', status: 'en_route', event: 'en_route', note: 'Inspector departed for property' },
+    ],
+    en_route: [
+      { label: 'Mark Arrived', status: 'arrived', event: 'arrived', note: 'Inspector arrived at property' },
+    ],
+    arrived: [
+      { label: 'Start Inspection', status: 'in_progress', event: 'inspection_started', note: 'Inspection started' },
+    ],
+    in_progress: [],
+    completed: [],
+  };
+
+  const btns = (actions[status] || []).map(a =>
+    `<button class="emp-btn-start" onclick="updateStatus('${a.status}', '${a.event}', '${a.note}')">${a.label}</button>`
+  ).join('');
+
+  document.getElementById('statusActions').innerHTML = btns || (status === 'completed' ? '<span style="color:#15803d;font-size:13px;">✓ Visit completed</span>' : '');
+
+  // ── Show customer message panel as soon as visit starts ──────────────────
+  // Available from en_route onwards ("Start Visit" = when employee departs / marks
+  // en route). Does NOT wait for "Start Inspection" (in_progress).
+  const msgPanel = document.getElementById('customerMsgPanel');
+  if (msgPanel) {
+    const visitActive = (status === 'en_route' || status === 'arrived' || status === 'in_progress');
+    msgPanel.style.display = visitActive ? '' : 'none';
+    if (visitActive) {
+      refreshCustomerMsgPanel();
+    }
+  }
+}
+
+// ─── LIVE INSPECTION CUSTOMER MESSAGING ─────────────────────────────────────
+// Tracks the visit-specific customer conversation thread ID
+let _customerMsgThreadId = null;
+
+async function refreshCustomerMsgPanel() {
+  if (!_visit) return;
+  try {
+    const [{ data: threads }, { data: users }] = await Promise.all([
+      empApiGetAll('message_threads'),
+      empApiGetAll('users'),
+    ]);
+    const userMap = buildMap(users || []);
+    const visitThread = (threads || []).find(t =>
+      t.visit_id === _visit.id &&
+      t.thread_type === 'visit_customer' &&
+      !t.is_archived
+    );
+    const statusEl = document.getElementById('customerMsgStatus');
+    const activeEl = document.getElementById('customerMsgActiveThread');
+    const btnEl    = document.getElementById('customerMsgBtn');
+
+    if (visitThread) {
+      _customerMsgThreadId = visitThread.id;
+
+      // Show supervising admin if accepted
+      let supervisorHtml = '';
+      if (visitThread.assigned_admin_id && userMap[visitThread.assigned_admin_id]) {
+        const adminUser = userMap[visitThread.assigned_admin_id];
+        const adminName = adminUser.full_name || 'Admin';
+        supervisorHtml = `
+          <div style="margin-top:6px;display:flex;align-items:center;gap:6px;font-size:11px;color:#166534;font-weight:600;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            Supervised by: ${adminName}
+          </div>`;
+      } else if (visitThread.acceptance_status === 'pending') {
+        supervisorHtml = `<div style="margin-top:6px;font-size:11px;color:#64748b;font-weight:600;">📋 Admin supervisor not yet assigned — customer is receiving messages normally</div>`;
+      }
+
+      if (activeEl) {
+        activeEl.style.display = '';
+        activeEl.innerHTML = `
+          <div style="background:#ecfeff;border:1px solid #a5f3fc;border-radius:8px;padding:8px 12px;font-size:12px;color:#0e7490;">
+            <strong>Active thread open.</strong> Conversation is live with the customer.
+            ${supervisorHtml}
+          </div>`;
+      }
+      if (btnEl) {
+        btnEl.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Continue Customer Conversation →`;
+      }
+      if (statusEl) statusEl.textContent = 'You have an active customer message thread for this inspection.';
+    } else {
+      _customerMsgThreadId = null;
+      if (activeEl) activeEl.style.display = 'none';
+      if (btnEl) btnEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Message Customer';
+      if (statusEl) statusEl.textContent = 'Send a direct message to the property owner. Your message will be delivered immediately.'
+    }
+  } catch(e) { /* silent */ }
+}
+
+async function openCustomerMessageThread() {
+  if (!_visit) return;
+  const prop   = _property || {};
+  const client = _client   || {};
+
+  if (_customerMsgThreadId) {
+    // Already exists — navigate to messages with this thread
+    window.location.href = `employee-messages.html?threadId=${_customerMsgThreadId}`;
+    return;
+  }
+
+  // Create a new visit-specific thread tagged as visit_customer.
+  // Customer receives messages immediately — admin acceptance is SUPERVISORY ONLY
+  // (it does not gate or delay delivery to the customer).
+  const now = new Date().toISOString();
+  const subject = `Live Inspection — ${prop.property_name || 'Property'} · ${FMT.date(now)}`;
+
+  const { data: thread, error } = await empApiPost('message_threads', {
+    subject,
+    thread_type:        'visit_customer',
+    visit_id:           _visit.id,
+    property_id:        _visit.property_id,
+    created_by_user_id: EMP_SESSION.userId,
+    participant_role:   'inspector',
+    thread_direction:   'employee_visit_customer',
+    // acceptance_status: 'pending' — surfaced to admins for optional supervision.
+    // Customer receives messages immediately regardless of acceptance status.
+    acceptance_status:  'pending',
+    last_message_at:    now,
+    created_at:         now,
+    updated_at:         now,
+    is_archived:        false,
+    is_visit_thread:    true,
+    status:             'active',
+  });
+  if (error || !thread) { showToast('Could not start customer thread', 'error'); return; }
+
+  _customerMsgThreadId = thread.id;
+
+  // Add employee as participant
+  await empApiPost('thread_participants', {
+    thread_id: thread.id, user_id: EMP_SESSION.userId,
+    role: 'inspector', joined_at: now,
+  });
+
+  // Add client user as participant (if we have a client user_id)
+  if (client.user_id || _visit.client_user_id) {
+    const clientUserId = client.user_id || _visit.client_user_id;
+    await empApiPost('thread_participants', {
+      thread_id: thread.id, user_id: clientUserId,
+      role: 'client', joined_at: now,
+    });
+  }
+
+  // Initial message
+  await empApiPost('messages', {
+    thread_id:      thread.id,
+    sender_user_id: EMP_SESSION.userId,
+    sender_id:      EMP_SESSION.userId,
+    sender_role:    'inspector',
+    body: `Hello! This is ${EMP_SESSION.name} from Satellite Home Watch. I've just started your visit at ${prop.property_name || 'your property'}. I'll keep you updated as I go through the checklist. Please feel free to reply with any questions.`,
+    sent_at:        now,
+    created_at:     now,
+    is_read:        false,
+    read_status:    'unread',
+  });
+
+  showToast('Message sent to customer. They will receive it immediately. An admin can optionally supervise this conversation.', 'success');
+  refreshCustomerMsgPanel();
+
+  // Navigate employee to the thread
+  window.location.href = `employee-messages.html?threadId=${thread.id}`;
+}
+  // Called from completeVisit() to auto-archive the visit-specific customer thread
+async function autoDeleteCustomerThread() {
+  if (!_visit) return;
+  let threadId = _customerMsgThreadId;
+  if (!threadId) {
+    const { data: threads } = await empApiGetAll('message_threads');
+    const visitThread = (threads || []).find(t =>
+      t.visit_id === _visit.id &&
+      t.thread_type === 'visit_customer'
+    );
+    if (!visitThread) return;
+    threadId = visitThread.id;
+  }
+  try {
+    // Archive (not hard-delete) — marks visit conversation as closed
+    await fetch(`tables/message_threads/${threadId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        is_archived: true,
+        status: 'archived',
+        visit_closed: true,
+        updated_at: new Date().toISOString(),
+      }),
+    });
+    _customerMsgThreadId = null;
+  } catch(e) { /* silent */ }
+}
+
+async function updateStatus(newStatus, eventType, eventNote) {
+  if (!_visit) return;
+
+  const now = new Date().toISOString();
+  const patchData = { status: newStatus, updated_at: now };
+  if (newStatus === 'arrived')     patchData.actual_arrival = now;
+  if (newStatus === 'in_progress') patchData.actual_start = now;
+  if (newStatus === 'completed')   patchData.actual_end = now;
+  const { error } = await empApiPatch('visits', _visit.id, patchData);
+  if (error) { showToast('Failed to update status: ' + error, 'error'); return; }
+  await empApiPost('visit_tracking_events', {
+    visit_id:       _visit.id,
+    event_type:     eventType,
+    event_time:     now,
+    event_note:     eventNote,
+    employee_id:    EMP_SESSION.employeeId,
+    client_visible: true,
+    location_note:  _property.address_line1 || '',
+  });
+  _visit.status = newStatus;
+  const pillClass = { scheduled: 'pill-scheduled', en_route: 'pill-en_route', arrived: 'pill-arrived', in_progress: 'pill-in_progress', completed: 'pill-completed' }[newStatus] || 'pill-scheduled';
+  document.getElementById('statusPill').className = `emp-status-pill ${pillClass}`;
+  document.getElementById('statusPill').textContent = FMT.snakeToTitle(newStatus);
+  renderStatusActions(newStatus);
+  showToast(`Status updated to: ${FMT.snakeToTitle(newStatus)}`, 'success');
+  const { data: updatedEvents } = await empApiGetAll('visit_tracking_events');
+  const events = (updatedEvents || []).filter(e => e.visit_id === _visit.id).sort((a,b) => new Date(a.event_time) - new Date(b.event_time));
+  renderTrackingTimeline(events);
+}
+
+async function saveNotes() {
+  if (!_visit) return;
+  const notes = document.getElementById('notesArea').value;
+
+  const { error } = await empApiPatch('visits', _visit.id, {
+    inspector_notes: notes,
+    updated_at: new Date().toISOString(),
+  });
+  if (error) { showToast('Failed to save notes', 'error'); return; }
+  document.getElementById('notesSavedLabel').textContent = `Saved ${FMT.time(new Date().toISOString())}`;
+  showToast('Notes saved', 'success');
+}
+
+function renderChecklist() {
+  const items = _checklist.map((item, idx) => {
+    const checked = _checklistState[idx] || false;
+    return `
+      <li class="vd-checklist-item${checked ? ' checked' : ''}">
+        <input type="checkbox" id="chk${idx}" ${checked ? 'checked' : ''} onchange="toggleCheckItem(${idx}, this.checked)" />
+        <label for="chk${idx}">${item}</label>
+      </li>`;
+  }).join('');
+  document.getElementById('checklistItems').innerHTML = items;
+  updateChecklistProgress();
+}
+
+function toggleCheckItem(idx, checked) {
+  _checklistState[idx] = checked;
+  const li = document.querySelector(`#chk${idx}`).closest('li');
+  li.classList.toggle('checked', checked);
+  updateChecklistProgress();
+}
+function updateChecklistProgress() {
+  const done  = Object.values(_checklistState).filter(Boolean).length;
+  const total = _checklist.length;
+  document.getElementById('checklistProgress').textContent = `${done} / ${total} items`;
+}
+
+function handlePhotoUpload(input) {
+  const files = Array.from(input.files);
+  const grid = document.getElementById('photoGrid');
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      _photos.push({ name: file.name, data: e.target.result });
+      const thumb = document.createElement('div');
+      thumb.className = 'vd-photo-thumb';
+      thumb.innerHTML = `<img src="${e.target.result}" alt="${file.name}" />`;
+      // Insert before the upload button
+      grid.insertBefore(thumb, grid.lastElementChild);
+      document.getElementById('photoCount').textContent = `${_photos.length} photo${_photos.length !== 1 ? 's' : ''}`;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function toggleAlertForm() {
+  const form = document.getElementById('alertFormContainer');
+  const btn  = document.getElementById('toggleAlertBtn');
+  const isHidden = form.style.display === 'none';
+  form.style.display = isHidden ? '' : 'none';
+  btn.textContent = isHidden ? '− Cancel' : '+ New Alert';
+}
+
+async function submitAlert() {
+  if (!_visit) return;
+  const title    = document.getElementById('alertTitle').value.trim();
+  const category = document.getElementById('alertCategory').value;
+  const severity = document.getElementById('alertSeverity').value;
+  const desc     = document.getElementById('alertDescription').value.trim();
+  const action   = document.getElementById('alertRecommendedAction').value.trim();
+  const vendor   = document.getElementById('alertRequiresVendor').value === 'true';
+
+  if (!title || !category || !severity || !desc) {
+    showToast('Please fill in all required fields', 'error'); return;
+  }
+
+
+
+  const now = new Date().toISOString();
+  const { data: newAlert, error } = await empApiPost('alerts', {
+    property_id:             _visit.property_id,
+    related_visit_id:        _visit.id,
+    created_by_employee_id:  EMP_SESSION.employeeId,
+    alert_title:             title,
+    category,
+    severity,
+    description:             desc,
+    recommended_action:      action,
+    requires_vendor:         vendor,
+    status:                  'open',
+    date_created:            now,
+    created_at:              now,
+    updated_at:              now,
+    client_visible:          true,
+    client_decision:         'pending',
+    photo_evidence_attached: _photos.length > 0,
+  });
+
+  if (error) { showToast('Failed to create alert: ' + error, 'error'); return; }
+
+  await empApiPost('alert_timeline_events', {
+    alert_id:           newAlert.id,
+    event_type:         'alert_created',
+    event_description:  `Alert created by inspector during visit`,
+    created_by_user_id: EMP_SESSION.userId,
+    created_at:         now,
+  });
+
+  showToast(`Alert "${title}" created successfully`, 'success');
+  toggleAlertForm();
+  ['alertTitle','alertCategory','alertSeverity','alertDescription','alertRecommendedAction'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const { data: updatedAlerts } = await empApiGetAll('alerts');
+  const visitAlerts = (updatedAlerts || []).filter(a => a.related_visit_id === _visit.id);
+  renderVisitAlerts(visitAlerts);
+}
+
+function renderVisitAlerts(alerts) {
+  if (!alerts.length) {
+    document.getElementById('visitAlertsList').innerHTML = `
+      <div style="font-size:13px;color:#94a3b8;padding:8px 0;">No alerts created for this visit yet.</div>`;
+    return;
+  }
+  const severityColors = { urgent:'#dc2626', high:'#f97316', medium:'#eab308', low:'#22c55e' };
+  document.getElementById('visitAlertsList').innerHTML = alerts.map(a => `
+    <div style="border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:10px;border-left:3px solid ${severityColors[a.severity] || '#94a3b8'};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+        <div style="font-size:13px;font-weight:700;color:#0f1e38;">${a.alert_title}</div>
+        <span class="emp-status-pill ${a.severity === 'urgent' ? 'pill-en_route' : 'pill-scheduled'}" style="font-size:10px;">${a.severity}</span>
+      </div>
+      <div style="font-size:12px;color:#64748b;">${a.description || ''}</div>
+    </div>`).join('');
+}
+
+async function addTrackingEvent() {
+  if (!_visit) return;
+  const type = document.getElementById('trackEventType').value;
+  const note = document.getElementById('trackEventNote').value.trim();
+  if (!type) { showToast('Select an event type', 'error'); return; }
+
+  const now = new Date().toISOString();
+
+
+
+  const { error } = await empApiPost('visit_tracking_events', {
+    visit_id:       _visit.id,
+    event_type:     type,
+    event_time:     now,
+    event_note:     note || FMT.snakeToTitle(type),
+    employee_id:    EMP_SESSION.employeeId,
+    client_visible: true,
+    location_note:  _property.address_line1 || '',
+  });
+
+  if (error) { showToast('Failed to add event', 'error'); return; }
+  showToast('Tracking event added', 'success');
+  document.getElementById('trackEventType').value = '';
+  document.getElementById('trackEventNote').value = '';
+
+  const { data: updatedEvents } = await empApiGetAll('visit_tracking_events');
+  const events = (updatedEvents || []).filter(e => e.visit_id === _visit.id).sort((a,b) => new Date(a.event_time) - new Date(b.event_time));
+  renderTrackingTimeline(events);
+}
+
+function renderTrackingTimeline(events) {
+  if (!events.length) {
+    document.getElementById('trackingTimeline').innerHTML = `
+      <div style="text-align:center;padding:16px;color:#94a3b8;font-size:13px;">No tracking events yet.</div>`;
+    return;
+  }
+  const html = [...events].reverse().map((e, idx) => `
+    <div class="vd-timeline-item">
+      <div class="vd-timeline-dot${idx === 0 ? ' dot-active' : ''}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/></svg>
+      </div>
+      <div class="vd-timeline-content">
+        <div class="vd-timeline-text">${e.event_note || FMT.snakeToTitle(e.event_type)}</div>
+        <div class="vd-timeline-time">${FMT.time(e.event_time)} · ${FMT.date(e.event_time)}</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('trackingTimeline').innerHTML = html;
+}
+
+async function completeVisit() {
+  if (!_visit) return;
+  if (_visit.status === 'completed') { showToast('Visit already completed', 'info'); return; }
+
+  const result   = document.getElementById('overallResult').value;
+  const mins     = parseInt(document.getElementById('durationMins').value) || null;
+  const summary  = document.getElementById('completionSummary').value.trim();
+  const now      = new Date().toISOString();
+
+
+
+  const end   = now;
+  const start = _visit.actual_start || now;
+
+  const { error } = await empApiPatch('visits', _visit.id, {
+    status:          'completed',
+    actual_end:      end,
+    actual_start:    _visit.actual_start || start,
+    inspector_notes: document.getElementById('notesArea').value,
+    updated_at:      now,
+  });
+  if (error) { showToast('Failed to complete visit', 'error'); return; }
+
+  await empApiPost('visit_tracking_events', {
+    visit_id:       _visit.id,
+    event_type:     'inspection_completed',
+    event_time:     now,
+    event_note:     summary || 'Visit completed by inspector',
+    employee_id:    EMP_SESSION.employeeId,
+    client_visible: true,
+  });
+
+  await empApiPost('visit_reports', {
+    visit_id:        _visit.id,
+    property_id:     _visit.property_id,
+    employee_id:     EMP_SESSION.employeeId,
+    report_title:    `${FMT.snakeToTitle(_visit.visit_type)} Report — ${FMT.date(now)}`,
+    summary_notes:   summary || document.getElementById('notesArea').value,
+    overall_result:  result,
+    report_status:   'draft',
+    photo_count:     _photos.length,
+    created_at:      now,
+    updated_at:      now,
+  });
+
+  _visit.status   = 'completed';
+  _visit.actual_end = now;
+  document.getElementById('statusPill').className  = 'emp-status-pill pill-completed';
+  document.getElementById('statusPill').textContent = 'Completed';
+  document.getElementById('statusActions').innerHTML = '<span style="color:#15803d;font-size:13px;">✓ Visit completed</span>';
+  document.getElementById('completedBanner').style.display = 'flex';
+  document.getElementById('completedTime').textContent = `Completed on ${FMT.dateTime(now)}`;
+  document.getElementById('completeSection').style.display = 'none';
+
+  // Auto-delete visit-specific customer conversation
+  await autoDeleteCustomerThread();
+  // Hide the customer message panel — visit is over
+  const msgPanelEl = document.getElementById('customerMsgPanel');
+  if (msgPanelEl) msgPanelEl.style.display = 'none';
+
+  showToast('Visit marked complete! Report draft created.', 'success');
+}
+
+async function generateReport() {
+  if (!_visit) return;
+  showToast('Redirecting to report builder...', 'info');
+  setTimeout(() => {
+    window.location.href = `employee-reports.html?visitId=${_visit.id}`;
+  }, 800);
+}
+
+// ─── Visit-Type Checklist Templates ──────────────────────────────────────────
+const CHECKLIST_TEMPLATES = {
+  routine_inspection: {
+    name: 'Routine Inspection',
+    sections: [
+      {
+        title: 'Exterior',
+        items: [
+          'Exterior walkthrough complete — no visible damage',
+          'All entry points secured (doors, windows, gates)',
+          'Roof and gutters — no visible damage or debris',
+          'Driveway and walkways clear',
+          'Landscaping reviewed — no overgrowth or storm damage',
+          'Exterior lighting functional',
+          'Pool/spa area checked (if applicable)',
+          'Garage / outbuilding checked',
+        ]
+      },
+      {
+        title: 'Interior',
+        items: [
+          'Interior walkthrough complete',
+          'No signs of water intrusion or leaks',
+          'No pest activity observed',
+          'HVAC/AC system functional and set correctly',
+          'Plumbing fixtures checked — no leaks',
+          'Electrical panel checked — no tripped breakers',
+          'Alarm/security system verified and armed',
+          'Appliances powered correctly (fridge, etc.)',
+        ]
+      },
+    ]
+  },
+  storm_prep_check: {
+    name: 'Storm Prep',
+    sections: [
+      {
+        title: 'Exterior Storm Prep',
+        items: [
+          'Outdoor furniture secured or stored',
+          'Pool equipment secured',
+          'Shutters/storm panels installed or ready',
+          'Generator tested and fueled (if applicable)',
+          'Loose items (pots, decor) removed from exterior',
+          'Entry doors and garage doors secured',
+          'Drains and gutters cleared',
+        ]
+      },
+      {
+        title: 'Interior Storm Prep',
+        items: [
+          'Valuables elevated / moved from flood-risk areas',
+          'Utilities status documented (leave on / turn off)',
+          'Water supply turned off if property will be vacant',
+          'Emergency contact info confirmed with owner',
+          'Storm documentation complete',
+        ]
+      },
+    ]
+  },
+  post_storm_check: {
+    name: 'Post-Storm Check',
+    sections: [
+      {
+        title: 'Exterior Damage Assessment',
+        items: [
+          'Roof inspected for damage (shingles, tiles, flashing)',
+          'Gutters and downspouts inspected',
+          'Windows and doors — no breakage or entry',
+          'Structural walls — no visible damage',
+          'Pool/spa — inspected for debris and damage',
+          'Tree/landscaping damage documented',
+          'Flooding or standing water checked',
+        ]
+      },
+      {
+        title: 'Interior Post-Storm',
+        items: [
+          'No water intrusion detected',
+          'Interior ceilings and walls — no water stains',
+          'HVAC operational after storm',
+          'Power restored and no tripped breakers',
+          'Flooding evidence — none detected',
+          'Alert created if damage found',
+        ]
+      },
+    ]
+  },
+  vendor_supervision: {
+    name: 'Vendor Supervision',
+    sections: [
+      {
+        title: 'Vendor Visit',
+        items: [
+          'Vendor company and tech name recorded',
+          'Work scope confirmed matches service order',
+          'Property access provided to vendor',
+          'Work in progress documented',
+          'Inspector present throughout service',
+          'No damage caused by vendor observed',
+          'All areas re-secured after vendor departs',
+        ]
+      },
+      {
+        title: 'Completion Verification',
+        items: [
+          'Work completed as described',
+          'Before / after photos taken',
+          'Vendor invoice or work order obtained',
+          'Property clean and restored after work',
+          'Utilities and systems re-verified after work',
+        ]
+      },
+    ]
+  },
+  concierge_service: {
+    name: 'Concierge Service',
+    sections: [
+      {
+        title: 'Service Tasks',
+        items: [
+          'Concierge tasks list confirmed with client',
+          'Mail / packages retrieved and stored',
+          'AC/heat adjusted per client instructions',
+          'Supplies restocked as requested',
+          'Specific requests completed and documented',
+          'Client contacted with service confirmation',
+        ]
+      },
+    ]
+  },
+  move_in_preparation: {
+    name: 'Move-In Preparation',
+    sections: [
+      {
+        title: 'Property Readiness',
+        items: [
+          'Full interior walkthrough complete',
+          'All utilities functional (power, water, gas, HVAC)',
+          'Appliances tested and operational',
+          'Locks and access codes verified',
+          'Cleaning status confirmed',
+          'Any maintenance issues documented',
+          'Property photographed for move-in record',
+          'Welcome package / info prepared (if applicable)',
+        ]
+      },
+    ]
+  },
+  leaving_town: {
+    name: 'Leaving Town Inspection',
+    sections: [
+      {
+        title: 'Pre-Departure Check',
+        items: [
+          'All exterior doors and windows secured',
+          'Garage doors confirmed closed',
+          'Alarm system armed and tested',
+          'AC/heat set to away temperature',
+          'Refrigerator / appliances reviewed',
+          'Water supply turned off (if requested)',
+          'Mail hold or forwarding confirmed',
+          'Emergency contact and access info updated',
+          'Inspection report sent to owner',
+        ]
+      },
+    ]
+  },
+};
+
+// Flatten checklist into simple items for backward compatibility
+function flattenTemplate(template) {
+  const items = [];
+  (template.sections || []).forEach(sec => {
+    items.push(...sec.items);
+  });
+  return items;
+}
+
+// ─── Checklist Lock/Unlock ────────────────────────────────────────────────────
+function applyChecklistLockState(status) {
+  const isUnlocked = ['in_progress', 'completed'].includes(status);
+  const overlay    = document.getElementById('checklistLockOverlay');
+  const content    = document.getElementById('checklistContent');
+  const lockBadge  = document.getElementById('checklistLockBadge');
+
+  if (isUnlocked) {
+    if (overlay) overlay.style.display = 'none';
+    if (content) content.style.display = '';
+    if (lockBadge) lockBadge.style.display = 'none';
+  } else {
+    if (overlay) overlay.style.display = '';
+    if (content) content.style.display = 'none';
+    if (lockBadge) lockBadge.style.display = '';
+  }
+}
+
+function setChecklistTemplate(visitType) {
+  const tpl = CHECKLIST_TEMPLATES[visitType] || CHECKLIST_TEMPLATES['routine_inspection'];
+  _checklist = flattenTemplate(tpl);
+  _checklistState = {};
+  const label = document.getElementById('checklistTemplateLabel');
+  if (label) label.textContent = `Template: ${tpl.name}`;
+  const lockedName = document.getElementById('lockedTemplateName');
+  if (lockedName) lockedName.textContent = tpl.name;
+  renderChecklist();
+  renderTemplateSwitcherBtns(visitType);
+}
+
+function renderTemplateSwitcherBtns(activeType) {
+  const btnsEl = document.getElementById('templateBtns');
+  if (!btnsEl) return;
+  btnsEl.innerHTML = Object.entries(CHECKLIST_TEMPLATES).map(([key, tpl]) => `
+    <button onclick="switchChecklistTemplate('${key}')" style="padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid ${key === activeType ? '#162d56' : '#e2e8f0'};background:${key === activeType ? '#162d56' : '#f8fafc'};color:${key === activeType ? '#fff' : '#475569'};">
+      ${tpl.name}
+    </button>`
+  ).join('');
+}
+
+function switchChecklistTemplate(type) {
+  if (confirm(`Switch to "${CHECKLIST_TEMPLATES[type].name}" template? This will reset the current checklist.`)) {
+    setChecklistTemplate(type);
+    showToast(`Template switched to: ${CHECKLIST_TEMPLATES[type].name}`, 'success');
+  }
+}
+
+function toggleTemplateSwitcher() {
+  const sw = document.getElementById('templateSwitcher');
+  if (sw) sw.style.display = sw.style.display === 'none' ? '' : 'none';
+}
+
+// ─── Enhanced renderChecklist ─────────────────────────────────────────────────
+function renderChecklist() {
+  const status = _visit ? _visit.status : 'scheduled';
+  applyChecklistLockState(status);
+
+  // Render with section grouping if template is available
+  const visitType = _visit ? (_visit.visit_type || 'routine_inspection') : 'routine_inspection';
+  const tpl = CHECKLIST_TEMPLATES[visitType] || CHECKLIST_TEMPLATES['routine_inspection'];
+  let html = '';
+  let globalIdx = 0;
+  tpl.sections.forEach(sec => {
+    html += `<li style="list-style:none;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;padding:8px 0 4px;border-bottom:1px solid #f1f5f9;margin-bottom:4px;">${sec.title}</li>`;
+    sec.items.forEach(item => {
+      const idx     = globalIdx++;
+      const checked = _checklistState[idx] || false;
+      const isLocked = !['in_progress','completed'].includes(status);
+      html += `
+        <li class="vd-checklist-item${checked ? ' checked' : ''}">
+          <input type="checkbox" id="chk${idx}" ${checked ? 'checked' : ''} ${isLocked ? 'disabled' : ''} onchange="toggleCheckItem(${idx}, this.checked)" />
+          <label for="chk${idx}" style="${isLocked ? 'color:#94a3b8;cursor:not-allowed;' : ''}">${item}</label>
+        </li>`;
+    });
+  });
+  document.getElementById('checklistItems').innerHTML = html;
+  updateChecklistProgress();
+}
+
+// ─── Report Generation Flow ───────────────────────────────────────────────────
+let _reportStatus = null; // null | 'draft' | 'ready' | 'pdf_generated' | 'published'
+
+function showReportStatusPanel(rStatus) {
+  _reportStatus = rStatus || 'draft';
+  const panel = document.getElementById('reportStatusPanel');
+  if (!panel) return;
+  panel.style.display = '';
+
+  const steps = [
+    { key: 'draft',         label: 'Report Draft',      icon: '📝' },
+    { key: 'ready',         label: 'Report Ready',       icon: '✅' },
+    { key: 'pdf_generated', label: 'PDF Generated',      icon: '📄' },
+    { key: 'published',     label: 'Published to Portal',icon: '🌐' },
+  ];
+
+  const currentIdx = steps.findIndex(s => s.key === _reportStatus);
+  const stepsHtml = steps.map((s, i) => {
+    const isDone = i < currentIdx;
+    const isCurrent = i === currentIdx;
+    const style = isCurrent
+      ? 'background:#162d56;color:#fff;border-color:#162d56;'
+      : isDone
+      ? 'background:#dcfce7;color:#166534;border-color:#bbf7d0;'
+      : 'background:#f8fafc;color:#94a3b8;border-color:#e2e8f0;';
+    return `
+      <div style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1px solid;font-size:12px;font-weight:600;${style}">
+        ${s.icon} ${s.label}
+      </div>
+      ${i < steps.length - 1 ? '<div style="color:#cbd5e1;font-size:16px;padding:0 2px;">→</div>' : ''}`;
+  }).join('');
+
+  document.getElementById('reportFlowSteps').innerHTML = stepsHtml;
+
+  // Action buttons based on current status
+  let actionsHtml = '';
+  if (_reportStatus === 'draft') {
+    actionsHtml = `
+      <button class="emp-btn-start" onclick="advanceReportStatus('ready')" style="padding:9px 20px;font-size:12px;">Mark Report Ready</button>
+      <a href="employee-reports.html" class="emp-btn-secondary" style="text-decoration:none;padding:9px 20px;font-size:12px;">Edit Report Draft →</a>`;
+  } else if (_reportStatus === 'ready') {
+    actionsHtml = `
+      <button class="emp-btn-start" onclick="advanceReportStatus('pdf_generated')" style="padding:9px 20px;font-size:12px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:5px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Generate PDF
+      </button>
+      <a href="employee-reports.html" class="emp-btn-secondary" style="text-decoration:none;padding:9px 20px;font-size:12px;">View Report →</a>`;
+  } else if (_reportStatus === 'pdf_generated') {
+    actionsHtml = `
+      <button class="emp-btn-start" onclick="advanceReportStatus('published')" style="padding:9px 20px;font-size:12px;">Publish to Client Portal</button>
+      <button class="emp-btn-secondary" onclick="showToast('PDF download — backend required','info')" style="padding:9px 20px;font-size:12px;">⬇ Download PDF</button>
+      <a href="employee-reports.html" class="emp-btn-secondary" style="text-decoration:none;padding:9px 20px;font-size:12px;">View Report →</a>`;
+  } else if (_reportStatus === 'published') {
+    actionsHtml = `
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:#dcfce7;border:1px solid #bbf7d0;border-radius:8px;font-size:12px;font-weight:600;color:#166534;">
+        ✓ Report published and visible to client in portal
+      </div>
+      <button class="emp-btn-secondary" onclick="showToast('PDF download — backend required','info')" style="padding:9px 20px;font-size:12px;">⬇ Download PDF</button>
+      <a href="employee-reports.html" class="emp-btn-secondary" style="text-decoration:none;padding:9px 20px;font-size:12px;">View Report →</a>`;
+  }
+  document.getElementById('reportActions').innerHTML = actionsHtml;
+}
+
+function advanceReportStatus(newStatus) {
+  const msgs = {
+    ready:         'Report marked as ready for PDF generation',
+    pdf_generated: 'PDF generated and stored — (backend required for real PDF)',
+    published:     'Report published to client portal — client will receive notification',
+  };
+  showReportStatusPanel(newStatus);
+  showToast(msgs[newStatus] || 'Report status updated', 'success');
+}
+
+// ─── Override updateStatus to unlock checklist when in_progress ───────────────
+const _originalUpdateStatus = updateStatus;
+window.updateStatus = async function(newStatus, eventType, eventNote) {
+  await _originalUpdateStatus(newStatus, eventType, eventNote);
+  // Re-apply lock state and re-render checklist with template
+  if (_visit) {
+    applyChecklistLockState(newStatus);
+    if (newStatus === 'in_progress') {
+      renderChecklist();
+      setChecklistTemplate(_visit.visit_type || 'routine_inspection');
+      showToast('Checklist unlocked — inspection can begin', 'success');
+    }
+  }
+};
+
+// ─── Override _applyVisitToPage to set checklist template + lock state ─────────
+const _originalApply = _applyVisitToPage;
+window._applyVisitToPage = function(visit, prop, client, inspectorName, trackEvents, visitAlerts) {
+  _originalApply(visit, prop, client, inspectorName, trackEvents, visitAlerts);
+  // Set checklist template based on visit type
+  setChecklistTemplate(visit.visit_type || 'routine_inspection');
+  // Apply lock state
+  applyChecklistLockState(visit.status);
+  // Show report status panel for completed visits
+  if (visit.status === 'completed') {
+    showReportStatusPanel('draft');
+  }
+};
+
+// ─── Override completeVisit to show report flow after completion ───────────────
+const _originalComplete = completeVisit;
+window.completeVisit = async function() {
+  await _originalComplete();
+  if (_visit && _visit.status === 'completed') {
+    showReportStatusPanel('draft');
+  }
+};
+
+function showNotFound() {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('notFoundState').style.display = '';
+}
+</script>
+</body>
+</html>

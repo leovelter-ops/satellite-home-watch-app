@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inspection Templates — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .it-card {
+      background:#fff;border:1px solid #e2e8f0;border-radius:12px;
+      margin-bottom:14px;overflow:hidden;transition:box-shadow .2s;
+    }
+    .it-card:hover { box-shadow:0 4px 16px rgba(22,45,86,.08); }
+    .it-card-header {
+      display:flex;align-items:center;justify-content:space-between;
+      padding:16px 20px;cursor:pointer;
+    }
+    .it-card-title { font-size:15px;font-weight:700;color:#0f1e38; }
+    .it-card-meta { font-size:12px;color:#64748b;margin-top:2px; }
+    .it-card-body { padding:0 20px 18px; border-top:1px solid #f1f5f9; display:none; }
+    .it-card.open .it-card-body { display:block; }
+    .it-card-chevron { transition:transform .2s; color:#94a3b8; }
+    .it-card.open .it-card-chevron { transform:rotate(180deg); }
+    .it-section-block { margin-top:16px; }
+    .it-section-label {
+      font-size:12px;font-weight:700;color:#162d56;text-transform:uppercase;
+      letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:8px;
+    }
+    .it-section-items { display:flex;flex-direction:column;gap:6px; }
+    .it-item-row {
+      display:flex;align-items:center;gap:8px;padding:7px 10px;
+      background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;
+    }
+    .it-item-row input[type="text"] {
+      flex:1;border:none;background:transparent;font-size:13px;font-family:inherit;
+      color:#334155;outline:none;
+    }
+    .it-item-row .it-del-btn {
+      background:none;border:none;cursor:pointer;color:#94a3b8;
+      transition:color .15s;padding:2px;flex-shrink:0;
+    }
+    .it-item-row .it-del-btn:hover { color:#dc2626; }
+    .it-add-item-row {
+      display:flex;align-items:center;gap:8px;margin-top:8px;
+    }
+    .it-add-item-row input {
+      flex:1;padding:7px 12px;border:1px dashed #c7d8f5;border-radius:8px;
+      font-size:13px;font-family:inherit;background:#f0f5ff;color:#162d56;
+      outline:none;transition:border-color .2s;
+    }
+    .it-add-item-row input:focus { border-color:#162d56;background:#fff; }
+    .it-add-item-row button {
+      padding:6px 14px;font-size:12px;font-weight:700;border-radius:8px;
+      border:none;background:#162d56;color:#fff;cursor:pointer;white-space:nowrap;
+      transition:opacity .15s;
+    }
+    .it-add-item-row button:hover { opacity:.85; }
+    .it-actions { display:flex;gap:8px;margin-top:14px;flex-wrap:wrap; }
+    .it-btn-add-section {
+      padding:6px 14px;font-size:12px;font-weight:600;border-radius:8px;
+      border:1px dashed #162d56;background:#f0f5ff;color:#162d56;cursor:pointer;
+      transition:all .15s;
+    }
+    .it-btn-add-section:hover { background:#162d56;color:#fff; }
+    .it-btn-save {
+      padding:8px 20px;font-size:13px;font-weight:700;border-radius:8px;
+      border:none;background:#162d56;color:#fff;cursor:pointer;transition:opacity .15s;
+    }
+    .it-btn-save:hover { opacity:.85; }
+    .it-btn-danger {
+      padding:6px 14px;font-size:12px;font-weight:600;border-radius:8px;
+      border:1px solid #fca5a5;background:#fff;color:#dc2626;cursor:pointer;
+      transition:all .15s;
+    }
+    .it-btn-danger:hover { background:#fee2e2; }
+    .cat-chip {
+      display:inline-flex;align-items:center;gap:6px;
+      background:#e8eef8;color:#162d56;border:1px solid #c7d8f5;
+      border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;
+    }
+    .cat-chip .cat-chip-del {
+      background:none;border:none;cursor:pointer;color:#94a3b8;font-size:14px;
+      padding:0;transition:color .15s;line-height:1;
+    }
+    .cat-chip .cat-chip-del:hover { color:#dc2626; }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Inspection Templates</span>
+          <span class="topbar-welcome">Manage checklists &amp; visit categories</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-icon-btn" data-msg-trigger="admin" aria-label="Open messages" title="Messages" type="button" onclick="SHWMsgPanel.toggle(this)" style="position:relative;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button class="topbar-icon-btn np-bell-btn" data-notif-trigger="admin" aria-label="Open notifications" title="Notifications" type="button" onclick="SHWNotifPanel.toggle(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="admin-badge corporate" id="topbarRoleBadge">Executive</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Executive Banner -->
+      <div style="background:linear-gradient(135deg,#4a044e,#7c2d8a);border-radius:14px;padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;gap:14px;">
+        <div style="width:38px;height:38px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#fff;">Executive Access — Inspection Templates</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.75);">Create, edit, and manage checklist templates. Assign templates to visit/service categories. Templates are used by inspectors when performing visits.</div>
+        </div>
+      </div>
+
+      <!-- Two-column layout -->
+      <div class="vd-grid">
+
+        <!-- Left: Templates List -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div style="font-size:16px;font-weight:700;color:#0f1e38;">Checklist Templates</div>
+            <button onclick="openNewTemplateModal()" class="admin-btn-primary" style="font-size:13px;padding:8px 18px;display:flex;align-items:center;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Template
+            </button>
+          </div>
+
+          <div id="templatesList">
+            <div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;">Loading templates...</div>
+          </div>
+        </div>
+
+        <!-- Right: Visit Categories -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div style="font-size:16px;font-weight:700;color:#0f1e38;">Visit / Service Categories</div>
+          </div>
+
+          <div class="it-card" style="margin-bottom:20px;">
+            <div style="padding:16px 20px;">
+              <div style="font-size:13px;font-weight:700;color:#0f1e38;margin-bottom:12px;">Add New Category</div>
+              <div style="display:flex;gap:8px;margin-bottom:10px;">
+                <input type="text" id="newCatKey" class="vd-form-input" placeholder="Category key (e.g., pool_inspection)" style="flex:1;font-size:13px;" />
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:10px;">
+                <input type="text" id="newCatLabel" class="vd-form-input" placeholder="Display label (e.g., Pool Inspection)" style="flex:1;font-size:13px;" />
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <label style="font-size:12px;font-weight:700;color:#475569;">Assign Template:</label>
+                <select id="newCatTemplate" class="vd-form-select" style="flex:1;font-size:13px;" id="newCatTemplate">
+                  <option value="">None</option>
+                </select>
+              </div>
+              <button onclick="addCategory()" style="margin-top:12px;padding:8px 18px;font-size:13px;font-weight:700;border-radius:8px;border:none;background:#162d56;color:#fff;cursor:pointer;width:100%;">
+                + Add Category
+              </button>
+            </div>
+          </div>
+
+          <!-- Existing Categories -->
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+            <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;font-size:14px;font-weight:700;color:#0f1e38;">Existing Categories</div>
+            <div style="padding:16px 18px;" id="categoriesList">
+              <div style="text-align:center;color:#94a3b8;font-size:13px;padding:10px 0;">Loading...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- New / Edit Template Modal -->
+<div id="templateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:680px;box-shadow:0 20px 60px rgba(0,0,0,.2);margin:auto;">
+    <div style="padding:18px 22px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:16px;font-weight:700;color:#0f1e38;" id="modalTitle">New Template</div>
+      <button onclick="closeTemplateModal()" style="background:none;border:none;font-size:22px;color:#94a3b8;cursor:pointer;line-height:1;">×</button>
+    </div>
+    <div style="padding:20px 22px;" id="modalBody">
+      <!-- Populated by JS -->
+    </div>
+    <div style="padding:14px 22px;border-top:1px solid #f1f5f9;display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="closeTemplateModal()" style="padding:9px 20px;font-size:13px;font-weight:600;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;cursor:pointer;">Cancel</button>
+      <button onclick="saveTemplateFromModal()" style="padding:9px 22px;font-size:13px;font-weight:700;border-radius:8px;border:none;background:#162d56;color:#fff;cursor:pointer;">Save Template</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'executive', name: '', initials: '' };
+
+// ─── Built-in seed templates (mirrored from employee-visit-detail.html) ─────
+const SEED_TEMPLATES = [
+  {
+    id: 'tpl-routine',
+    name: 'Routine Inspection',
+    visit_type_key: 'routine_inspection',
+    is_builtin: true,
+    sections: [
+      { title: 'Exterior', items: ['Exterior walkthrough complete — no visible damage','All entry points secured (doors, windows, gates)','Roof and gutters — no visible damage or debris','Driveway and walkways clear','Landscaping reviewed — no overgrowth or storm damage','Exterior lighting functional','Pool/spa area checked (if applicable)','Garage / outbuilding checked'] },
+      { title: 'Interior', items: ['Interior walkthrough complete','No signs of water intrusion or leaks','No pest activity observed','HVAC/AC system functional and set correctly','Plumbing fixtures checked — no leaks','Electrical panel checked — no tripped breakers','Alarm/security system verified and armed','Appliances powered correctly (fridge, etc.)'] },
+    ]
+  },
+  {
+    id: 'tpl-storm-prep',
+    name: 'Storm Prep',
+    visit_type_key: 'storm_prep_check',
+    is_builtin: true,
+    sections: [
+      { title: 'Exterior Storm Prep', items: ['Outdoor furniture secured or stored','Pool equipment secured','Shutters/storm panels installed or ready','Generator tested and fueled (if applicable)','Loose items (pots, decor) removed from exterior','Entry doors and garage doors secured','Drains and gutters cleared'] },
+      { title: 'Interior Storm Prep', items: ['Valuables elevated / moved from flood-risk areas','Utilities status documented (leave on / turn off)','Water supply turned off if property will be vacant','Emergency contact info confirmed with owner','Storm documentation complete'] },
+    ]
+  },
+  {
+    id: 'tpl-post-storm',
+    name: 'Post-Storm Check',
+    visit_type_key: 'post_storm_check',
+    is_builtin: true,
+    sections: [
+      { title: 'Exterior Damage Assessment', items: ['Roof inspected for damage (shingles, tiles, flashing)','Gutters and downspouts inspected','Windows and doors — no breakage or entry','Structural walls — no visible damage','Pool/spa — inspected for debris and damage','Tree/landscaping damage documented','Flooding or standing water checked'] },
+      { title: 'Interior Post-Storm', items: ['No water intrusion detected','Interior ceilings and walls — no water stains','HVAC operational after storm','Power restored and no tripped breakers','Flooding evidence — none detected','Alert created if damage found'] },
+    ]
+  },
+  {
+    id: 'tpl-vendor',
+    name: 'Vendor Supervision',
+    visit_type_key: 'vendor_supervision',
+    is_builtin: true,
+    sections: [
+      { title: 'Vendor Visit', items: ['Vendor company and tech name recorded','Work scope confirmed matches service order','Property access provided to vendor','Work in progress documented','Inspector present throughout service','No damage caused by vendor observed','Work completion confirmed','Property secured after vendor departure'] },
+    ]
+  },
+];
+
+let _templates   = [];
+let _categories  = [];
+let _editingId   = null;
+let _modalSections = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderAdminSidebar('admin-inspection-templates');
+  await loadData();
+  renderTemplates();
+  renderCategories();
+  populateCategoryTemplateSelector();
+});
+
+async function loadData() {
+  // Load templates from DB; fall back to seeds if none
+  const { data: dbTemplates } = await empApiGetAll('inspection_templates');
+  const { data: dbCategories } = await empApiGetAll('visit_categories');
+
+  if (dbTemplates && dbTemplates.length > 0) {
+    _templates = dbTemplates.map(t => ({
+      ...t,
+      sections: typeof t.sections === 'string' ? JSON.parse(t.sections) : (t.sections || []),
+    }));
+  } else {
+    // Seed built-ins from static list
+    _templates = JSON.parse(JSON.stringify(SEED_TEMPLATES));
+  }
+
+  if (dbCategories && dbCategories.length > 0) {
+    _categories = dbCategories;
+  } else {
+    // Default categories matching the built-in templates
+    _categories = [
+      { id:'cat-1', key:'routine_inspection',  label:'Routine Inspection',  template_id:'tpl-routine' },
+      { id:'cat-2', key:'storm_prep_check',     label:'Storm Prep',          template_id:'tpl-storm-prep' },
+      { id:'cat-3', key:'post_storm_check',     label:'Post-Storm Check',    template_id:'tpl-post-storm' },
+      { id:'cat-4', key:'vendor_supervision',   label:'Vendor Supervision',  template_id:'tpl-vendor' },
+    ];
+  }
+}
+
+function renderTemplates() {
+  const container = document.getElementById('templatesList');
+  if (!_templates.length) {
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;">No templates yet. Create your first template.</div>`;
+    return;
+  }
+  container.innerHTML = _templates.map(t => {
+    const totalItems = (t.sections || []).reduce((s, sec) => s + (sec.items || []).length, 0);
+    const assignedCat = _categories.find(c => c.template_id === t.id);
+    return `
+      <div class="it-card" id="tplcard-${t.id}">
+        <div class="it-card-header" onclick="toggleTemplateCard('${t.id}')">
+          <div style="flex:1;min-width:0;">
+            <div class="it-card-title">${_esc(t.name)}</div>
+            <div class="it-card-meta">
+              ${t.sections.length} section${t.sections.length!==1?'s':''} · ${totalItems} items
+              ${assignedCat ? ` · <span style="color:#162d56;font-weight:600;">Assigned: ${assignedCat.label}</span>` : ''}
+              ${t.is_builtin ? ` · <span style="background:#f0f5ff;color:#162d56;font-size:10px;font-weight:700;border-radius:4px;padding:1px 6px;">Built-in</span>` : ''}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button onclick="event.stopPropagation();editTemplate('${t.id}')" style="padding:5px 12px;font-size:12px;font-weight:600;border-radius:7px;border:1px solid #c7d8f5;background:#f0f5ff;color:#162d56;cursor:pointer;">Edit</button>
+            ${!t.is_builtin ? `<button onclick="event.stopPropagation();deleteTemplate('${t.id}')" style="padding:5px 10px;font-size:12px;border-radius:7px;border:1px solid #fca5a5;background:#fff;color:#dc2626;cursor:pointer;">Delete</button>` : ''}
+            <svg class="it-card-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="it-card-body">
+          ${(t.sections || []).map(sec => `
+            <div class="it-section-block">
+              <div class="it-section-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>
+                ${_esc(sec.title)}
+              </div>
+              <ul style="margin:0;padding-left:18px;list-style:disc;">
+                ${(sec.items || []).map(item => `<li style="font-size:13px;color:#334155;padding:2px 0;">${_esc(item)}</li>`).join('')}
+              </ul>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleTemplateCard(id) {
+  const card = document.getElementById(`tplcard-${id}`);
+  if (card) card.classList.toggle('open');
+}
+
+function renderCategories() {
+  const container = document.getElementById('categoriesList');
+  if (!_categories.length) {
+    container.innerHTML = `<div style="color:#94a3b8;font-size:13px;">No categories yet.</div>`;
+    return;
+  }
+  container.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:8px;">` +
+    _categories.map(cat => {
+      const tpl = _templates.find(t => t.id === cat.template_id);
+      return `
+        <div class="cat-chip" title="Template: ${_esc(tpl?.name||'None')}">
+          <div>
+            <div style="font-size:12px;font-weight:700;">${_esc(cat.label)}</div>
+            <div style="font-size:10px;color:#64748b;">${_esc(cat.key)} · ${_esc(tpl?.name||'No template')}</div>
+          </div>
+          <button class="cat-chip-del" onclick="deleteCategory('${cat.id}')" title="Remove category">×</button>
+        </div>`;
+    }).join('') + `</div>`;
+}
+
+function populateCategoryTemplateSelector() {
+  const sel = document.getElementById('newCatTemplate');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">None</option>' +
+    _templates.map(t => `<option value="${t.id}">${_esc(t.name)}</option>`).join('');
+}
+
+async function addCategory() {
+  const key   = document.getElementById('newCatKey').value.trim().toLowerCase().replace(/\s+/g,'_');
+  const label = document.getElementById('newCatLabel').value.trim();
+  const tplId = document.getElementById('newCatTemplate').value || null;
+
+  if (!key || !label) { showToast('Key and label are required.', 'error'); return; }
+  if (_categories.find(c => c.key === key)) { showToast('Category key already exists.', 'error'); return; }
+
+  const { data, error } = await empApiPost('visit_categories', { key, label, template_id: tplId });
+  if (error || !data) { showToast('Could not save category.', 'error'); return; }
+
+  _categories.push(data);
+  document.getElementById('newCatKey').value   = '';
+  document.getElementById('newCatLabel').value = '';
+  renderCategories();
+  showToast('Category added!', 'success');
+}
+
+async function deleteCategory(id) {
+  if (!confirm('Delete this category? This will not delete the template.')) return;
+  await fetch(`tables/visit_categories/${id}`, { method: 'DELETE' });
+  _categories = _categories.filter(c => c.id !== id);
+  renderCategories();
+  showToast('Category removed.', 'success');
+}
+
+// ── Template Modal ─────────────────────────────────────────────────────────
+
+function openNewTemplateModal() {
+  _editingId = null;
+  _modalSections = [{ title: 'Section 1', items: [''] }];
+  document.getElementById('modalTitle').textContent = 'New Checklist Template';
+  renderModalBody('', '');
+  document.getElementById('templateModal').style.display = 'flex';
+}
+
+function editTemplate(id) {
+  const tpl = _templates.find(t => t.id === id);
+  if (!tpl) return;
+  _editingId = id;
+  _modalSections = JSON.parse(JSON.stringify(tpl.sections || []));
+  document.getElementById('modalTitle').textContent = 'Edit Template: ' + tpl.name;
+  renderModalBody(tpl.name, tpl.visit_type_key || '');
+  document.getElementById('templateModal').style.display = 'flex';
+}
+
+function renderModalBody(name, typeKey) {
+  const body = document.getElementById('modalBody');
+  body.innerHTML = `
+    <div class="vd-form-group" style="margin-bottom:14px;">
+      <label class="vd-form-label">Template Name *</label>
+      <input type="text" class="vd-form-input" id="modalName" value="${_esc(name)}" placeholder="e.g., Pool Inspection" />
+    </div>
+    <div class="vd-form-group" style="margin-bottom:18px;">
+      <label class="vd-form-label">Visit Type Key</label>
+      <input type="text" class="vd-form-input" id="modalTypeKey" value="${_esc(typeKey)}" placeholder="e.g., pool_inspection (used internally)" />
+    </div>
+    <div style="font-size:13px;font-weight:700;color:#0f1e38;margin-bottom:10px;">Sections & Items</div>
+    <div id="modalSections"></div>
+    <div style="margin-top:12px;">
+      <button onclick="addModalSection()" class="it-btn-add-section">+ Add Section</button>
+    </div>`;
+  renderModalSections();
+}
+
+function renderModalSections() {
+  const container = document.getElementById('modalSections');
+  if (!container) return;
+  container.innerHTML = _modalSections.map((sec, sIdx) => `
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:12px;" id="mSec-${sIdx}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <input type="text" value="${_esc(sec.title)}" placeholder="Section title"
+          onchange="_modalSections[${sIdx}].title=this.value"
+          style="flex:1;padding:7px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;font-weight:700;color:#0f1e38;outline:none;" />
+        ${_modalSections.length > 1 ? `<button onclick="removeModalSection(${sIdx})" class="it-btn-danger" style="padding:5px 10px;font-size:12px;">Remove</button>` : ''}
+      </div>
+      <div class="it-section-items" id="mSecItems-${sIdx}">
+        ${sec.items.map((item, iIdx) => `
+          <div class="it-item-row">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="flex-shrink:0;"><circle cx="12" cy="12" r="3"/></svg>
+            <input type="text" value="${_esc(item)}" placeholder="Checklist item..."
+              onchange="_modalSections[${sIdx}].items[${iIdx}]=this.value"
+              style="flex:1;border:none;background:transparent;font-size:13px;font-family:inherit;color:#334155;outline:none;" />
+            <button onclick="removeModalItem(${sIdx},${iIdx})" class="it-del-btn" title="Remove item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>`).join('')}
+      </div>
+      <div class="it-add-item-row" style="margin-top:8px;">
+        <input type="text" id="newItemInput-${sIdx}" placeholder="Type item and press Enter..." 
+          onkeydown="if(event.key==='Enter'){event.preventDefault();addModalItem(${sIdx})}" />
+        <button onclick="addModalItem(${sIdx})">+ Add Item</button>
+      </div>
+    </div>`).join('');
+}
+
+function addModalSection() {
+  _modalSections.push({ title: `Section ${_modalSections.length + 1}`, items: [''] });
+  renderModalSections();
+}
+
+function removeModalSection(idx) {
+  _modalSections.splice(idx, 1);
+  renderModalSections();
+}
+
+function addModalItem(sIdx) {
+  const inp = document.getElementById(`newItemInput-${sIdx}`);
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (!val) { showToast('Item cannot be empty.', 'error'); return; }
+  _modalSections[sIdx].items.push(val);
+  inp.value = '';
+  renderModalSections();
+}
+
+function removeModalItem(sIdx, iIdx) {
+  _modalSections[sIdx].items.splice(iIdx, 1);
+  if (_modalSections[sIdx].items.length === 0) _modalSections[sIdx].items.push('');
+  renderModalSections();
+}
+
+async function saveTemplateFromModal() {
+  const name    = (document.getElementById('modalName')?.value || '').trim();
+  const typeKey = (document.getElementById('modalTypeKey')?.value || '').trim();
+
+  if (!name) { showToast('Template name is required.', 'error'); return; }
+
+  // Validate sections
+  const sections = _modalSections.map(s => ({
+    title: s.title || 'Section',
+    items: s.items.filter(i => i.trim()),
+  })).filter(s => s.items.length > 0);
+
+  if (!sections.length) { showToast('At least one section with one item is required.', 'error'); return; }
+
+  if (_editingId) {
+    // Update existing
+    const existing = _templates.find(t => t.id === _editingId);
+    if (!existing) return;
+    const patch = { name, visit_type_key: typeKey, sections: JSON.stringify(sections), updated_at: new Date().toISOString() };
+    if (!existing.is_builtin) {
+      // Try to persist to DB
+      const { error } = await empApiPatch('inspection_templates', _editingId, patch);
+      if (error) { showToast('Saved locally only (could not persist to DB).', 'info'); }
+    }
+    Object.assign(existing, { name, visit_type_key: typeKey, sections });
+    showToast('Template updated!', 'success');
+  } else {
+    // Create new
+    const newTpl = { name, visit_type_key: typeKey, sections, is_builtin: false, created_at: new Date().toISOString() };
+    const { data, error } = await empApiPost('inspection_templates', {
+      name, visit_type_key: typeKey,
+      sections: JSON.stringify(sections),
+      is_builtin: false,
+      created_at: newTpl.created_at,
+    });
+    if (data && !error) {
+      newTpl.id = data.id;
+    } else {
+      newTpl.id = 'tpl-local-' + Date.now();
+      showToast('Template created locally (DB not available).', 'info');
+    }
+    _templates.push(newTpl);
+    showToast('Template created!', 'success');
+  }
+
+  closeTemplateModal();
+  renderTemplates();
+  populateCategoryTemplateSelector();
+}
+
+async function deleteTemplate(id) {
+  if (!confirm('Delete this template? This cannot be undone.')) return;
+  try {
+    await fetch(`tables/inspection_templates/${id}`, { method: 'DELETE' });
+  } catch(e) {}
+  _templates = _templates.filter(t => t.id !== id);
+  // Unassign categories that used this template
+  _categories.forEach(c => { if (c.template_id === id) c.template_id = null; });
+  renderTemplates();
+  renderCategories();
+  showToast('Template deleted.', 'success');
+}
+
+function closeTemplateModal() {
+  document.getElementById('templateModal').style.display = 'none';
+  _editingId     = null;
+  _modalSections = [];
+}
+
+function _esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Close modal on outside click
+document.getElementById('templateModal').addEventListener('click', function(e) {
+  if (e.target === this) closeTemplateModal();
+});
+</script>
+</body>
+</html>

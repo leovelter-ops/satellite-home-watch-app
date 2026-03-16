@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms &amp; Conditions — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="topbar-page-title"><span class="topbar-title-text">Terms &amp; Conditions</span><span class="topbar-welcome">Legal information</span></div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-icon-btn np-bell-btn" data-notif-trigger="client" aria-label="Open notifications" aria-haspopup="dialog" aria-expanded="false" title="Notifications" type="button" onclick="SHWNotifPanel.toggle(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="topbar-notif-badge"></span></button>
+        <div class="topbar-avatar" onclick="window.location.href='client-account.html'">JM</div>
+      </div>
+    </header>
+    <main class="dashboard-content">
+      <div style="max-width:760px;margin:0 auto;animation:fadeIn 0.4s ease;">
+
+        <!-- Header -->
+        <div style="background:var(--navy-800);border-radius:var(--radius-2xl);padding:var(--space-10);margin-bottom:var(--space-6);border:1px solid rgba(255,255,255,0.08);">
+          <div style="display:flex;align-items:center;gap:var(--space-4);margin-bottom:var(--space-4);">
+            <div style="width:52px;height:52px;background:rgba(255,255,255,0.1);border-radius:var(--radius-xl);display:flex;align-items:center;justify-content:center;">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <div>
+              <div style="font-size:var(--text-xl);font-weight:800;color:white;letter-spacing:-0.02em;">Terms &amp; Conditions</div>
+              <div style="font-size:var(--text-sm);color:var(--navy-300);margin-top:2px;">Satellite Home Watch Client Service Agreement</div>
+            </div>
+          </div>
+          <div style="font-size:var(--text-xs);color:var(--navy-400);">Last updated: December 1, 2025 &nbsp;·&nbsp; Effective: January 1, 2025</div>
+        </div>
+
+        <!-- Content Card -->
+        <div class="panel">
+          <div class="panel-body" style="line-height:1.8;">
+            <div style="font-size:var(--text-sm);color:var(--color-text-secondary);background:var(--navy-50);border-radius:var(--radius-xl);padding:var(--space-4) var(--space-5);margin-bottom:var(--space-6);border:1px solid var(--navy-100);">
+              <strong style="color:var(--navy-800);">Important:</strong> Please read these terms carefully. By using Satellite Home Watch services and this client portal, you agree to the following terms and conditions.
+            </div>
+
+            <h3 style="font-size:var(--text-lg);font-weight:700;color:var(--navy-900);margin-bottom:var(--space-3);margin-top:var(--space-6);">1. Service Agreement</h3>
+            <p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin-bottom:var(--space-4);">Satellite Home Watch ("the Company") provides professional home watch and property monitoring services to clients ("you" or "Client"). Services are provided according to the selected service plan as outlined in your individual service agreement. This portal serves as a supplementary client communication and reporting tool.</p>
+
+            <h3 style="font-size:var(--text-lg);font-weight:700;color:var(--navy-900);margin-bottom:var(--space-3);margin-top:var(--space-6);">2. Client Portal Access</h3>
+            <p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin-bottom:var(--space-4);">Access to the client portal is granted exclusively to active service clients. Your login credentials are personal and non-transferable. You are responsible for maintaining the confidentiality of your account information and for all activity that occurs under your account.</p>
+
+            <h3 style="font-size:var(--text-lg);font-weight:700;color:var(--navy-900);margin-bottom:var(--space-3);margin-top:var(--space-6);">3. Property Access &amp; Authorization</h3>
+            <p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin-bottom:var(--space-4);">By engaging our services, you authorize Satellite Home Watch inspectors to enter and inspect your property at scheduled times. All inspectors are background-checked, licensed, and insured. Property access authorizations must be signed and on file prior to any inspection.</p>
+
+            <h3 style="font-size:var(--text-lg);font-weight:700;color:var(--navy-900);margin-bottom:var(--space-3);margin-top:var(--space-6);">4. Reports &amp; Documentation</h3>
+            <p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin-bottom:var(--space-4);">Inspection reports, photos, and related documentation are provided for informational purposes and are the property of Satellite Home Watch. Clients may download and retain copies for personal use. Reports should not be used as legal or insurance documents without written authorization from the Company.</p>
+
+            <h3 style="font-size:var(--text-lg);font-weight:700;color:var(--navy-900);margin-bottom:var(--space-3);margin-top:var(--space-6);">5. Limitation of Liability</h3>
+            <p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin-bottom:var(--space-4);">Satellite Home Watch performs visual inspections only. We are not responsible for latent defects, issues concealed behind walls or structures, or conditions that arise between scheduled visits. Our liability is limited to the value of services paid in the most recent 90-day period.</p>
+
+            <h3 style="font-size:var(--text-lg);font-weight:700;color:var(--navy-900);margin-bottom:var(--space-3);margin-top:var(--space-6);">6. Privacy &amp; Data</h3>
+            <p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin-bottom:var(--space-4);">We collect and store property data, inspection records, and communication history for service delivery purposes. Your data is never sold to third parties. All data is stored securely and accessible only to authorized Company personnel and the Client.</p>
+
+            <h3 style="font-size:var(--text-lg);font-weight:700;color:var(--navy-900);margin-bottom:var(--space-3);margin-top:var(--space-6);">7. Service Cancellation</h3>
+            <p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin-bottom:var(--space-4);">Services may be cancelled with 30 days written notice. Prepaid service fees are non-refundable except as required by applicable law. Portal access will be deactivated within 7 days of service termination.</p>
+
+            <hr class="divider" />
+            <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-align:center;">
+              For questions regarding these terms, contact us at <a href="mailto:legal@satellitehomewatch.com" style="color:var(--navy-500);">legal@satellitehomewatch.com</a>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Back Button -->
+        <div style="text-align:center;margin-top:var(--space-6);padding-bottom:var(--space-8);">
+          <a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/nav.js"></script>
+<script src="js/app.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script>renderSidebar('terms');</script>
+</body>
+</html>

@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Started — Satellite Home Watch</title>
+  <meta name="description" content="Submit your property inquiry to Satellite Home Watch. We'll contact you to set up professional home watch services across Southwest Florida." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/landing.css" />
+  <style>
+    /* ── Page Wrapper ── */
+    .inq-page {
+      min-height: 100vh;
+      background: var(--cream-100);
+      padding-bottom: 80px;
+    }
+
+    /* ── Page Header Banner ── */
+    .inq-header {
+      background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-700) 60%, var(--navy-600) 100%);
+      padding: 40px 24px 120px;
+      text-align: center;
+      position: relative;
+      overflow: visible;
+    }
+
+    .inq-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 80% at 50% 120%, rgba(30,58,110,0.5) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .inq-header-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .inq-header-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.65);
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      margin-bottom: 24px;
+      transition: color 0.2s;
+    }
+    .inq-header-back:hover { color: rgba(255,255,255,0.95); }
+
+    .inq-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .inq-eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      animation: pulseDot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .inq-header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      margin: 0 0 14px;
+    }
+
+    .inq-header h1 span {
+      color: var(--cream-400);
+    }
+
+    .inq-header p {
+      font-size: 15px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* ── Trust pills row ── */
+    .inq-trust-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .inq-trust-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.65);
+    }
+
+    .inq-trust-item svg {
+      color: #4ade80;
+      flex-shrink: 0;
+    }
+
+    /* ── Main content area ── */
+    .inq-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Form card ── */
+    .inq-form-card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: var(--shadow-xl);
+      padding: 40px;
+      margin-top: -100px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .inq-form-card-header {
+      margin-bottom: 28px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid rgba(10,22,40,0.07);
+    }
+
+    .inq-form-card-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-bottom: 4px;
+    }
+
+    .inq-form-card-sub {
+      font-size: 13.5px;
+      color: var(--color-text-muted);
+    }
+
+    /* ── Form Grid ── */
+    .inq-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .inq-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .inq-form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .inq-form-label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--navy-800);
+      letter-spacing: 0.02em;
+    }
+
+    .inq-form-label .required-star {
+      color: #dc2626;
+      margin-left: 2px;
+    }
+
+    .inq-form-input,
+    .inq-form-select,
+    .inq-form-textarea {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--cream-50);
+      border: 1.5px solid rgba(10,22,40,0.12);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: var(--font-sans);
+      color: var(--navy-900);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      box-sizing: border-box;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .inq-form-input::placeholder,
+    .inq-form-textarea::placeholder {
+      color: #b0bac8;
+    }
+
+    .inq-form-input:focus,
+    .inq-form-select:focus,
+    .inq-form-textarea:focus {
+      border-color: var(--navy-600);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(30,58,110,0.1);
+    }
+
+    .inq-form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 38px;
+      cursor: pointer;
+    }
+
+    .inq-form-textarea {
+      resize: vertical;
+      min-height: 110px;
+      line-height: 1.55;
+    }
+
+    /* ── Section divider ── */
+    .inq-section-divider {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 4px 0 2px;
+    }
+
+    .inq-section-divider-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--navy-600);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .inq-section-divider-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(10,22,40,0.08);
+    }
+
+    /* ── Submit Area ── */
+    .inq-submit-area {
+      grid-column: 1 / -1;
+      margin-top: 8px;
+    }
+
+    .inq-submit-btn {
+      width: 100%;
+      padding: 15px 28px;
+      background: linear-gradient(135deg, var(--navy-700) 0%, var(--navy-600) 100%);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.25s, box-shadow 0.25s, transform 0.15s;
+      box-shadow: 0 4px 16px rgba(22,45,86,0.25);
+      letter-spacing: 0.01em;
+    }
+
+    .inq-submit-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--navy-800) 0%, var(--navy-700) 100%);
+      box-shadow: 0 6px 22px rgba(22,45,86,0.32);
+      transform: translateY(-1px);
+    }
+
+    .inq-submit-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .inq-submit-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .inq-submit-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .inq-submit-disclaimer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-top: 12px;
+    }
+
+    /* ── Success State ── */
+    .inq-success-state {
+      display: none;
+      text-align: center;
+      padding: 48px 24px;
+    }
+
+    .inq-success-icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 22px;
+      box-shadow: 0 0 0 12px rgba(74,222,128,0.1);
+    }
+
+    .inq-success-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--navy-900);
+      margin-bottom: 10px;
+    }
+
+    .inq-success-sub {
+      font-size: 15px;
+      color: var(--color-text-secondary);
+      line-height: 1.65;
+      max-width: 400px;
+      margin: 0 auto 28px;
+    }
+
+    .inq-success-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── Error message ── */
+    .inq-field-error {
+      font-size: 12px;
+      color: #dc2626;
+      display: none;
+    }
+
+    .inq-form-input.has-error,
+    .inq-form-select.has-error,
+    .inq-form-textarea.has-error {
+      border-color: #dc2626;
+      background: #fff5f5;
+    }
+
+    /* ── Bottom helper CTA card ── */
+    .inq-call-card {
+      background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-800) 100%);
+      border-radius: 18px;
+      padding: 36px 40px;
+      margin-top: 24px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+
+    .inq-call-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--cream-300);
+    }
+
+    .inq-call-body {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .inq-call-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .inq-call-headline {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .inq-call-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+    }
+
+    .inq-call-number {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .inq-call-number a {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--cream-300);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+      transition: color 0.2s;
+    }
+
+    .inq-call-number a:hover {
+      color: #fff;
+    }
+
+    /* ── Small trust strip below form ── */
+    .inq-bottom-trust {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+      padding: 18px 24px;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid rgba(10,22,40,0.07);
+    }
+
+    .inq-bottom-trust-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+    }
+
+    .inq-bottom-trust-item svg {
+      color: var(--navy-600);
+      flex-shrink: 0;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) and (min-width: 641px) {
+      .inq-header {
+        padding: 36px 24px 110px;
+      }
+
+      .inq-form-card {
+        margin-top: -90px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .inq-form-card {
+        padding: 24px 20px;
+        border-radius: 16px;
+        margin-top: -60px;
+      }
+
+      .inq-form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .inq-form-group.full-width {
+        grid-column: 1;
+      }
+
+      .inq-section-divider {
+        grid-column: 1;
+      }
+
+      .inq-submit-area {
+        grid-column: 1;
+      }
+
+      .inq-call-card {
+        padding: 24px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+      }
+
+      .inq-call-number {
+        width: 100%;
+      }
+
+      .inq-call-number a {
+        font-size: 1.25rem;
+      }
+
+      .inq-header {
+        padding: 32px 20px 100px;
+      }
+
+      .inq-bottom-trust {
+        gap: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════ TOP NAV ════════ -->
+<nav class="landing-nav scrolled" id="mainNav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="images/logo.png" alt="Satellite Home Watch logo" class="nav-logo-img" />
+      <div class="nav-logo-text">
+        <span class="nav-logo-primary">Satellite Home Watch</span>
+        <span class="nav-logo-sub">Premium Property Care</span>
+      </div>
+    </a>
+
+    <div class="nav-links">
+      <a href="index.html#services" class="nav-link">Services</a>
+      <a href="index.html#how-it-works" class="nav-link">How It Works</a>
+      <a href="index.html#why-us" class="nav-link">Why Us</a>
+      <a href="index.html#testimonials" class="nav-link">Reviews</a>
+      <a href="index.html#service-areas" class="nav-link">Service Areas</a>
+    </div>
+
+    <div class="nav-actions">
+      <a href="auth.html" class="btn btn-secondary btn-sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Login
+      </a>
+      <a href="inquiry.html" class="btn btn-primary btn-sm">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        Get Started
+      </a>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+        <svg id="menuIconOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <svg id="menuIconClose" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html#services" class="nav-link" onclick="closeMobileMenu()">Services</a>
+  <a href="index.html#how-it-works" class="nav-link" onclick="closeMobileMenu()">How It Works</a>
+  <a href="index.html#why-us" class="nav-link" onclick="closeMobileMenu()">Why Us</a>
+  <a href="index.html#testimonials" class="nav-link" onclick="closeMobileMenu()">Reviews</a>
+  <a href="index.html#service-areas" class="nav-link" onclick="closeMobileMenu()">Service Areas</a>
+  <div class="mobile-menu-actions">
+    <a href="auth.html" class="btn btn-secondary" style="width:100%; justify-content:center;">Login</a>
+    <a href="inquiry.html" class="btn btn-primary" style="width:100%; justify-content:center;">Get Started</a>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PAGE WRAPPER
+════════════════════════════════════════ -->
+<div class="inq-page">
+
+  <!-- ── Header Banner ── -->
+  <div class="inq-header">
+    <div class="inq-header-inner">
+      <a href="index.html" class="inq-header-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Home
+      </a>
+      <div class="inq-eyebrow">
+        <span class="inq-eyebrow-dot"></span>
+        Southwest Florida Home Watch Services
+      </div>
+      <h1>Start Protecting<br/><span>Your Property Today</span></h1>
+      <p>Tell us about your property and we'll reach out within one business day to discuss your home watch service options.</p>
+      <div class="inq-trust-row">
+        <div class="inq-trust-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Licensed &amp; Insured
+        </div>
+        <div class="inq-trust-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          No Long-Term Contract Required
+        </div>
+        <div class="inq-trust-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Response Within 24 Hours
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main Content ── -->
+  <div class="inq-content">
+
+    <!-- ── Form Card ── -->
+    <div class="inq-form-card" id="formCard">
+      <div class="inq-form-card-header">
+        <div class="inq-form-card-title">Property Inquiry Form</div>
+        <div class="inq-form-card-sub">All fields marked <span style="color:#dc2626;">*</span> are required. We'll contact you to review your property and service options.</div>
+      </div>
+
+      <!-- Form -->
+      <form id="inquiryForm" novalidate>
+        <div class="inq-form-grid">
+
+          <!-- ── Contact Info ── -->
+          <div class="inq-section-divider full-width">
+            <span class="inq-section-divider-label">Contact Information</span>
+            <div class="inq-section-divider-line"></div>
+          </div>
+
+          <div class="inq-form-group">
+            <label class="inq-form-label" for="fullName">Full Name <span class="required-star">*</span></label>
+            <input type="text" id="fullName" name="fullName" class="inq-form-input" placeholder="e.g. Jane Smith" autocomplete="name" />
+            <span class="inq-field-error" id="fullNameError">Please enter your full name.</span>
+          </div>
+
+          <div class="inq-form-group">
+            <label class="inq-form-label" for="email">Email Address <span class="required-star">*</span></label>
+            <input type="email" id="email" name="email" class="inq-form-input" placeholder="you@example.com" autocomplete="email" />
+            <span class="inq-field-error" id="emailError">Please enter a valid email address.</span>
+          </div>
+
+          <div class="inq-form-group">
+            <label class="inq-form-label" for="phone">Phone Number <span class="required-star">*</span></label>
+            <input type="tel" id="phone" name="phone" class="inq-form-input" placeholder="(239) 000-0000" autocomplete="tel" />
+            <span class="inq-field-error" id="phoneError">Please enter your phone number.</span>
+          </div>
+
+          <!-- ── Property Info ── -->
+          <div class="inq-section-divider full-width">
+            <span class="inq-section-divider-label">Property Details</span>
+            <div class="inq-section-divider-line"></div>
+          </div>
+
+          <div class="inq-form-group full-width">
+            <label class="inq-form-label" for="propertyAddress">Property Address <span class="required-star">*</span></label>
+            <input type="text" id="propertyAddress" name="propertyAddress" class="inq-form-input" placeholder="Street address of the property to be watched" autocomplete="street-address" />
+            <span class="inq-field-error" id="propertyAddressError">Please enter the property address.</span>
+          </div>
+
+          <div class="inq-form-group">
+            <label class="inq-form-label" for="city">City / Area <span class="required-star">*</span></label>
+            <input type="text" id="city" name="city" class="inq-form-input" placeholder="e.g. Naples, Bonita Springs" autocomplete="address-level2" />
+            <span class="inq-field-error" id="cityError">Please enter the city or area.</span>
+          </div>
+
+          <div class="inq-form-group">
+            <label class="inq-form-label" for="zip">ZIP Code <span class="required-star">*</span></label>
+            <input type="text" id="zip" name="zip" class="inq-form-input" placeholder="e.g. 34102" autocomplete="postal-code" maxlength="10" />
+            <span class="inq-field-error" id="zipError">Please enter the ZIP code.</span>
+          </div>
+
+          <div class="inq-form-group">
+            <label class="inq-form-label" for="propertyType">Property Type</label>
+            <select id="propertyType" name="propertyType" class="inq-form-select">
+              <option value="" disabled selected>Select type…</option>
+              <option value="Single-Family Home">Single-Family Home</option>
+              <option value="Condo / Townhome">Condo / Townhome</option>
+              <option value="Waterfront / Coastal">Waterfront / Coastal</option>
+              <option value="Luxury Estate">Luxury Estate</option>
+              <option value="Vacation / Seasonal Home">Vacation / Seasonal Home</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <!-- ── Service Info ── -->
+          <div class="inq-section-divider full-width">
+            <span class="inq-section-divider-label">Service Preferences</span>
+            <div class="inq-section-divider-line"></div>
+          </div>
+
+          <div class="inq-form-group">
+            <label class="inq-form-label" for="serviceInterest">Service Interest / Plan Needed</label>
+            <select id="serviceInterest" name="serviceInterest" class="inq-form-select">
+              <option value="" disabled selected>Select a service…</option>
+              <option value="Routine Inspections">Routine Inspections</option>
+              <option value="Hurricane/Storm Prep">Hurricane / Storm Prep</option>
+              <option value="Seasonal Services">Returning or Leaving Season Services</option>
+              <option value="Vendor Oversight">Vendor Oversight &amp; Coordination</option>
+              <option value="Full Watch Plan">Full Watch Plan (All Services)</option>
+              <option value="Other / Not Sure">Other / Not Sure Yet</option>
+            </select>
+          </div>
+
+          <div class="inq-form-group">
+            <label class="inq-form-label" for="preferredTiming">Preferred Start Timing</label>
+            <select id="preferredTiming" name="preferredTiming" class="inq-form-select">
+              <option value="" disabled selected>Select timing…</option>
+              <option value="As soon as possible">As soon as possible</option>
+              <option value="Within 1 month">Within 1 month</option>
+              <option value="1–3 months">1–3 months</option>
+              <option value="3–6 months">3–6 months</option>
+              <option value="Just exploring">Just exploring options</option>
+            </select>
+          </div>
+
+          <!-- ── Message ── -->
+          <div class="inq-section-divider full-width">
+            <span class="inq-section-divider-label">Additional Notes</span>
+            <div class="inq-section-divider-line"></div>
+          </div>
+
+          <div class="inq-form-group full-width">
+            <label class="inq-form-label" for="message">Message / Notes</label>
+            <textarea id="message" name="message" class="inq-form-textarea" placeholder="Tell us anything else about your property, specific concerns, or questions you have for us…"></textarea>
+          </div>
+
+          <!-- ── Submit ── -->
+          <div class="inq-submit-area">
+            <button type="submit" class="inq-submit-btn" id="submitBtn">
+              <span class="inq-submit-spinner" id="submitSpinner"></span>
+              <svg id="submitIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+              <span id="submitLabel">Submit Inquiry</span>
+            </button>
+            <p class="inq-submit-disclaimer">By submitting, you agree to be contacted by Satellite Home Watch regarding your property inquiry. We never share your information.</p>
+          </div>
+
+        </div>
+      </form>
+
+      <!-- ── Success State (shown after submit) ── -->
+      <div class="inq-success-state" id="successState">
+        <div class="inq-success-icon">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="inq-success-title">Inquiry Submitted!</div>
+        <p class="inq-success-sub">Thank you for reaching out. A member of the Satellite Home Watch team will contact you within one business day to discuss your property and service options.</p>
+        <div class="inq-success-actions">
+          <a href="index.html" class="btn btn-primary">Back to Home</a>
+          <a href="auth.html" class="btn btn-secondary">Client Login</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Trust Strip ── -->
+    <div class="inq-bottom-trust">
+      <div class="inq-bottom-trust-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Licensed &amp; Insured
+      </div>
+      <div class="inq-bottom-trust-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        No long-term contract required
+      </div>
+      <div class="inq-bottom-trust-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Response within 24 hours
+      </div>
+      <div class="inq-bottom-trust-item">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Family-owned &amp; operated
+      </div>
+    </div>
+
+    <!-- ── Not Ready? Call Us ── -->
+    <div class="inq-call-card">
+      <div class="inq-call-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      </div>
+      <div class="inq-call-body">
+        <div class="inq-call-eyebrow">Not ready to commit yet?</div>
+        <div class="inq-call-headline">Give us a call — we're happy to chat.</div>
+        <div class="inq-call-sub">Talk to Leo or Jolene directly. No pressure, no obligation — just honest answers about protecting your property.</div>
+      </div>
+      <div class="inq-call-number">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.75"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        <a href="tel:">(239) 000-0000</a>
+      </div>
+    </div>
+
+  </div>
+  <!-- / inq-content -->
+
+</div>
+<!-- / inq-page -->
+
+<!-- ════════ FOOTER ════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom" style="border-top:none; padding-top:0;">
+      <p class="footer-legal">© 2025 Satellite Home Watch. All rights reserved. Professional Home Watch Services — Southwest Florida.</p>
+      <div class="footer-legal-links">
+        <a href="client-terms.html" class="footer-legal-link">Terms of Service</a>
+        <a href="#" class="footer-legal-link">Privacy Policy</a>
+        <a href="index.html" class="footer-legal-link">Back to Home</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── Mobile Menu ──
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileMenu    = document.getElementById('mobileMenu');
+const menuIconOpen  = document.getElementById('menuIconOpen');
+const menuIconClose = document.getElementById('menuIconClose');
+
+mobileMenuBtn.addEventListener('click', () => {
+  const isOpen = mobileMenu.classList.toggle('open');
+  menuIconOpen.style.display  = isOpen ? 'none' : 'block';
+  menuIconClose.style.display = isOpen ? 'block' : 'none';
+});
+
+function closeMobileMenu() {
+  mobileMenu.classList.remove('open');
+  menuIconOpen.style.display  = 'block';
+  menuIconClose.style.display = 'none';
+}
+
+// ── Form Validation & Submission ──
+const form        = document.getElementById('inquiryForm');
+const submitBtn   = document.getElementById('submitBtn');
+const submitLabel = document.getElementById('submitLabel');
+const submitSpinner = document.getElementById('submitSpinner');
+const submitIcon  = document.getElementById('submitIcon');
+const successState = document.getElementById('successState');
+
+function showError(inputId, errorId, show) {
+  const input = document.getElementById(inputId);
+  const error = document.getElementById(errorId);
+  if (!input || !error) return;
+  if (show) {
+    input.classList.add('has-error');
+    error.style.display = 'block';
+  } else {
+    input.classList.remove('has-error');
+    error.style.display = 'none';
+  }
+}
+
+function clearError(inputId, errorId) {
+  showError(inputId, errorId, false);
+}
+
+// Live clear on input
+['fullName','email','phone','propertyAddress','city','zip'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('input', () => clearError(id, id + 'Error'));
+  }
+});
+
+function validateForm() {
+  let valid = true;
+
+  const fullName = document.getElementById('fullName').value.trim();
+  if (!fullName) { showError('fullName','fullNameError',true); valid = false; }
+  else clearError('fullName','fullNameError');
+
+  const email = document.getElementById('email').value.trim();
+  const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRx.test(email)) { showError('email','emailError',true); valid = false; }
+  else clearError('email','emailError');
+
+  const phone = document.getElementById('phone').value.trim();
+  if (!phone || phone.length < 7) { showError('phone','phoneError',true); valid = false; }
+  else clearError('phone','phoneError');
+
+  const addr = document.getElementById('propertyAddress').value.trim();
+  if (!addr) { showError('propertyAddress','propertyAddressError',true); valid = false; }
+  else clearError('propertyAddress','propertyAddressError');
+
+  const city = document.getElementById('city').value.trim();
+  if (!city) { showError('city','cityError',true); valid = false; }
+  else clearError('city','cityError');
+
+  const zip = document.getElementById('zip').value.trim();
+  if (!zip) { showError('zip','zipError',true); valid = false; }
+  else clearError('zip','zipError');
+
+  return valid;
+}
+
+form.addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  if (!validateForm()) {
+    // Scroll to first error
+    const firstErr = document.querySelector('.inq-form-input.has-error, .inq-form-select.has-error');
+    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  // Disable button and show spinner
+  submitBtn.disabled = true;
+  submitIcon.style.display = 'none';
+  submitSpinner.style.display = 'block';
+  submitLabel.textContent = 'Submitting…';
+
+  const payload = {
+    full_name:        document.getElementById('fullName').value.trim(),
+    email:            document.getElementById('email').value.trim(),
+    phone:            document.getElementById('phone').value.trim(),
+    property_address: document.getElementById('propertyAddress').value.trim(),
+    city:             document.getElementById('city').value.trim(),
+    zip:              document.getElementById('zip').value.trim(),
+    property_type:    document.getElementById('propertyType').value || '',
+    service_interest: document.getElementById('serviceInterest').value || '',
+    preferred_timing: document.getElementById('preferredTiming').value || '',
+    message:          document.getElementById('message').value.trim(),
+    source:           'Website Inquiry Form',
+    status:           'new',
+  };
+
+  try {
+    const res = await fetch('tables/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error('API error: ' + res.status);
+
+    // Show success
+    form.style.display = 'none';
+    document.querySelector('.inq-form-card-header').style.display = 'none';
+    successState.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (err) {
+    // Lead submission error — show error state
+    // Re-enable button and show generic error
+    submitBtn.disabled = false;
+    submitIcon.style.display = 'block';
+    submitSpinner.style.display = 'none';
+    submitLabel.textContent = 'Submit Inquiry';
+
+    // Show an inline error message
+    let errMsg = document.getElementById('submitGlobalError');
+    if (!errMsg) {
+      errMsg = document.createElement('p');
+      errMsg.id = 'submitGlobalError';
+      errMsg.style.cssText = 'color:#dc2626;font-size:13px;text-align:center;margin-top:10px;';
+      submitBtn.parentNode.appendChild(errMsg);
+    }
+    errMsg.textContent = 'Something went wrong. Please try again or contact us directly.';
+  }
+});
+</script>
+
+</body>
+</html>

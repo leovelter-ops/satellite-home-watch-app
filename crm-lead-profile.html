@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lead Profile — CRM — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── MOBILE-ONLY: Lead Profile Page ──────────────────────────── */
+    @media (max-width: 768px) {
+
+      /* Prevent any horizontal overflow on this page */
+      .dashboard-content,
+      .crm-lead-hero,
+      .lp-content-grid,
+      .crm-request-detail-card,
+      .admin-summary-card {
+        max-width: 100%;
+        overflow-x: hidden;
+        box-sizing: border-box;
+      }
+
+      /* Tighter page padding on mobile */
+      .dashboard-content {
+        padding: 16px !important;
+      }
+
+      /* ── Breadcrumb: truncate gracefully ── */
+      .lp-breadcrumb {
+        flex-wrap: wrap;
+        gap: 4px;
+        font-size: 11px;
+        margin-bottom: 14px;
+      }
+
+      /* ── Hero card: full-width, safe padding ── */
+      .crm-lead-hero {
+        padding: 20px 18px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+      }
+
+      /* ── Hero top: stack avatar+info above actions ── */
+      .crm-lead-hero-top {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 16px !important;
+        margin-bottom: 16px;
+      }
+
+      /* Avatar + name row stays side-by-side but compact */
+      .crm-lead-hero-top > div:first-child {
+        gap: 14px !important;
+        width: 100%;
+      }
+
+      /* Avatar smaller on mobile */
+      .crm-profile-big-avatar {
+        width: 52px !important;
+        height: 52px !important;
+        font-size: 18px !important;
+        flex-shrink: 0;
+      }
+
+      /* Name text */
+      .crm-profile-name {
+        font-size: 18px !important;
+      }
+
+      /* ── Action buttons: wrap into rows ── */
+      .crm-profile-actions {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        width: 100%;
+      }
+
+      .crm-action-btn {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+        flex: 1 1 auto;
+        min-width: 120px;
+        justify-content: center;
+      }
+
+      /* ── Meta row: wrap items into a 2-col grid ── */
+      .crm-profile-meta-row {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 14px 20px !important;
+        padding-top: 14px;
+      }
+
+      /* ── Main content grid: single column ── */
+      .lp-content-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+      }
+
+      /* ── Detail cards full-width ── */
+      .crm-request-detail-card {
+        padding: 18px !important;
+        margin-bottom: 0 !important;
+        border-radius: 12px;
+        width: 100%;
+      }
+
+      /* ── Summary cards full-width ── */
+      .admin-summary-card {
+        width: 100%;
+        border-radius: 12px;
+        margin-bottom: 0 !important;
+      }
+
+      /* Notes add button: wrap-safe */
+      .crm-request-detail-card .admin-add-btn {
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      /* Inquiry message text */
+      .crm-request-detail-card > div[style*="background:#f8fafc"] {
+        padding: 14px !important;
+      }
+
+      /* Timeline: keep readable */
+      .crm-timeline {
+        padding-left: 24px;
+      }
+
+      /* Quick-actions sidebar card body */
+      .admin-summary-card .admin-summary-body {
+        padding: 12px !important;
+      }
+
+      /* Quick action buttons: full width on mobile already, just ensure no overflow */
+      .admin-summary-body button[style*="width:100%"] {
+        box-sizing: border-box;
+      }
+    }
+
+    /* ── MOBILE SMALL ── */
+    @media (max-width: 480px) {
+      .dashboard-content {
+        padding: 12px !important;
+      }
+
+      .crm-lead-hero {
+        padding: 16px 14px;
+      }
+
+      .crm-profile-meta-row {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px 14px !important;
+      }
+
+      .crm-profile-meta-val {
+        font-size: 13px !important;
+      }
+
+      .crm-action-btn {
+        font-size: 11px !important;
+        padding: 7px 10px !important;
+        min-width: 100px;
+      }
+
+      .crm-request-detail-card {
+        padding: 14px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Lead Profile</span>
+          <span class="topbar-welcome">CRM System · Lead Details</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Breadcrumb -->
+      <div class="lp-breadcrumb" style="display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;margin-bottom:18px;">
+        <a href="crm-overview.html" style="color:#64748b;text-decoration:none;font-weight:500;">CRM System</a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <a href="crm-leads.html" onclick="event.preventDefault(); (typeof SHWNav !== 'undefined' ? SHWNav.back('crm-leads.html') : window.location.href='crm-leads.html')" style="color:#64748b;text-decoration:none;font-weight:500;">Leads</a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span style="color:#0f1e38;font-weight:600;">Marcus Reynolds</span>
+      </div>
+
+      <!-- Lead Hero -->
+      <div class="crm-lead-hero">
+        <div class="crm-lead-hero-top">
+          <div style="display:flex;align-items:flex-start;gap:20px;">
+            <div class="crm-profile-big-avatar" id="heroAvatar">—</div>
+            <div>
+              <div class="crm-lead-source-badge" id="heroSourceBadge">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+                —
+              </div>
+              <div class="crm-profile-name" id="heroName">—</div>
+              <div class="crm-profile-email">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;opacity:.7;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span id="heroEmail">—</span>
+              </div>
+              <div class="crm-profile-phone">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;opacity:.7;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .98h3a2 2 0 012 1.72 12.05 12.05 0 00.67 2.7 2 2 0 01-.45 2.11L6.05 8.47a16 16 0 006.29 6.29l1.65-1.17a2 2 0 012.11-.45 12.05 12.05 0 002.7.67A2 2 0 0122 16.92z"/></svg>
+                <span id="heroPhone">—</span>
+              </div>
+              </div>
+            </div>
+          </div>
+          <div class="crm-profile-actions">
+            <button class="crm-action-btn" onclick="openAddNoteModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Add Note
+            </button>
+            <button class="crm-action-btn" onclick="markContacted()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .98h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.05 8.47a16 16 0 006.29 6.29l1.65-1.17a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+              Mark Contacted
+            </button>
+            <button class="crm-action-btn solid" onclick="convertToCustomer()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+              Convert to Customer
+            </button>
+          </div>
+        </div>
+        <div class="crm-profile-meta-row">
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Lead Status</div>
+            <div class="crm-profile-meta-val">
+              <span id="leadStatusDisplay" style="display:inline-flex;align-items:center;gap:5px;">—</span>
+            </div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Lead Source</div>
+            <div class="crm-profile-meta-val" id="heroSource">—</div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Date Created</div>
+            <div class="crm-profile-meta-val" id="heroCreated">—</div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Assigned To</div>
+            <div class="crm-profile-meta-val" id="heroAssigned">—</div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Last Contact</div>
+            <div class="crm-profile-meta-val">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="lp-content-grid" style="display:grid;grid-template-columns:1fr 360px;gap:20px;">
+
+        <!-- Left Column -->
+        <div>
+
+          <!-- Inquiry Message -->
+          <div class="crm-request-detail-card">
+            <div class="crm-detail-section-title">Inquiry Message</div>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;">
+              <div style="font-size:13px;color:#0f1e38;line-height:1.7;">
+                <span id="inquiryMessage" style="color:#94a3b8;font-style:italic;">No inquiry message recorded.</span>
+              </div>
+              <div style="font-size:11px;color:#94a3b8;margin-top:10px;" id="inquiryDate">—</div>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="crm-request-detail-card" style="margin-top:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+              <div class="crm-detail-section-title" style="margin-bottom:0;">Notes</div>
+              <button class="admin-add-btn" style="padding:6px 12px;font-size:12px;" onclick="openAddNoteModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Note
+              </button>
+            </div>
+            <div id="notesContainer">
+              <div style="background:#f8fafc;border:1px dashed #e2e8f0;border-radius:10px;padding:24px;text-align:center;color:#94a3b8;font-size:13px;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 8px;display:block;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                No notes yet. Add the first note for this lead.
+              </div>
+            </div>
+          </div>
+
+          <!-- Follow-up Activity -->
+          <div class="crm-request-detail-card" style="margin-top:20px;">
+            <div class="crm-detail-section-title">Follow-up Activity</div>
+            <div class="crm-timeline" style="padding-top:8px;" id="timelineContainer">
+              <div style="text-align:center;padding:18px;color:#94a3b8;font-size:13px;">Loading…</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column -->
+        <div>
+
+          <!-- Lead Summary Card -->
+          <div class="admin-summary-card">
+            <div class="admin-summary-header">Lead Summary</div>
+            <div class="admin-summary-body">
+              <div class="admin-summary-list">
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Status</span>
+                  <span class="admin-summary-val"><span class="tbl-status new-lead" id="summaryStatus">—</span></span>
+                </div>
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Source</span>
+                  <span class="admin-summary-val" id="summarySource">—</span>
+                </div>
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Created</span>
+                  <span class="admin-summary-val" id="summaryCreated">—</span>
+                </div>
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Last Updated</span>
+                  <span class="admin-summary-val" id="lastUpdated">—</span>
+                </div>
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Assigned To</span>
+                  <span class="admin-summary-val" id="summaryAssigned">—</span>
+                </div>
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Location Interest</span>
+                  <span class="admin-summary-val" id="summaryLocation">—</span>
+                </div>
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Properties of Interest</span>
+                  <span class="admin-summary-val" id="summaryProps">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="admin-summary-card">
+            <div class="admin-summary-header">Quick Actions</div>
+            <div class="admin-summary-body" style="padding:12px 16px;">
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button style="width:100%;padding:11px 14px;text-align:left;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:#0f1e38;display:flex;align-items:center;gap:10px;transition:all .15s;" onmouseover="this.style.borderColor='#162d56';this.style.background='#f0f5ff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'" onclick="showToast('Opening email client…','info')">
+                  <span style="width:28px;height:28px;border-radius:8px;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  </span>
+                  Send Email
+                </button>
+                <button style="width:100%;padding:11px 14px;text-align:left;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:#0f1e38;display:flex;align-items:center;gap:10px;transition:all .15s;" onmouseover="this.style.borderColor='#162d56';this.style.background='#f0f5ff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'" onclick="showToast('Scheduling follow-up call…','info')">
+                  <span style="width:28px;height:28px;border-radius:8px;background:#fef3c7;color:#b45309;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  </span>
+                  Schedule Follow-up
+                </button>
+                <button style="width:100%;padding:11px 14px;text-align:left;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:#0f1e38;display:flex;align-items:center;gap:10px;transition:all .15s;" onmouseover="this.style.borderColor='#162d56';this.style.background='#f0f5ff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'" onclick="markContacted()">
+                  <span style="width:28px;height:28px;border-radius:8px;background:#fef3c7;color:#b45309;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .98h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.05 8.47a16 16 0 006.29 6.29l1.65-1.17a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                  </span>
+                  Mark Contacted
+                </button>
+                <button style="width:100%;padding:11px 14px;text-align:left;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;color:#15803d;display:flex;align-items:center;gap:10px;transition:all .15s;" onmouseover="this.style.borderColor='#22c55e';this.style.background='#dcfce7'" onmouseout="this.style.borderColor='#bbf7d0';this.style.background='#f0fdf4'" onclick="convertToCustomer()">
+                  <span style="width:28px;height:28px;border-radius:8px;background:#dcfce7;color:#15803d;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+                  </span>
+                  Convert to Customer
+                </button>
+                <button style="width:100%;padding:11px 14px;text-align:left;background:#fff;border:1px solid #fee2e2;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:#dc2626;display:flex;align-items:center;gap:10px;transition:all .15s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='#fff'" onclick="showToast('Lead marked as lost','error')">
+                  <span style="width:28px;height:28px;border-radius:8px;background:#fee2e2;color:#dc2626;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </span>
+                  Mark as Lost
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+const LEAD_STATUS_COLORS = { new:'#3b82f6', contacted:'#f59e0b', qualified:'#10b981', converted:'#162d56', lost:'#ef4444' };
+
+function _fmtDate(ts) {
+  if (!ts) return '—';
+  const d = new Date(typeof ts === 'number' ? ts : Number(ts));
+  return isNaN(d) ? '—' : d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+function _fmtDateTime(ts) {
+  if (!ts) return '—';
+  const d = new Date(typeof ts === 'number' ? ts : Number(ts));
+  return isNaN(d) ? '—' : d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) + ' · ' + d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+}
+function _initials(name) {
+  return name.replace(/&/g,'').trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2) || '—';
+}
+function _sv(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+function _sh(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
+
+let _currentLead = null;
+
+async function loadLead() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (!id) {
+    showEmptyState('No lead ID specified.');
+    return;
+  }
+  try {
+    const res = await fetch(`tables/leads/${id}`);
+    if (!res.ok) { showEmptyState('Lead not found.'); return; }
+    const lead = await res.json();
+    _currentLead = lead;
+    populateLead(lead);
+  } catch (e) {
+    showEmptyState('Unable to load lead data.');
+  }
+}
+
+function showEmptyState(msg) {
+  document.querySelectorAll('[id]').forEach(el => {
+    if (['heroAvatar','heroName','heroEmail','heroPhone','heroSource','heroSourceBadge',
+         'heroCreated','heroAssigned','breadcrumbName','leadStatusDisplay',
+         'summaryStatus','summarySource','summaryCreated','lastUpdated',
+         'summaryAssigned','summaryLocation','summaryProps',
+         'inquiryMessage','inquiryDate','timelineContainer'].includes(el.id)) {
+      el.textContent = '—';
+    }
+  });
+  const tc = document.getElementById('timelineContainer');
+  if (tc) tc.innerHTML = `<div style="text-align:center;padding:18px;color:#94a3b8;font-size:13px;">${msg}</div>`;
+}
+
+function populateLead(lead) {
+  const name = lead.full_name || lead.name || '—';
+  const ini  = _initials(name);
+  const src  = lead.source || '—';
+  const status = lead.status || 'new';
+  const statusColor = LEAD_STATUS_COLORS[status] || '#94a3b8';
+  const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+  const created = _fmtDate(lead.created_at);
+  const updated = _fmtDate(lead.updated_at);
+  const city = lead.city || lead.location || '';
+  const zip  = lead.zip  || '';
+  const location = [city, zip].filter(Boolean).join(', ') || '—';
+
+  _sv('heroAvatar',      ini);
+  _sv('heroName',        name);
+  _sv('heroEmail',       lead.email || '—');
+  _sv('heroPhone',       lead.phone || '—');
+  _sv('breadcrumbName',  name);
+  _sv('heroCreated',     created);
+  _sv('heroAssigned',    lead.assigned_to || ADMIN_SESSION.name || '—');
+  _sv('summaryCreated',  created);
+  _sv('lastUpdated',     updated);
+  _sv('summaryAssigned', lead.assigned_to || ADMIN_SESSION.name || '—');
+  _sv('summaryLocation', location);
+  _sv('summaryProps',    lead.property_address ? '1 property' : '—');
+
+  // Source badge
+  const srcBadge = document.getElementById('heroSourceBadge');
+  if (srcBadge) {
+    srcBadge.querySelector('svg').insertAdjacentText('afterend', ' ' + src);
+    srcBadge.childNodes[srcBadge.childNodes.length - 1].textContent = ' ' + src;
+  }
+  _sv('heroSource', src);
+  _sv('summarySource', src);
+
+  // Status
+  const statusHtml = `<span style="width:8px;height:8px;border-radius:50%;background:${statusColor};display:inline-block;"></span> ${statusLabel}`;
+  _sh('leadStatusDisplay', statusHtml);
+  const ss = document.getElementById('summaryStatus');
+  if (ss) { ss.className = `tbl-status ${status}`; ss.textContent = statusLabel; }
+
+  // Inquiry message
+  const msgEl = document.getElementById('inquiryMessage');
+  if (msgEl) {
+    if (lead.message) {
+      msgEl.style.fontStyle = 'normal';
+      msgEl.style.color = '#0f1e38';
+      msgEl.textContent = `"${lead.message}"`;
+    } else {
+      msgEl.textContent = 'No inquiry message recorded.';
+    }
+  }
+  const rawDate = lead.created_at ? new Date(typeof lead.created_at === 'number' ? lead.created_at : Number(lead.created_at)) : null;
+  _sv('inquiryDate', rawDate && !isNaN(rawDate) ? `Submitted · ${_fmtDateTime(lead.created_at)}` : '—');
+
+  // Timeline
+  const tc = document.getElementById('timelineContainer');
+  if (tc) {
+    const items = [];
+    if (lead.created_at) items.push({ color:'blue', date: _fmtDateTime(lead.created_at), title:'Lead Created', body:`Inquiry received via ${src}.` });
+    if (status === 'contacted') items.push({ color:'amber', date: _fmtDate(lead.updated_at), title:'Contacted', body:'Lead was contacted.' });
+    if (status === 'qualified') items.push({ color:'green', date: _fmtDate(lead.updated_at), title:'Qualified', body:'Lead qualified for service.' });
+    if (status === 'converted') items.push({ color:'teal', date: _fmtDate(lead.updated_at), title:'Converted', body:'Lead converted to customer.' });
+    if (items.length === 0) {
+      tc.innerHTML = `<div style="text-align:center;padding:18px;color:#94a3b8;font-size:13px;">No activity recorded yet.</div>`;
+    } else {
+      tc.innerHTML = items.map(i => `<div class="crm-timeline-item"><div class="crm-timeline-dot ${i.color}"></div><div class="crm-timeline-date">${i.date}</div><div class="crm-timeline-title">${i.title}</div><div class="crm-timeline-body">${i.body}</div></div>`).join('');
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderAdminSidebar('crm-leads');
+  loadLead();
+});
+
+// ─── ADD NOTE MODAL ────────────────────────────────────────────────────────────
+function openAddNoteModal() {
+  document.getElementById('addNoteModal').style.display = 'flex';
+  document.getElementById('noteText').focus();
+}
+function closeAddNoteModal() {
+  document.getElementById('addNoteModal').style.display = 'none';
+  document.getElementById('noteText').value = '';
+}
+async function submitNote(e) {
+  e.preventDefault();
+  if (!_currentLead) return;
+  const text = document.getElementById('noteText').value.trim();
+  if (!text) return;
+  const notes = _currentLead.notes ? _currentLead.notes + '\n\n' + text : text;
+  try {
+    const res = await fetch(`tables/leads/${_currentLead.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes }),
+    });
+    if (!res.ok) throw new Error();
+    _currentLead.notes = notes;
+    closeAddNoteModal();
+    const container = document.getElementById('notesContainer');
+    if (container) {
+      const row = document.createElement('div');
+      row.style.cssText = 'background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;font-size:13px;color:#334155;line-height:1.5;white-space:pre-wrap;';
+      row.textContent = text;
+      container.innerHTML = '';
+      container.appendChild(row);
+    }
+    showToast('Note saved', 'success');
+  } catch {
+    showToast('Could not save note — please try again', 'error');
+  }
+}
+
+function markContacted() {
+  if (!_currentLead) return;
+  fetch(`tables/leads/${_currentLead.id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: 'contacted' })
+  }).then(r => r.ok ? r.json() : null).then(updated => {
+    if (updated) { _currentLead = updated; populateLead(updated); }
+    showToast('Lead status updated to Contacted', 'success');
+  }).catch(() => showToast('Unable to update lead status', 'error'));
+}
+
+function convertToCustomer() {
+  if (!_currentLead) return;
+  const name = _currentLead.full_name || _currentLead.name || 'this lead';
+  if (confirm(`Convert ${name} to a Customer? This will create a new customer account.`)) {
+    fetch(`tables/leads/${_currentLead.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'converted' })
+    }).then(() => {
+      showToast('Lead converted! Redirecting…', 'success');
+      setTimeout(() => window.location.href = 'crm-customers.html', 1800);
+    }).catch(() => showToast('Unable to convert lead', 'error'));
+  }
+}
+</script>
+
+<!-- Add Note Modal -->
+<div id="addNoteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:16px;padding:28px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:15px;font-weight:700;color:#0f1e38;">Add Note</div>
+      <button onclick="closeAddNoteModal()" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:20px;line-height:1;">×</button>
+    </div>
+    <form onsubmit="submitNote(event)">
+      <textarea id="noteText" rows="4" placeholder="Enter your note about this lead…" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;margin-bottom:16px;"></textarea>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button type="button" onclick="closeAddNoteModal()" style="padding:9px 18px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#475569;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+        <button type="submit" style="padding:9px 18px;border-radius:8px;border:none;background:#162d56;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">Save Note</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

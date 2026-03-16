@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<div class="app-wrapper">
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Admin navigation">
+    <div class="sidebar-header">
+      <a href="index.html" class="sidebar-logo" title="Go to main site">
+        <img src="images/logo.png" alt="Satellite Home Watch logo" class="sidebar-logo-img" />
+        <div class="sidebar-logo-text">
+          <span class="sidebar-logo-primary">Satellite Home Watch</span>
+          <span class="sidebar-logo-sub">Admin Portal</span>
+        </div>
+      </a>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <div class="sidebar-section-label">Operations</div>
+      <a href="admin-dashboard.html" class="sidebar-nav-item" data-page="admin-dashboard">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Operations Dashboard
+      </a>
+      <a href="admin-schedule.html" class="sidebar-nav-item" data-page="admin-schedule">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        Schedule
+      </a>
+      <a href="admin-clients.html" class="sidebar-nav-item" data-page="admin-clients">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+        Clients
+      </a>
+      <a href="admin-properties.html" class="sidebar-nav-item" data-page="admin-properties">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Properties
+      </a>
+      <a href="admin-alerts.html" class="sidebar-nav-item" data-page="admin-alerts">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Alerts
+        <span class="sidebar-nav-badge">3</span>
+      </a>
+      <a href="admin-messages.html" class="sidebar-nav-item" data-page="admin-messages">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+        Messages
+        <span class="sidebar-nav-badge amber">2</span>
+      </a>
+      <a href="admin-documents.html" class="sidebar-nav-item" data-page="admin-documents">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+        </svg>
+        Documents
+      </a>
+      <a href="admin-analytics.html" class="sidebar-nav-item" data-page="admin-analytics">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
+        </svg>
+        Analytics
+      </a>
+      <div class="sidebar-section-label" style="margin-top:var(--space-2);">CRM</div>
+      <a href="crm-overview.html" class="sidebar-nav-item" data-page="crm">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        </svg>
+        CRM Overview
+      </a>
+      <a href="crm-requests.html" class="sidebar-nav-item" data-page="crm-requests">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+        Service Requests
+        <span class="sidebar-nav-badge">5</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-profile" onclick="window.location.href='admin-account.html'">
+        <div class="sidebar-profile-avatar" id="sidebarAvatarInitials"></div>
+        <div class="sidebar-profile-info">
+          <div class="sidebar-profile-name" id="sidebarProfileName">—</div>
+          <div class="sidebar-profile-role" id="sidebarProfileRole">Admin</div>
+        </div>
+        <svg style="width:14px;height:14px;color:var(--navy-400);flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="sidebar-footer-links">
+        <a href="admin-account.html" class="sidebar-footer-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>
+          My Account
+        </a>
+        <a href="auth.html" class="sidebar-footer-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- Desktop Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Open navigation">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Notifications</span>
+          <span class="topbar-welcome">Operations activity feed and team updates</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <button class="topbar-icon-btn" title="Notifications (current page)" aria-current="page" style="color:var(--navy-600);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="topbar-notif-badge" id="desktopBadge" style="display:none;"></span>
+        </button>
+        <a href="admin-messages.html" class="topbar-icon-btn" title="Messages">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span class="topbar-notif-badge amber">2</span>
+        </a>
+        <div class="topbar-avatar" id="topbarAvatar" title="Admin User" onclick="window.location.href='admin-account.html'" style="cursor:pointer;">—</div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="dashboard-content">
+      <div class="notif-page">
+
+        <!-- Page Header -->
+        <div class="notif-page-header">
+          <div class="notif-page-title-group">
+            <div class="notif-page-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 01-3.46 0"/>
+              </svg>
+            </div>
+            <div>
+              <div class="notif-page-title">
+                Notifications
+                <span class="notif-unread-count-badge" id="unreadCountBadge">4</span>
+              </div>
+              <div class="notif-page-sub">Client activity, alerts, service requests, inspections, and system updates</div>
+            </div>
+          </div>
+          <div class="notif-header-actions">
+            <button class="notif-mark-all-btn" onclick="handleMarkAllRead()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Mark all as read
+            </button>
+          </div>
+        </div>
+
+        <!-- Summary Strip -->
+        <div class="notif-summary-strip">
+          <div class="notif-summary-stat">
+            <div class="notif-summary-stat-value" id="summaryTotal">10</div>
+            <div class="notif-summary-stat-label">Total</div>
+          </div>
+          <div class="notif-summary-divider"></div>
+          <div class="notif-summary-stat">
+            <div class="notif-summary-stat-value" id="summaryUnread">4</div>
+            <div class="notif-summary-stat-label">Unread</div>
+          </div>
+          <div class="notif-summary-divider"></div>
+          <div class="notif-summary-stat">
+            <div class="notif-summary-stat-value" id="summaryUrgent">1</div>
+            <div class="notif-summary-stat-label">Urgent</div>
+          </div>
+          <div class="notif-summary-divider"></div>
+          <div class="notif-summary-stat">
+            <div class="notif-summary-stat-value" id="summaryToday">4</div>
+            <div class="notif-summary-stat-label">Today</div>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="notif-filter-bar" id="filterBar" role="group" aria-label="Filter notifications">
+          <button class="notif-filter-chip active" data-filter="all" onclick="setFilter('all', this)">
+            All <span class="chip-count" id="countAll">10</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="alert" onclick="setFilter('alert', this)">
+            🚨 Alerts <span class="chip-count" id="countAlert">1</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="service" onclick="setFilter('service', this)">
+            🔧 Service <span class="chip-count" id="countService">2</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="message" onclick="setFilter('message', this)">
+            💬 Messages <span class="chip-count" id="countMessage">1</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="account" onclick="setFilter('account', this)">
+            👤 Accounts <span class="chip-count" id="countAccount">3</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="inspection" onclick="setFilter('inspection', this)">
+            ✅ Inspections <span class="chip-count" id="countInspection">1</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="report" onclick="setFilter('report', this)">
+            📄 Reports <span class="chip-count" id="countReport">1</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="document" onclick="setFilter('document', this)">
+            📁 Documents <span class="chip-count" id="countDocument">1</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="system" onclick="setFilter('system', this)">
+            ⚙️ System <span class="chip-count" id="countSystem">1</span>
+          </button>
+          <label class="notif-unread-toggle">
+            <input type="checkbox" id="unreadOnlyToggle" onchange="toggleUnreadOnly(this.checked)" />
+            Unread only
+          </label>
+        </div>
+
+        <!-- Notifications Feed -->
+        <div class="notif-feed" id="notifFeed"></div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/notifications-data.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script>
+  const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+  let currentFilter = 'all';
+  let unreadOnly    = false;
+  const notifications = ADMIN_NOTIFICATIONS.map(n => ({ ...n }));
+
+  document.addEventListener('DOMContentLoaded', () => {
+    injectMobileTopbar('Admin Portal');
+    _bootstrapAdminTopbar();
+    refreshFeed();
+    updateCounts();
+    const params = new URLSearchParams(window.location.search);
+    const highlightId = params.get('id');
+    if (highlightId) {
+      setTimeout(() => {
+        const el = document.querySelector(`[data-id="${highlightId}"]`);
+        if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('notif-highlight'); }
+      }, 200);
+    }
+  });
+
+  function refreshFeed() {
+    renderNotifFeed(document.getElementById('notifFeed'), notifications, currentFilter, unreadOnly);
+    updateSummaryStrip();
+  }
+
+  function updateCounts() {
+    const types = ['alert','service','message','account','inspection','report','document','system'];
+    document.getElementById('countAll').textContent = notifications.length;
+    types.forEach(t => {
+      const el = document.getElementById('count' + t.charAt(0).toUpperCase() + t.slice(1));
+      if (el) el.textContent = notifications.filter(n => n.type === t).length;
+    });
+  }
+
+  function updateSummaryStrip() {
+    const unread = notifications.filter(n => !n.read).length;
+    const urgent = notifications.filter(n => n.priority === 'urgent').length;
+    const today  = notifications.filter(n => new Date(n.timestamp).toDateString() === new Date().toDateString()).length;
+    document.getElementById('summaryTotal').textContent  = notifications.length;
+    document.getElementById('summaryUnread').textContent = unread;
+    document.getElementById('summaryUrgent').textContent = urgent;
+    document.getElementById('summaryToday').textContent  = today;
+    const badge = document.getElementById('unreadCountBadge');
+    badge.textContent = unread > 0 ? unread : '';
+    badge.style.display = unread > 0 ? '' : 'none';
+  }
+
+  function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.notif-filter-chip[data-filter]').forEach(c => c.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    refreshFeed();
+  }
+
+  function toggleUnreadOnly(checked) { unreadOnly = checked; refreshFeed(); }
+
+  function markRead(id, rowEl) {
+    const n = notifications.find(x => x.id === id);
+    if (n && !n.read) {
+      n.read = true;
+      if (rowEl) { rowEl.classList.remove('notif-unread'); const dot = rowEl.querySelector('.notif-dot'); if (dot) dot.remove(); }
+      updateSummaryStrip();
+    }
+    if (unreadOnly) setTimeout(refreshFeed, 280);
+  }
+
+  function handleMarkAllRead() {
+    notifications.forEach(n => { n.read = true; });
+    refreshFeed(); updateSummaryStrip();
+  }
+</script>
+</body>
+</html>

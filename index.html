@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Satellite Home Watch — Premium Property Watch Service</title>
+  <meta name="description" content="Satellite Home Watch provides professional home watch services with real-time property monitoring, inspection reports, and 24/7 alerts for peace of mind." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/landing.css" />
+  <!-- PWA manifest & theme -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0a1628" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Satellite HW" />
+  <link rel="apple-touch-icon" href="images/logo.png" />
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     TOP NAVIGATION
+════════════════════════════════════════ -->
+<nav class="landing-nav" id="mainNav">
+  <div class="nav-inner">
+    <!-- Logo -->
+    <a href="index.html" class="nav-logo">
+      <img src="images/logo.png" alt="Satellite Home Watch logo" class="nav-logo-img" />
+      <div class="nav-logo-text">
+        <span class="nav-logo-primary">Satellite Home Watch</span>
+        <span class="nav-logo-sub">Premium Property Care</span>
+      </div>
+    </a>
+
+    <!-- Nav Links -->
+    <div class="nav-links">
+      <a href="#services" class="nav-link">Services</a>
+      <a href="#how-it-works" class="nav-link">How It Works</a>
+      <a href="#why-us" class="nav-link">Why Us</a>
+      <a href="#testimonials" class="nav-link">Reviews</a>
+      <a href="#service-areas" class="nav-link">Service Areas</a>
+      <a href="#contact" class="nav-link">Contact</a>
+    </div>
+
+    <!-- Actions -->
+    <div class="nav-actions">
+      <a href="auth.html" class="btn btn-secondary btn-sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Login
+      </a>
+      <a href="inquiry.html" class="btn btn-primary btn-sm">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:5px;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        Get Started
+      </a>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+        <svg id="menuIconOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <svg id="menuIconClose" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#services" class="nav-link" onclick="closeMobileMenu()">Services</a>
+  <a href="#how-it-works" class="nav-link" onclick="closeMobileMenu()">How It Works</a>
+  <a href="#why-us" class="nav-link" onclick="closeMobileMenu()">Why Us</a>
+  <a href="#testimonials" class="nav-link" onclick="closeMobileMenu()">Reviews</a>
+  <a href="#service-areas" class="nav-link" onclick="closeMobileMenu()">Service Areas</a>
+  <a href="#contact" class="nav-link" onclick="closeMobileMenu()">Contact</a>
+  <div class="mobile-menu-actions">
+    <a href="auth.html" class="btn btn-secondary" style="width:100%; justify-content:center;">Login</a>
+    <a href="inquiry.html" class="btn btn-primary" style="width:100%; justify-content:center;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      Get Started
+    </a>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     HERO SECTION
+════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-overlay"></div>
+  <div class="hero-radial-glow"></div>
+
+  <div class="hero-inner">
+    <!-- Left Content -->
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        Premium Home Watch Services — Southwest Florida
+      </div>
+
+      <h1 class="hero-headline">
+        Your Property,<br/>
+        <span>Always Watched.</span><br/>
+        Always Protected.
+      </h1>
+
+      <p class="hero-sub">
+        Professional home watch services with real-time inspection reports, instant alerts, and full transparency while you're away.
+      </p>
+
+      <div class="hero-actions">
+        <a href="inquiry.html" class="btn btn-white btn-lg hero-btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          Get Started
+        </a>
+        <a href="auth.html" class="btn btn-lg hero-btn-ghost">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Log In
+        </a>
+        <button id="pwaInstallBtn" class="btn btn-lg hero-btn-ghost hero-btn-download" onclick="triggerPwaInstall()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download the App
+        </button>
+      </div>
+      <p class="hero-cta-helper">We'll contact you to set up your home watch service.</p>
+
+      <div class="hero-trust-row">
+        <div class="hero-trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Licensed &amp; Insured
+        </div>
+        <div class="hero-trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Real-Time Reports
+        </div>
+        <div class="hero-trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          24/7 Alert System
+        </div>
+      </div>
+    </div>
+
+    <!-- Right — Hero Visual / Video Frame -->
+    <div class="hero-visual" id="heroVisual">
+      <div class="hero-mockup-glow"></div>
+
+      <!-- App-style window frame -->
+      <div class="hero-mockup hero-video-frame" id="heroMockup">
+
+        <!-- Window chrome — top bar -->
+        <div class="mockup-topbar">
+          <div class="mockup-dots">
+            <div class="mockup-dot mockup-dot-red"></div>
+            <div class="mockup-dot mockup-dot-yellow"></div>
+            <div class="mockup-dot mockup-dot-green"></div>
+          </div>
+          <span class="mockup-title">Satellite Home Watch — Client Portal</span>
+        </div>
+
+        <!-- URL / source bar -->
+        <div class="mockup-url-bar">
+          <div class="mockup-url-icon">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <span class="mockup-url-text">satellitehomewatch.com/portal</span>
+          <div class="mockup-url-badge">
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Secure
+          </div>
+        </div>
+
+        <!-- ── Video area ── -->
+        <div class="video-placeholder" id="videoPlaceholder" role="button" aria-label="Play overview video" tabindex="0">
+
+          <!-- Dark gradient background layers -->
+          <div class="video-bg-gradient"></div>
+          <div class="video-bg-noise"></div>
+
+          <!-- Soft radial glow behind play button -->
+          <div class="video-center-glow"></div>
+
+          <!-- Animated ring around play button -->
+          <div class="video-ring-outer"></div>
+          <div class="video-ring-inner"></div>
+
+          <!-- Play button -->
+          <button class="video-play-btn" aria-label="Play overview video" tabindex="-1">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <polygon points="5,3 19,12 5,21"/>
+            </svg>
+          </button>
+
+          <!-- Caption text -->
+          <div class="video-caption">
+            <span class="video-caption-eyebrow">
+              <span class="video-caption-dot"></span>
+              Platform Overview
+            </span>
+            <p class="video-caption-text">Watch how the Satellite Home Watch app works</p>
+          </div>
+
+          <!-- Corner accent lines (decorative) -->
+          <div class="video-corner video-corner-tl"></div>
+          <div class="video-corner video-corner-tr"></div>
+          <div class="video-corner video-corner-bl"></div>
+          <div class="video-corner video-corner-br"></div>
+
+          <!-- Bottom stats bar (decorative) -->
+          <div class="video-stats-bar">
+            <div class="video-stat">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>5 min overview</span>
+            </div>
+            <div class="video-stat-divider"></div>
+            <div class="video-stat">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>Client Portal walkthrough</span>
+            </div>
+            <div class="video-stat-divider"></div>
+            <div class="video-stat">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <span>Real-time alerts</span>
+            </div>
+          </div>
+        </div>
+        <!-- / video-placeholder -->
+
+      </div>
+      <!-- / hero-mockup hero-video-frame -->
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     BENEFITS SECTION
+════════════════════════════════════════ -->
+<section class="section benefits" id="services">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">Why Satellite Home Watch</span>
+      <h2 class="section-title">Everything you need to protect your property</h2>
+      <p class="section-desc">Our platform combines professional property oversight with a modern digital experience — so you always know your home is in trusted hands.</p>
+    </div>
+
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="benefit-title">Real-Time Visibility</div>
+        <p class="benefit-desc">Monitor every visit in real time. Know when your inspector arrives, what they find, and when they depart — all from your client portal.</p>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="benefit-title">Detailed Inspection Reports</div>
+        <p class="benefit-desc">Every visit generates a comprehensive report with photos, checklists, and notes. Downloadable PDFs stored in your secure portal.</p>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        </div>
+        <div class="benefit-title">Instant Alert System</div>
+        <p class="benefit-desc">Critical issues are flagged immediately. From water leaks to security concerns, you'll know within minutes — never days.</p>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <div class="benefit-title">Trusted Professional Team</div>
+        <p class="benefit-desc">Our vetted, licensed inspectors treat your property like their own. Background-checked, insured, and trained to the highest standards.</p>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <div class="benefit-title">Premium Communication</div>
+        <p class="benefit-desc">Direct messaging with your dedicated home watch team. No phone queues, no delays — just clear, responsive communication.</p>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <div class="benefit-title">Secure Document Vault</div>
+        <p class="benefit-desc">All your property documents, reports, and correspondence organized and securely stored in one place, accessible anytime.</p>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="benefit-title">Full-Scope Property Services</div>
+        <p class="benefit-desc">Routine Inspections, Hurricane Prep, Returning or Leaving Season Services, Vendor Oversight and Coordination, and more — all through one trusted partner.</p>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="benefit-title">Multi-Property Management</div>
+        <p class="benefit-desc">Own multiple properties? Manage all of them from a single dashboard with unified reporting, alerts, and visit schedules.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     HOW IT WORKS
+════════════════════════════════════════ -->
+<section class="section how-it-works" id="how-it-works">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">Simple Process</span>
+      <h2 class="section-title">How Satellite Home Watch works</h2>
+      <p class="section-desc">From your first inquiry to ongoing property protection — our process is designed to be effortless for you.</p>
+    </div>
+
+    <div class="steps-wrapper">
+      <div class="step-connector"></div>
+      <div class="steps-grid">
+
+        <div class="step">
+          <div class="step-number-wrap">
+            <div class="step-number">
+              <svg class="step-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+          </div>
+          <div class="step-number-label">01</div>
+          <div class="step-title">Get Started</div>
+          <p class="step-desc">Submit your details through our website. Our team will reach out within one business day to discuss your property and service options.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-number-wrap">
+            <div class="step-number">
+              <svg class="step-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+          </div>
+          <div class="step-number-label">02</div>
+          <div class="step-title">Property Onboarding</div>
+          <p class="step-desc">We profile your property, document its condition, and set up your personalized monitoring plan.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-number-wrap">
+            <div class="step-number">
+              <svg class="step-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+          </div>
+          <div class="step-number-label">03</div>
+          <div class="step-title">Scheduled Visits</div>
+          <p class="step-desc">Your dedicated inspector conducts regular visits on your preferred schedule — weekly, bi-weekly, or monthly.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-number-wrap">
+            <div class="step-number">
+              <svg class="step-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            </div>
+          </div>
+          <div class="step-number-label">04</div>
+          <div class="step-title">Reports &amp; Alerts</div>
+          <p class="step-desc">Receive detailed inspection reports and immediate alerts for any issues found at your property.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-number-wrap">
+            <div class="step-number">
+              <svg class="step-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+          </div>
+          <div class="step-number-label">05</div>
+          <div class="step-title">Monitor Anytime</div>
+          <p class="step-desc">Access your full property history, reports, alerts, and team communications in your client portal, 24/7.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     OWNERS SECTION
+════════════════════════════════════════ -->
+<section class="section owners-section" id="why-us">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">Get to Know the Owners</span>
+      <h2 class="section-title">Meet the Velters</h2>
+    </div>
+
+    <div class="owners-layout">
+
+      <!-- Left: Photo -->
+      <div class="owners-photo-col fade-init">
+        <div class="owners-photo-wrap">
+          <div class="owners-photo-placeholder" style="padding:0;overflow:hidden;background:none;">
+            <img src="images/velters-photo.jpg" alt="Leo and Jolene Velter, Owners of Satellite Home Watch" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#162d56,#2a4f8f)';" />
+          </div>
+          <div class="owners-photo-caption">
+            <div class="owners-caption-names">Leo &amp; Jolene Velter</div>
+            <div class="owners-caption-title">Owners, Satellite Home Watch</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Text content -->
+      <div class="owners-text-col fade-init">
+        <p class="owners-body">
+          Satellite Home Watch is proudly owned and operated by <strong>Leo and Jolene Velter</strong>. As a family-owned company, we believe that protecting someone's home requires the same level of care and attention we would give our own.
+        </p>
+        <p class="owners-body">
+          The idea for Satellite Home Watch started after Jolene experienced firsthand the challenges her snowbird parents faced when their property was being monitored by unreliable services while they were away. Missed inspections, poor communication, and small problems turning into expensive repairs.
+        </p>
+        <p class="owners-body">
+          Satellite Home Watch was created to solve that problem — by combining professional home watch services with a modern client portal that gives homeowners real-time visibility into what's happening at their property.
+        </p>
+        <p class="owners-body owners-body-closing">
+          When you work with Satellite, you're not just hiring a service — you're trusting a family that takes that responsibility seriously.
+        </p>
+
+        <div class="owners-signature-row">
+          <div class="owners-sig-block">
+            <svg class="owners-sig-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span>Family-Owned &amp; Operated</span>
+          </div>
+          <div class="owners-sig-block">
+            <svg class="owners-sig-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            <span>Built on Personal Experience</span>
+          </div>
+          <div class="owners-sig-block">
+            <svg class="owners-sig-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>Trusted by Homeowners</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     TESTIMONIALS
+════════════════════════════════════════ -->
+<section class="section testimonials" id="testimonials">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">Client Stories</span>
+      <h2 class="section-title">Trusted by discerning property owners</h2>
+      <p class="section-desc">Hear from homeowners who trust Satellite Home Watch to protect their most valuable properties.</p>
+    </div>
+
+    <div class="testimonials-grid">
+
+      <!-- Card 1 -->
+      <div class="testimonial-card">
+        <div class="testimonial-verified-row">
+          <div class="testimonial-verified-badge">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Verified Client
+          </div>
+          <span class="testimonial-location-flag">📍 Naples, FL</span>
+        </div>
+        <div class="testimonial-stars">
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+        </div>
+        <p class="testimonial-text">"We spend six months out of the year traveling, and Satellite Home Watch gives us complete peace of mind. The portal is outstanding — I can see every inspection report, photo, and alert from anywhere in the world."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">MR</div>
+          <div class="testimonial-author-info">
+            <div class="testimonial-name">Michael &amp; Rebecca Hartley</div>
+            <div class="testimonial-meta">
+              <span class="testimonial-property-tag">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                Naples, FL
+              </span>
+              <span class="testimonial-duration">Client since 2021</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 — Featured -->
+      <div class="testimonial-card featured">
+        <div class="testimonial-featured-label">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Featured Review
+        </div>
+        <div class="testimonial-verified-row">
+          <div class="testimonial-verified-badge featured-verified">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Verified Client
+          </div>
+          <span class="testimonial-location-flag">📍 Sarasota &amp; Palm Beach, FL</span>
+        </div>
+        <div class="testimonial-stars">
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+        </div>
+        <p class="testimonial-text">"Three properties, zero headaches. The team at Satellite is extraordinary. They caught a minor roof issue during a storm prep visit that would have cost us tens of thousands. Worth every penny — many times over."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">CS</div>
+          <div class="testimonial-author-info">
+            <div class="testimonial-name">Catherine Sinclair</div>
+            <div class="testimonial-meta">
+              <span class="testimonial-property-tag">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                3 Properties — Portfolio Client
+              </span>
+              <span class="testimonial-duration">Client since 2020</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="testimonial-card">
+        <div class="testimonial-verified-row">
+          <div class="testimonial-verified-badge">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Verified Client
+          </div>
+          <span class="testimonial-location-flag">📍 Marco Island, FL</span>
+        </div>
+        <div class="testimonial-stars">
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+          <svg class="testimonial-star" viewBox="0 0 20 20" fill="currentColor"><polygon points="10 1 12.39 7.26 19 8.27 14 13.14 15.18 20.02 10 17 4.82 20.02 6 13.14 1 8.27 7.61 7.26"/></svg>
+        </div>
+        <p class="testimonial-text">"The client portal is exceptional. I've used other home watch services before, but nothing comes close to the transparency and professionalism of Satellite. The real-time alerts are a game changer."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">JB</div>
+          <div class="testimonial-author-info">
+            <div class="testimonial-name">James Beaumont</div>
+            <div class="testimonial-meta">
+              <span class="testimonial-property-tag">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                Lakefront Estate
+              </span>
+              <span class="testimonial-duration">Client since 2022</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SERVICE AREAS
+════════════════════════════════════════ -->
+<section class="section service-areas" id="service-areas">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">Coverage Map</span>
+      <h2 class="section-title">Serving Southwest Florida</h2>
+      <p class="section-desc">We protect properties across the finest communities in Southwest Florida. If your home is in the region, we're your local home watch experts.</p>
+    </div>
+
+    <div class="areas-grid">
+      <div class="area-card">
+        <div class="area-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="area-name">Naples</div>
+        <div class="area-desc">Our home base and primary service hub — full coverage across all Naples neighborhoods and surrounding communities.</div>
+        <div class="area-badge area-badge-primary">Primary Hub</div>
+      </div>
+
+      <div class="area-card">
+        <div class="area-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="area-name">Bonita Springs</div>
+        <div class="area-desc">Complete home watch coverage for Bonita Springs and surrounding luxury communities and gated neighborhoods.</div>
+        <div class="area-badge">Fully Covered</div>
+      </div>
+
+      <div class="area-card">
+        <div class="area-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="area-name">Marco Island</div>
+        <div class="area-desc">Island property specialists — we understand the unique needs and challenges of coastal and waterfront properties.</div>
+        <div class="area-badge">Fully Covered</div>
+      </div>
+
+      <div class="area-card">
+        <div class="area-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="area-name">Fort Myers</div>
+        <div class="area-desc">Comprehensive coverage across Fort Myers and Fort Myers Beach for seasonal and year-round property owners.</div>
+        <div class="area-badge">Fully Covered</div>
+      </div>
+
+      <div class="area-card">
+        <div class="area-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="area-name">Estero</div>
+        <div class="area-desc">Expert home watch for Estero's premier master-planned communities and luxury residential developments.</div>
+        <div class="area-badge">Fully Covered</div>
+      </div>
+
+      <div class="area-card">
+        <div class="area-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="area-name">Cape Coral</div>
+        <div class="area-desc">Trusted property monitoring for Cape Coral's extensive waterfront and residential neighborhoods throughout the city.</div>
+        <div class="area-badge">Fully Covered</div>
+      </div>
+    </div>
+
+    <div class="areas-cta">
+      <div class="areas-cta-text">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Don't see your area? We may still be able to help.
+      </div>
+      <a href="inquiry.html" class="btn btn-primary btn-sm">Inquire About Your Area</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     FINAL CTA SECTION
+════════════════════════════════════════ -->
+<section class="section cta-section" id="contact">
+  <div class="cta-glow-left"></div>
+  <div class="cta-glow-right"></div>
+  <div class="container">
+    <div class="cta-inner">
+      <div class="cta-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        Your Property Deserves Better Protection
+      </div>
+      <h2 class="cta-title">Stop worrying about your<br/>property while you're away.</h2>
+      <p class="cta-desc">Join hundreds of property owners across Southwest Florida who trust Satellite Home Watch with their most valuable asset. Professional oversight starts today.</p>
+      <div class="cta-actions">
+        <a href="inquiry.html" class="btn btn-white btn-lg cta-btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          Get Started
+        </a>
+        <a href="auth.html" class="btn btn-lg hero-btn-ghost">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Log In
+        </a>
+      </div>
+      <p class="cta-section-helper">We'll contact you to set up your home watch service.</p>
+      <div class="cta-trust-strip">
+        <div class="cta-trust-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          No contracts required
+        </div>
+        <div class="cta-trust-divider"></div>
+        <div class="cta-trust-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Licensed &amp; insured
+        </div>
+        <div class="cta-trust-divider"></div>
+        <div class="cta-trust-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Response within 24 hours
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+
+    <!-- Footer Trust Bar -->
+    <div class="footer-trust-bar">
+      <div class="footer-trust-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Licensed &amp; Insured
+      </div>
+      <div class="footer-trust-divider"></div>
+      <div class="footer-trust-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Serving Southwest Florida
+      </div>
+      <div class="footer-trust-divider"></div>
+      <div class="footer-trust-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Professional Home Watch Services
+      </div>
+      <div class="footer-trust-divider"></div>
+      <div class="footer-trust-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        24/7 Alert Monitoring
+      </div>
+    </div>
+
+    <div class="footer-top">
+      <!-- Brand Column -->
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="images/logo.png" alt="Satellite Home Watch logo" class="footer-logo-img" />
+          <div class="footer-logo-textblock">
+            <span class="footer-logo-text">Satellite Home Watch</span>
+            <span class="footer-logo-sub">Premium Property Care</span>
+          </div>
+        </div>
+        <p class="footer-tagline">Premium property monitoring and home watch services. We protect your home when you can't be there.</p>
+        <div class="footer-contact-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          hello@satellitehomewatch.com
+        </div>
+        <div class="footer-contact-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          Contact Us
+        </div>
+        <div class="footer-contact-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Naples, FL 34102
+        </div>
+      </div>
+
+      <!-- Services Column -->
+      <div>
+        <div class="footer-col-title">Services</div>
+        <nav class="footer-nav">
+          <a href="inquiry.html" class="footer-nav-link">Routine Inspections</a>
+          <a href="inquiry.html" class="footer-nav-link">Storm Preparation</a>
+          <a href="inquiry.html" class="footer-nav-link">Vendor Supervision</a>
+          <a href="inquiry.html" class="footer-nav-link">Concierge Services</a>
+          <a href="inquiry.html" class="footer-nav-link">Move-In Preparation</a>
+          <a href="inquiry.html" class="footer-nav-link">Emergency Response</a>
+        </nav>
+      </div>
+
+      <!-- Company Column -->
+      <div>
+        <div class="footer-col-title">Company</div>
+        <nav class="footer-nav">
+          <a href="#why-us" class="footer-nav-link">About Us</a>
+          <a href="#how-it-works" class="footer-nav-link">How It Works</a>
+          <a href="#testimonials" class="footer-nav-link">Client Stories</a>
+          <a href="#service-areas" class="footer-nav-link">Service Areas</a>
+          <a href="#contact" class="footer-nav-link">Contact</a>
+          <a href="auth.html" class="footer-nav-link">Client Portal</a>
+        </nav>
+      </div>
+
+      <!-- Portal Column -->
+      <div>
+        <div class="footer-col-title">Client Portal</div>
+        <nav class="footer-nav">
+          <a href="auth.html" class="footer-nav-link">Sign In</a>
+          <a href="auth.html#request" class="footer-nav-link">Request Access</a>
+          <a href="auth.html#forgot" class="footer-nav-link">Forgot Password</a>
+          <a href="dashboard.html" class="footer-nav-link">Dashboard</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-legal">© 2025 Satellite Home Watch. All rights reserved. Professional Home Watch Services — Southwest Florida.</p>
+      <div class="footer-legal-links">
+        <a href="client-terms.html" class="footer-legal-link">Terms of Service</a>
+        <a href="#" class="footer-legal-link">Privacy Policy</a>
+        <a href="#" class="footer-legal-link">Cookie Policy</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── Nav Scroll Effect ──
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 20) {
+    nav.classList.add('scrolled');
+  } else {
+    nav.classList.remove('scrolled');
+  }
+}, { passive: true });
+
+// ── Mobile Menu ──
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileMenu    = document.getElementById('mobileMenu');
+const menuIconOpen  = document.getElementById('menuIconOpen');
+const menuIconClose = document.getElementById('menuIconClose');
+
+mobileMenuBtn.addEventListener('click', () => {
+  const isOpen = mobileMenu.classList.toggle('open');
+  menuIconOpen.style.display  = isOpen ? 'none' : 'block';
+  menuIconClose.style.display = isOpen ? 'block' : 'none';
+});
+
+function closeMobileMenu() {
+  mobileMenu.classList.remove('open');
+  menuIconOpen.style.display  = 'block';
+  menuIconClose.style.display = 'none';
+}
+
+// ── Smooth Scroll for anchor links ──
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      const offset = 80;
+      const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  });
+});
+
+// ── Intersection Observer for fade-in animations ──
+// Watches ALL .fade-init elements (cards, section headers, layout blocks, etc.)
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => {
+        entry.target.classList.add('visible');
+      }, i * 70);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+// Observe specific card elements + any element already marked fade-init in HTML
+const cardEls = document.querySelectorAll('.benefit-card, .testimonial-card, .step, .area-card');
+cardEls.forEach(el => {
+  el.classList.add('fade-init');
+  observer.observe(el);
+});
+
+// Also observe all elements that already carry fade-init (e.g. section headers, layout blocks)
+document.querySelectorAll('.fade-init').forEach(el => observer.observe(el));
+
+
+
+// ── Hero Video Frame — mousemove parallax / 3-D tilt effect ──
+// Mirrors the CSS hover transform that the old dashboard mockup had,
+// but adds a smooth real-time tilt that follows the cursor within the element.
+(function () {
+  const visual  = document.getElementById('heroVisual');
+  const mockup  = document.getElementById('heroMockup');
+  const glow    = visual ? visual.querySelector('.hero-mockup-glow') : null;
+  if (!visual || !mockup) return;
+
+  // Configuration — matches the subtle depth of the original dashboard preview
+  const MAX_TILT   = 8;      // max degrees of rotation on each axis
+  const MAX_SHIFT  = 4;      // max px of translateX/Y for parallax layers
+  const EASE       = 0.09;   // lerp speed (lower = smoother / more inertia)
+
+  let targetRX = 0, targetRY = 0;
+  let currentRX = 0, currentRY = 0;
+  let rafId = null;
+  let isHovering = false;
+
+  // Initial resting tilt (matches the CSS default)
+  const REST_RX =  1;
+  const REST_RY = -2;
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function tick() {
+    currentRX = lerp(currentRX, targetRX, EASE);
+    currentRY = lerp(currentRY, targetRY, EASE);
+
+    const rx = currentRX.toFixed(3);
+    const ry = currentRY.toFixed(3);
+    const glowX = (currentRY / MAX_TILT * MAX_SHIFT * -1).toFixed(2);
+    const glowY = (currentRX / MAX_TILT * MAX_SHIFT).toFixed(2);
+
+    // Translate-up floats the card (+slight Y) on hover, matches old CSS rule
+    const ty = isHovering ? -4 + (currentRX / MAX_TILT * 2) : 0;
+
+    mockup.style.transform =
+      `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(${ty.toFixed(2)}px)`;
+
+    if (glow) {
+      glow.style.transform =
+        `translate(${glowX}px, ${glowY}px) scale(${isHovering ? 1.12 : 1})`;
+    }
+
+    // Keep animating while values haven't settled
+    const settled =
+      Math.abs(currentRX - targetRX) < 0.005 &&
+      Math.abs(currentRY - targetRY) < 0.005;
+
+    if (!settled) {
+      rafId = requestAnimationFrame(tick);
+    } else {
+      rafId = null;
+    }
+  }
+
+  function startTick() {
+    if (!rafId) rafId = requestAnimationFrame(tick);
+  }
+
+  visual.addEventListener('mouseenter', () => {
+    isHovering = true;
+    startTick();
+  });
+
+  visual.addEventListener('mouseleave', () => {
+    isHovering = false;
+    // Return to the natural resting tilt
+    targetRX = REST_RX;
+    targetRY = REST_RY;
+    startTick();
+  });
+
+  visual.addEventListener('mousemove', (e) => {
+    const rect   = visual.getBoundingClientRect();
+    const cx     = rect.left + rect.width  / 2;
+    const cy     = rect.top  + rect.height / 2;
+    const dx     = (e.clientX - cx) / (rect.width  / 2);  // -1 … +1
+    const dy     = (e.clientY - cy) / (rect.height / 2);  // -1 … +1
+
+    // rotateX tilts forward/back (mouse Y),  rotateY tilts left/right (mouse X)
+    targetRY =  dx * MAX_TILT;
+    targetRX = -dy * MAX_TILT * 0.65;   // slightly less on vertical axis
+
+    startTick();
+  });
+
+  // Set the initial resting position (matches original CSS default)
+  targetRX = REST_RX;
+  targetRY = REST_RY;
+  currentRX = REST_RX;
+  currentRY = REST_RY;
+  mockup.style.transform =
+    `perspective(1000px) rotateX(${REST_RX}deg) rotateY(${REST_RY}deg) translateY(0px)`;
+  // Remove the CSS transition so JS drives it smoothly instead
+  mockup.style.transition = 'box-shadow 0.3s ease';
+}());
+
+// ── Active nav link highlight on scroll ──
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(section => {
+    const sectionTop = section.offsetTop - 120;
+    if (window.pageYOffset >= sectionTop) {
+      current = section.getAttribute('id');
+    }
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === `#${current}`) {
+      link.classList.add('active');
+    }
+  });
+}, { passive: true });
+</script>
+
+<!-- ════════════════════════════════════════
+     PWA INSTALL — Add to Home Screen
+════════════════════════════════════════ -->
+
+<!-- Fallback guidance modal for iOS / unsupported browsers -->
+<div id="pwaGuideModal" role="dialog" aria-modal="true" aria-labelledby="pwaGuideTitle" style="
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:rgba(5,12,30,0.82); backdrop-filter:blur(6px);
+  align-items:flex-end; justify-content:center;
+">
+  <div style="
+    background:#0f2044; border:1px solid rgba(255,255,255,0.12);
+    border-radius:20px 20px 0 0; padding:28px 24px 36px;
+    max-width:480px; width:100%; position:relative;
+    box-shadow:0 -8px 40px rgba(0,0,0,0.5);
+  ">
+    <!-- Close -->
+    <button onclick="closePwaGuide()" aria-label="Close" style="
+      position:absolute; top:14px; right:16px;
+      background:rgba(255,255,255,0.08); border:none; border-radius:50%;
+      width:32px; height:32px; cursor:pointer; color:rgba(255,255,255,0.7);
+      display:flex; align-items:center; justify-content:center; font-size:18px;
+    ">&#x2715;</button>
+
+    <!-- Header -->
+    <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
+      <img src="images/logo.png" alt="Satellite HW" style="width:48px; height:48px; border-radius:12px; object-fit:contain; background:#fff; padding:4px;" />
+      <div>
+        <div id="pwaGuideTitle" style="font-size:1.05rem; font-weight:700; color:#fff;">Install Satellite HW</div>
+        <div style="font-size:0.8rem; color:rgba(148,179,223,0.85);">Add to your home screen</div>
+      </div>
+    </div>
+
+    <!-- iOS instructions -->
+    <div id="pwaGuideIos" style="display:none;">
+      <p style="color:rgba(255,255,255,0.8); font-size:0.88rem; margin:0 0 16px; line-height:1.6;">
+        To install this app on your iPhone or iPad:
+      </p>
+      <ol style="color:rgba(255,255,255,0.75); font-size:0.86rem; padding-left:20px; line-height:2;">
+        <li>Tap the <strong style="color:#fff;">Share</strong> button
+          <svg style="vertical-align:middle; margin:0 2px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          in your browser toolbar
+        </li>
+        <li>Scroll down and tap <strong style="color:#fff;">Add to Home Screen</strong></li>
+        <li>Tap <strong style="color:#fff;">Add</strong> to confirm</li>
+      </ol>
+    </div>
+
+    <!-- Android / desktop instructions -->
+    <div id="pwaGuideAndroid" style="display:none;">
+      <p style="color:rgba(255,255,255,0.8); font-size:0.88rem; margin:0 0 16px; line-height:1.6;">
+        To install this app on your device:
+      </p>
+      <ol style="color:rgba(255,255,255,0.75); font-size:0.86rem; padding-left:20px; line-height:2;">
+        <li>Tap the <strong style="color:#fff;">menu</strong> button (three dots) in your browser</li>
+        <li>Select <strong style="color:#fff;">Add to Home screen</strong> or <strong style="color:#fff;">Install app</strong></li>
+        <li>Tap <strong style="color:#fff;">Add</strong> to confirm</li>
+      </ol>
+    </div>
+
+    <button onclick="closePwaGuide()" style="
+      margin-top:22px; width:100%; padding:13px;
+      background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18);
+      border-radius:10px; color:#fff; font-size:0.92rem; font-weight:600;
+      cursor:pointer; transition:background 0.2s;
+    " onmouseover="this.style.background='rgba(255,255,255,0.16)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">Got it</button>
+  </div>
+</div>
+
+<script>
+/* ── PWA Install Logic ──────────────────────────────────── */
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
+let _pwaPrompt = null;
+
+// Capture the install prompt when browser fires it
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  showInstallButton();
+});
+
+// Hide button after user installs
+window.addEventListener('appinstalled', () => {
+  hideInstallButton();
+  _pwaPrompt = null;
+});
+
+function showInstallButton() {
+  // On desktop only — button is always visible on mobile via CSS
+  const btn = document.getElementById('pwaInstallBtn');
+  if (btn && window.innerWidth > 768) btn.style.display = 'flex';
+}
+
+function hideInstallButton() {
+  // Only hide on desktop; mobile always shows the button
+  const btn = document.getElementById('pwaInstallBtn');
+  if (btn && window.innerWidth > 768) btn.style.display = 'none';
+}
+
+function isIos() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent);
+}
+
+function isInStandaloneMode() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+         window.navigator.standalone === true;
+}
+
+// Called when user clicks "Download the App"
+function triggerPwaInstall() {
+  if (_pwaPrompt) {
+    // Browsers that support the native prompt (Chrome Android, Edge, etc.)
+    _pwaPrompt.prompt();
+    _pwaPrompt.userChoice.then(choice => {
+      _pwaPrompt = null;
+      if (choice.outcome === 'accepted') hideInstallButton();
+    });
+  } else {
+    // Fallback: show manual guidance sheet
+    openPwaGuide();
+  }
+}
+
+function openPwaGuide() {
+  const modal = document.getElementById('pwaGuideModal');
+  const ios   = document.getElementById('pwaGuideIos');
+  const andr  = document.getElementById('pwaGuideAndroid');
+  if (!modal) return;
+  if (isIos()) {
+    ios.style.display  = 'block';
+    andr.style.display = 'none';
+  } else {
+    ios.style.display  = 'none';
+    andr.style.display = 'block';
+  }
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closePwaGuide() {
+  const modal = document.getElementById('pwaGuideModal');
+  if (modal) modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// Close modal on backdrop click
+document.getElementById('pwaGuideModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closePwaGuide();
+});
+
+// iOS: already visible via CSS; ensure appinstalled hides it correctly on desktop
+if (isIos() && !isInStandaloneMode() && window.innerWidth > 768) {
+  showInstallButton();
+}
+</script>
+</body>
+</html>

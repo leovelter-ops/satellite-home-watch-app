@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Details — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── Compensation Settings Panel ── */
+    .comp-settings-panel {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .comp-settings-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+    }
+    .comp-settings-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f1e38;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .comp-settings-body {
+      padding: 18px 20px;
+    }
+    .comp-field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 640px) {
+      .comp-field-grid { grid-template-columns: 1fr; }
+    }
+    .comp-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .comp-field label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .comp-field input,
+    .comp-field select {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #0f1e38;
+      outline: none;
+      background: #fff;
+      transition: border-color .15s;
+    }
+    .comp-field input:focus,
+    .comp-field select:focus {
+      border-color: #162d56;
+      box-shadow: 0 0 0 3px rgba(22,45,86,.08);
+    }
+    .pay-schedule-block {
+      background: #f0f5ff;
+      border: 1px solid #c7d8f5;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 4px;
+    }
+    .pay-schedule-block-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #162d56;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pay-schedule-hint {
+      font-size: 11px;
+      color: #475569;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+    .comp-save-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .comp-save-btn {
+      padding: 9px 22px;
+      background: #162d56;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .comp-save-btn:hover { background: #1e3d73; }
+    .comp-save-msg {
+      font-size: 12px;
+      color: #166534;
+      font-weight: 600;
+      display: none;
+    }
+    /* ── Benefits & Deductions Editor ── */
+    .bd-panel {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .bd-panel-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+    }
+    .bd-panel-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f1e38;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bd-panel-body {
+      padding: 16px 20px;
+    }
+    .bd-item-row {
+      display: grid;
+      grid-template-columns: 1fr 140px 36px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    @media (max-width: 520px) {
+      .bd-item-row { grid-template-columns: 1fr 110px 30px; }
+    }
+    .bd-item-input {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #0f1e38;
+      outline: none;
+      background: #fff;
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color .15s;
+    }
+    .bd-item-input:focus { border-color: #162d56; box-shadow: 0 0 0 3px rgba(22,45,86,.08); }
+    .bd-item-value-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .bd-item-value-prefix {
+      position: absolute;
+      left: 9px;
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 600;
+      pointer-events: none;
+    }
+    .bd-item-value-input {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 7px 10px 7px 22px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #0f1e38;
+      outline: none;
+      background: #fff;
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color .15s;
+    }
+    .bd-item-value-input:focus { border-color: #162d56; box-shadow: 0 0 0 3px rgba(22,45,86,.08); }
+    .bd-item-remove-btn {
+      width: 30px; height: 30px;
+      border: 1px solid #fee2e2;
+      border-radius: 8px;
+      background: #fff;
+      color: #dc2626;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .bd-item-remove-btn:hover { background: #fee2e2; }
+    .bd-add-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #f1f5f9;
+      flex-wrap: wrap;
+    }
+    .bd-add-btn {
+      padding: 7px 16px;
+      background: #f0f5ff;
+      color: #162d56;
+      border: 1px solid #c7d8f5;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .bd-add-btn:hover { background: #dbeafe; }
+    .bd-save-btn {
+      padding: 7px 18px;
+      background: #162d56;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .bd-save-btn:hover { background: #1e3d73; }
+    .bd-save-msg {
+      font-size: 12px;
+      color: #166534;
+      font-weight: 600;
+      display: none;
+      margin-left: 4px;
+    }
+    .bd-col-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .bd-col-headers {
+      display: grid;
+      grid-template-columns: 1fr 140px 36px;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    @media (max-width: 520px) {
+      .bd-col-headers { grid-template-columns: 1fr 110px 30px; }
+    }
+    .bd-empty {
+      font-size: 12px;
+      color: #94a3b8;
+      padding: 6px 0 10px;
+      font-style: italic;
+    }
+
+    /* Bi-weekly date pills */
+    .biweekly-days-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .biweekly-day-pill {
+      display: inline-flex;
+      align-items: center;
+      background: #e8eef8;
+      color: #162d56;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      gap: 5px;
+    }
+    .biweekly-day-pill button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 1px;
+    }
+    .biweekly-add-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .biweekly-add-row input {
+      width: 56px;
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <a href="admin-employees.html" style="font-size:12px;color:#64748b;text-decoration:none;">← Back to Employees</a>
+          <span class="topbar-title-text" id="pageTitle">Employee Details</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-icon-btn" data-msg-trigger="admin" aria-label="Open messages" title="Messages" type="button" onclick="SHWMsgPanel.toggle(this)" style="position:relative;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button class="topbar-icon-btn np-bell-btn" data-notif-trigger="admin" aria-label="Open notifications" title="Notifications" type="button" onclick="SHWNotifPanel.toggle(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="admin-badge corporate" id="topbarRoleBadge">Executive</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;" id="pageMain">
+      <div id="loadingState" style="text-align:center;padding:60px;color:#94a3b8;font-size:15px;">Loading employee details...</div>
+      <div id="mainContent" style="display:none;">
+
+        <!-- Employee Profile Header -->
+        <div style="background:linear-gradient(135deg,#0f1e38,#162d56);border-radius:16px;padding:22px 26px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+          <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;" id="empAvatar">—</div>
+          <div style="flex:1;min-width:180px;">
+            <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:4px;" id="empName">—</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.7);" id="empMeta">—</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;" id="empQuickStats">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════
+             COMPENSATION SETTINGS  (editable by Executive)
+        ════════════════════════════════════════════════════════ -->
+        <div class="comp-settings-panel">
+          <div class="comp-settings-header">
+            <div class="comp-settings-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+              Compensation Settings
+            </div>
+            <span style="font-size:11px;color:#64748b;font-weight:600;">Changes are saved immediately to this employee's profile</span>
+          </div>
+          <div class="comp-settings-body">
+
+            <!-- Core pay fields -->
+            <div class="comp-field-grid">
+              <div class="comp-field">
+                <label>Pay Frequency</label>
+                <select id="compPayFreq" onchange="onPayFreqChange()">
+                  <option value="Weekly">Weekly</option>
+                  <option value="Bi-weekly">Bi-weekly</option>
+                  <option value="Monthly">Monthly</option>
+                </select>
+              </div>
+              <div class="comp-field">
+                <label>Base Hourly Rate ($)</label>
+                <input type="number" id="compHourlyRate" min="0" step="0.01" placeholder="e.g. 22.00" />
+              </div>
+              <div class="comp-field">
+                <label>Per-Visit Bonus ($)</label>
+                <input type="number" id="compVisitBonus" min="0" step="0.01" placeholder="e.g. 5.00" />
+              </div>
+              <div class="comp-field">
+                <label>Overtime Rate (×)</label>
+                <input type="number" id="compOvertimeMultiplier" min="1" step="0.01" placeholder="e.g. 1.5" />
+                <span style="font-size:11px;color:#94a3b8;margin-top:3px;">Multiplier applied to base rate beyond 40 hrs/week</span>
+              </div>
+            </div>
+
+            <!-- Dynamic pay schedule block -->
+            <div class="pay-schedule-block" id="payScheduleBlock">
+              <div class="pay-schedule-block-title">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                Payment Schedule
+              </div>
+              <div id="payScheduleContent">
+                <!-- Rendered by JS based on selected frequency -->
+              </div>
+            </div>
+
+            <div class="comp-save-row">
+              <button class="comp-save-btn" onclick="saveCompensationSettings()">Save Compensation Settings</button>
+              <span class="comp-save-msg" id="compSaveMsg">✓ Settings saved</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════
+             BENEFITS (editable per-employee)
+        ════════════════════════════════════════════════════════ -->
+        <div class="bd-panel">
+          <div class="bd-panel-header">
+            <div class="bd-panel-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              Benefits
+            </div>
+            <span style="font-size:11px;color:#64748b;font-weight:600;">Per-employee — employee sees these on their Compensation page</span>
+          </div>
+          <div class="bd-panel-body">
+            <div class="bd-col-headers">
+              <span class="bd-col-label">Label / Description</span>
+              <span class="bd-col-label">Value / Rate</span>
+              <span></span>
+            </div>
+            <div id="benefitItemsWrap">
+              <!-- Rendered by JS -->
+            </div>
+            <div id="benefitEmptyMsg" class="bd-empty" style="display:none;">No benefits configured yet. Add one below.</div>
+            <div class="bd-add-row">
+              <button class="bd-add-btn" onclick="addBenefitItem()">+ Add Benefit Item</button>
+              <button class="bd-save-btn" onclick="saveBenefitsDeductions()">Save Benefits &amp; Deductions</button>
+              <span class="bd-save-msg" id="bdSaveMsg">✓ Saved</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════
+             DEDUCTIONS (editable per-employee)
+        ════════════════════════════════════════════════════════ -->
+        <div class="bd-panel">
+          <div class="bd-panel-header">
+            <div class="bd-panel-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+              Deductions
+            </div>
+            <span style="font-size:11px;color:#64748b;font-weight:600;">Per-employee — employee sees these on their Compensation page</span>
+          </div>
+          <div class="bd-panel-body">
+            <div class="bd-col-headers">
+              <span class="bd-col-label">Label / Description</span>
+              <span class="bd-col-label">Value / Rate</span>
+              <span></span>
+            </div>
+            <div id="deductionItemsWrap">
+              <!-- Rendered by JS -->
+            </div>
+            <div id="deductionEmptyMsg" class="bd-empty" style="display:none;">No deductions configured yet. Add one below.</div>
+            <div class="bd-add-row">
+              <button class="bd-add-btn" onclick="addDeductionItem()">+ Add Deduction Item</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Date Range Filter -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div style="font-size:13px;font-weight:700;color:#0f1e38;">Filter Period:</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <label style="font-size:12px;color:#64748b;font-weight:600;">From</label>
+              <input type="date" id="filterFrom" style="border:1px solid #e2e8f0;border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;outline:none;" onchange="applyDateFilter()" />
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <label style="font-size:12px;color:#64748b;font-weight:600;">To</label>
+              <input type="date" id="filterTo" style="border:1px solid #e2e8f0;border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;outline:none;" onchange="applyDateFilter()" />
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button onclick="setPreset('week')" style="padding:6px 12px;font-size:12px;font-weight:600;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;cursor:pointer;transition:all .15s;">This Week</button>
+              <button onclick="setPreset('month')" style="padding:6px 12px;font-size:12px;font-weight:600;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;cursor:pointer;transition:all .15s;">This Month</button>
+              <button onclick="setPreset('3m')" style="padding:6px 12px;font-size:12px;font-weight:600;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;cursor:pointer;transition:all .15s;">3 Months</button>
+              <button onclick="setPreset('ytd')" style="padding:6px 12px;font-size:12px;font-weight:600;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;cursor:pointer;transition:all .15s;">YTD</button>
+            </div>
+            <div style="font-size:13px;color:#64748b;font-weight:600;" id="filterSummaryText"></div>
+          </div>
+        </div>
+
+        <!-- Period Totals -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px;" id="periodTotals"></div>
+
+        <!-- Main Grid -->
+        <div class="vd-grid">
+          <!-- Left: Visits Table -->
+          <div>
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+              <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+                <div style="font-size:14px;font-weight:700;color:#0f1e38;">Visits Performed</div>
+                <div style="font-size:13px;color:#64748b;" id="visitRangeLabel">—</div>
+              </div>
+              <div id="visitsTable" style="overflow-x:auto;"></div>
+            </div>
+          </div>
+
+          <!-- Right: Hours Breakdown + Time Off -->
+          <div>
+            <!-- Hours Breakdown -->
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:20px;">
+              <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;">
+                <div style="font-size:14px;font-weight:700;color:#0f1e38;">Hours Breakdown</div>
+              </div>
+              <div style="padding:16px 18px;" id="hoursBreakdown"></div>
+            </div>
+
+            <!-- Time-Off History for this employee -->
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;">
+              <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;">
+                <div style="font-size:14px;font-weight:700;color:#0f1e38;">Time-Off History</div>
+              </div>
+              <div style="padding:0;" id="empTofHistory"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'executive', name: '', initials: '' };
+
+let _emp       = null;
+let _empUser   = null;
+let _allVisits = [];
+let _tofReqs   = [];
+let _propMap   = {};
+let _fromDate  = null;
+let _toDate    = null;
+
+// ── Pay schedule state ──────────────────────────────────────────────────────
+let _biweeklyDays = []; // array of day numbers (1-28) for bi-weekly
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderAdminSidebar('admin-employees');
+  const params = new URLSearchParams(window.location.search);
+  const empId  = params.get('empId');
+  if (!empId) { document.getElementById('loadingState').textContent = 'No employee specified.'; return; }
+  await loadData(empId);
+});
+
+async function loadData(empId) {
+  const [empsRes, usersRes, visitsRes, propsRes, tofRes] = await Promise.all([
+    empApiGetAll('employees'),
+    empApiGetAll('users'),
+    empApiGetAll('visits'),
+    empApiGetAll('properties'),
+    empApiGetAll('time_off_requests'),
+  ]);
+
+  const employees = empsRes.data || [];
+  const users     = usersRes.data || [];
+  _propMap        = buildMap(propsRes.data || []);
+  _allVisits      = (visitsRes.data || []).filter(v => v.assigned_employee_id === empId);
+  _emp            = employees.find(e => e.id === empId);
+
+  if (!_emp) {
+    document.getElementById('loadingState').textContent = 'Employee not found.';
+    return;
+  }
+
+  _empUser  = users.find(u => u.id === _emp.user_id) || {};
+  _tofReqs  = (tofRes.data || []).filter(r => r.employee_user_id === _emp.user_id);
+
+  // Set default date range: current month
+  setPreset('month');
+  renderProfile();
+  populateCompensationFields();
+  populateBenefitsDeductionsFields();
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('mainContent').style.display  = '';
+}
+
+function renderProfile() {
+  const name     = _emp.full_name || _empUser.full_name || `${_emp.first_name || ''} ${_emp.last_name || ''}`.trim() || 'Employee';
+  const email    = _empUser.email || _emp.email || '—';
+  const role     = FMT.snakeToTitle(_emp.role || _emp.position || 'inspector');
+  const joined   = _emp.hire_date ? FMT.date(_emp.hire_date) : 'N/A';
+  const initials = FMT.initials(name);
+  const status   = _emp.status || 'active';
+
+  document.getElementById('pageTitle').textContent = name;
+  document.getElementById('empAvatar').textContent = initials;
+  document.getElementById('empName').textContent   = name;
+  document.getElementById('empMeta').textContent   = `${role} · ${email} · Joined: ${joined} · Status: ${status}`;
+
+  // Quick stats
+  const completed   = _allVisits.filter(v => v.status === 'completed');
+  const totalHours  = completed.reduce((s, v) => s + ((v.duration_minutes || 90) / 60), 0);
+  document.getElementById('empQuickStats').innerHTML = [
+    { label:'Total Visits', value: _allVisits.length },
+    { label:'Total Hours',  value: totalHours.toFixed(1) + 'h' },
+    { label:'Completed',    value: completed.length },
+  ].map(s => `
+    <div style="text-align:center;background:rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;">
+      <div style="font-size:22px;font-weight:800;color:#fff;">${s.value}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px;">${s.label}</div>
+    </div>`).join('');
+}
+
+// ── Benefits & Deductions state ────────────────────────────────────────────────
+// Each item: { label: string, value: string }
+let _benefits   = [];
+let _deductions = [];
+
+function _parseBdField(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  try { return JSON.parse(raw); } catch(e) { return []; }
+}
+
+function populateBenefitsDeductionsFields() {
+  _benefits   = _parseBdField(_emp.benefits   || _emp.benefit_items);
+  _deductions = _parseBdField(_emp.deductions  || _emp.deduction_items);
+
+  // Defaults if none configured
+  if (!_benefits.length) {
+    _benefits = [];
+  }
+  if (!_deductions.length) {
+    _deductions = [];
+  }
+  renderBdItems('benefit',   _benefits,   'benefitItemsWrap',   'benefitEmptyMsg');
+  renderBdItems('deduction', _deductions, 'deductionItemsWrap', 'deductionEmptyMsg');
+}
+
+function renderBdItems(type, items, wrapId, emptyId) {
+  const wrap  = document.getElementById(wrapId);
+  const empty = document.getElementById(emptyId);
+  if (!items.length) {
+    wrap.innerHTML = '';
+    if (empty) empty.style.display = '';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  wrap.innerHTML = items.map((item, idx) => `
+    <div class="bd-item-row" data-bd-type="${type}" data-bd-idx="${idx}">
+      <input
+        class="bd-item-input"
+        type="text"
+        value="${escHtml(item.label || '')}"
+        placeholder="e.g. Health Insurance"
+        oninput="updateBdItem('${type}', ${idx}, 'label', this.value)"
+      />
+      <div class="bd-item-value-wrap">
+        <span class="bd-item-value-prefix">${type === 'deduction' ? '−' : '+'}</span>
+        <input
+          class="bd-item-value-input"
+          type="text"
+          value="${escHtml(item.value || '')}"
+          placeholder="15% or $50"
+          oninput="updateBdItem('${type}', ${idx}, 'value', this.value)"
+        />
+      </div>
+      <button class="bd-item-remove-btn" onclick="removeBdItem('${type}', ${idx})" title="Remove">×</button>
+    </div>`).join('');
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function updateBdItem(type, idx, field, value) {
+  const arr = type === 'benefit' ? _benefits : _deductions;
+  if (arr[idx]) arr[idx][field] = value;
+}
+
+function addBenefitItem() {
+  _benefits.push({ label: '', value: '' });
+  renderBdItems('benefit', _benefits, 'benefitItemsWrap', 'benefitEmptyMsg');
+  // Focus the new label input
+  const rows = document.querySelectorAll('[data-bd-type="benefit"]');
+  const lastRow = rows[rows.length - 1];
+  if (lastRow) { const inp = lastRow.querySelector('.bd-item-input'); if (inp) inp.focus(); }
+}
+
+function addDeductionItem() {
+  _deductions.push({ label: '', value: '' });
+  renderBdItems('deduction', _deductions, 'deductionItemsWrap', 'deductionEmptyMsg');
+  const rows = document.querySelectorAll('[data-bd-type="deduction"]');
+  const lastRow = rows[rows.length - 1];
+  if (lastRow) { const inp = lastRow.querySelector('.bd-item-input'); if (inp) inp.focus(); }
+}
+
+function removeBdItem(type, idx) {
+  if (type === 'benefit') {
+    _benefits.splice(idx, 1);
+    renderBdItems('benefit', _benefits, 'benefitItemsWrap', 'benefitEmptyMsg');
+  } else {
+    _deductions.splice(idx, 1);
+    renderBdItems('deduction', _deductions, 'deductionItemsWrap', 'deductionEmptyMsg');
+  }
+}
+
+async function saveBenefitsDeductions() {
+  if (!_emp) return;
+  // Collect current values from DOM inputs (belt-and-suspenders sync)
+  const benefitRows    = document.querySelectorAll('[data-bd-type="benefit"]');
+  const deductionRows  = document.querySelectorAll('[data-bd-type="deduction"]');
+  const benefits   = [];
+  const deductions = [];
+  benefitRows.forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    if (inputs.length >= 2) {
+      const label = inputs[0].value.trim();
+      const value = inputs[1].value.trim();
+      if (label || value) benefits.push({ label, value });
+    }
+  });
+  deductionRows.forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    if (inputs.length >= 2) {
+      const label = inputs[0].value.trim();
+      const value = inputs[1].value.trim();
+      if (label || value) deductions.push({ label, value });
+    }
+  });
+  _benefits   = benefits;
+  _deductions = deductions;
+
+  try {
+    const res = await fetch(`tables/employees/${_emp.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        benefits:   JSON.stringify(_benefits),
+        deductions: JSON.stringify(_deductions),
+      }),
+    });
+    if (!res.ok) throw new Error('Save failed');
+    _emp.benefits   = JSON.stringify(_benefits);
+    _emp.deductions = JSON.stringify(_deductions);
+    const msgEl = document.getElementById('bdSaveMsg');
+    msgEl.style.display = '';
+    setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+  } catch(e) {
+    alert('Could not save benefits/deductions. Please try again.');
+  }
+}
+
+// ── Compensation fields ─────────────────────────────────────────────────────
+function populateCompensationFields() {
+  const freq        = _emp.pay_frequency         || 'Bi-weekly';
+  const hourly      = _emp.hourly_rate            || 22.00;
+  const bonus       = _emp.visit_bonus            || 5.00;
+  const otMult      = _emp.overtime_multiplier    || 1.5;
+  const firstPayDay = _emp.first_payment_day      || null;
+
+  document.getElementById('compPayFreq').value              = freq;
+  document.getElementById('compHourlyRate').value           = hourly;
+  document.getElementById('compVisitBonus').value           = bonus;
+  document.getElementById('compOvertimeMultiplier').value   = otMult;
+
+  // Parse bi-weekly days
+  _biweeklyDays = Array.isArray(_emp.biweekly_pay_days)
+    ? [..._emp.biweekly_pay_days]
+    : (_emp.biweekly_pay_days ? JSON.parse(_emp.biweekly_pay_days) : [1, 15]);
+
+  renderPayScheduleBlock(freq, firstPayDay);
+}
+
+function onPayFreqChange() {
+  const freq = document.getElementById('compPayFreq').value;
+  renderPayScheduleBlock(freq, null);
+}
+
+function renderPayScheduleBlock(freq, firstPayDay) {
+  const container = document.getElementById('payScheduleContent');
+  let html = '';
+
+  if (freq === 'Weekly') {
+    const weekdays = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const current  = _emp.weekly_pay_weekday !== undefined ? _emp.weekly_pay_weekday : 5; // default Friday
+    html = `
+      <div style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;">
+        <div class="comp-field" style="flex:1;min-width:160px;">
+          <label>Payday Weekday</label>
+          <select id="weeklyPayDay">
+            ${weekdays.map((d, i) => `<option value="${i}" ${current === i ? 'selected' : ''}>${d}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="pay-schedule-hint">
+        Payday recurs on this weekday every week. The employee's compensation page will show the next upcoming occurrence.
+      </div>`;
+
+  } else if (freq === 'Bi-weekly') {
+    // Show editable date pills
+    const pills = _biweeklyDays.map(d => `
+      <span class="biweekly-day-pill">
+        Day ${d}
+        <button type="button" onclick="removeBiweeklyDay(${d})" title="Remove">×</button>
+      </span>`).join('');
+
+    html = `
+      <div style="margin-bottom:8px;font-size:12px;color:#334155;font-weight:600;">Pay Dates (day of month — repeats each month):</div>
+      <div class="biweekly-days-wrap" id="biweeklyPillsWrap">
+        ${pills || '<span style="font-size:12px;color:#94a3b8;">No dates set yet</span>'}
+      </div>
+      <div class="biweekly-add-row">
+        <input type="number" id="biweeklyAddInput" min="1" max="28" placeholder="Day #" class="comp-field" style="border:1px solid #e2e8f0;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;width:80px;" />
+        <button type="button" onclick="addBiweeklyDay()" style="padding:7px 14px;background:#162d56;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">+ Add Date</button>
+      </div>
+      <div class="pay-schedule-hint">
+        Add the specific day numbers (e.g. <strong>1</strong> and <strong>15</strong>) when this employee is paid each month.
+        These same dates repeat every month on the employee's Compensation page.
+      </div>`;
+
+  } else if (freq === 'Monthly') {
+    const current = _emp.monthly_pay_day || 1;
+    html = `
+      <div style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;">
+        <div class="comp-field" style="flex:1;min-width:160px;">
+          <label>Payment Day of Month</label>
+          <select id="monthlyPayDay">
+            ${Array.from({length:28}, (_,i) => i+1).map(d =>
+              `<option value="${d}" ${current === d ? 'selected' : ''}>${d}${_ordSuffix(d)}</option>`
+            ).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="pay-schedule-hint">
+        The employee is paid on this day every month. The compensation page will show the next upcoming payment date.
+      </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function _ordSuffix(n) {
+  const s = ['th','st','nd','rd'];
+  const v = n % 100;
+  return s[(v-20)%10] || s[v] || s[0];
+}
+
+function addBiweeklyDay() {
+  const input = document.getElementById('biweeklyAddInput');
+  const day   = parseInt(input.value, 10);
+  if (isNaN(day) || day < 1 || day > 28) {
+    alert('Please enter a day between 1 and 28.');
+    return;
+  }
+  if (_biweeklyDays.includes(day)) {
+    alert(`Day ${day} is already in the schedule.`);
+    return;
+  }
+  _biweeklyDays.push(day);
+  _biweeklyDays.sort((a, b) => a - b);
+  input.value = '';
+  renderPayScheduleBlock('Bi-weekly', null);
+}
+
+function removeBiweeklyDay(day) {
+  _biweeklyDays = _biweeklyDays.filter(d => d !== day);
+  renderPayScheduleBlock('Bi-weekly', null);
+}
+
+async function saveCompensationSettings() {
+  if (!_emp) return;
+  const freq       = document.getElementById('compPayFreq').value;
+  const hourly     = parseFloat(document.getElementById('compHourlyRate').value) || 0;
+  const bonus      = parseFloat(document.getElementById('compVisitBonus').value) || 0;
+  const otMult     = parseFloat(document.getElementById('compOvertimeMultiplier').value) || 1.5;
+
+  const patch = {
+    pay_frequency:      freq,
+    hourly_rate:        hourly,
+    visit_bonus:        bonus,
+    overtime_multiplier: otMult,
+  };
+
+  if (freq === 'Weekly') {
+    const wdEl = document.getElementById('weeklyPayDay');
+    patch.weekly_pay_weekday = wdEl ? parseInt(wdEl.value, 10) : 5;
+  } else if (freq === 'Bi-weekly') {
+    patch.biweekly_pay_days = JSON.stringify(_biweeklyDays);
+  } else if (freq === 'Monthly') {
+    const mEl = document.getElementById('monthlyPayDay');
+    patch.monthly_pay_day = mEl ? parseInt(mEl.value, 10) : 1;
+  }
+
+  try {
+    const res = await fetch(`tables/employees/${_emp.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    });
+    if (!res.ok) throw new Error('Save failed');
+    // Update local copy
+    Object.assign(_emp, patch);
+    const msgEl = document.getElementById('compSaveMsg');
+    msgEl.style.display = '';
+    setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+  } catch(e) {
+    alert('Could not save compensation settings. Please try again.');
+  }
+}
+
+// ── Date filter ─────────────────────────────────────────────────────────────
+function setPreset(preset) {
+  const now  = new Date();
+  let from, to;
+  to = new Date(now); to.setHours(23,59,59,999);
+  if (preset === 'week') {
+    from = new Date(now); from.setDate(now.getDate() - now.getDay()); from.setHours(0,0,0,0);
+  } else if (preset === 'month') {
+    from = new Date(now.getFullYear(), now.getMonth(), 1);
+  } else if (preset === '3m') {
+    from = new Date(now); from.setMonth(from.getMonth() - 3); from.setDate(1);
+  } else if (preset === 'ytd') {
+    from = new Date(now.getFullYear(), 0, 1);
+  }
+  _fromDate = from;
+  _toDate   = to;
+  document.getElementById('filterFrom').value = toInputDate(from);
+  document.getElementById('filterTo').value   = toInputDate(to);
+  updateFilteredView();
+}
+
+function applyDateFilter() {
+  const fromVal = document.getElementById('filterFrom').value;
+  const toVal   = document.getElementById('filterTo').value;
+  if (fromVal) { _fromDate = new Date(fromVal + 'T00:00:00'); }
+  if (toVal)   { _toDate   = new Date(toVal   + 'T23:59:59'); }
+  updateFilteredView();
+}
+
+function toInputDate(d) {
+  return d.toISOString().slice(0, 10);
+}
+
+function updateFilteredView() {
+  if (!_emp) return;
+  const from = _fromDate || new Date(0);
+  const to   = _toDate   || new Date();
+
+  const filteredVisits = _allVisits.filter(v => {
+    const d = new Date(v.scheduled_start || v.created_at);
+    return d >= from && d <= to;
+  });
+
+  document.getElementById('filterSummaryText').textContent =
+    `${filteredVisits.length} visit${filteredVisits.length !== 1 ? 's' : ''} found`;
+  document.getElementById('visitRangeLabel').textContent =
+    `${FMT.date(from)} – ${FMT.date(to)}`;
+
+  const completed = filteredVisits.filter(v => v.status === 'completed');
+  const hours     = completed.reduce((s, v) => s + ((v.duration_minutes || 90) / 60), 0);
+  const avgDur    = completed.length ? (completed.reduce((s, v) => s + (v.duration_minutes || 90), 0) / completed.length).toFixed(0) : 0;
+
+  document.getElementById('periodTotals').innerHTML = [
+    { label:'Hours Worked',   value: hours.toFixed(1) + 'h',   bg:'#e8eef8', color:'#162d56' },
+    { label:'Visits Performed',value: filteredVisits.length,   bg:'#dcfce7', color:'#166534' },
+    { label:'Completed',      value: completed.length,         bg:'#dbeafe', color:'#1d4ed8' },
+    { label:'Avg Visit Duration', value: avgDur + ' min',      bg:'#fef3c7', color:'#b45309' },
+  ].map(c => `
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;">
+      <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">${c.label}</div>
+      <div style="font-size:24px;font-weight:800;color:${c.color};">${c.value}</div>
+    </div>`).join('');
+
+  renderVisitsTable(filteredVisits);
+  renderHoursBreakdown(filteredVisits, from, to);
+  renderTofHistory();
+}
+
+function renderVisitsTable(visits) {
+  const container = document.getElementById('visitsTable');
+  if (!visits.length) {
+    container.innerHTML = `<div style="padding:30px;text-align:center;color:#94a3b8;font-size:13px;">No visits in this period.</div>`;
+    return;
+  }
+
+  const sorted = [...visits].sort((a,b) => new Date(b.scheduled_start || b.created_at) - new Date(a.scheduled_start || a.created_at));
+  const statusColors = { completed:'#166534', in_progress:'#1d4ed8', scheduled:'#64748b', en_route:'#b45309', cancelled:'#dc2626' };
+
+  container.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+          <th style="padding:10px 16px;font-size:11px;font-weight:700;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.5px;">Date</th>
+          <th style="padding:10px 16px;font-size:11px;font-weight:700;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.5px;">Property</th>
+          <th style="padding:10px 16px;font-size:11px;font-weight:700;color:#94a3b8;text-align:center;text-transform:uppercase;letter-spacing:.5px;">Status</th>
+          <th style="padding:10px 16px;font-size:11px;font-weight:700;color:#94a3b8;text-align:right;text-transform:uppercase;letter-spacing:.5px;">Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${sorted.map(v => {
+          const prop = _propMap[v.property_id] || {};
+          const dur  = v.duration_minutes || 90;
+          return `
+            <tr style="border-bottom:1px solid #f1f5f9;">
+              <td style="padding:11px 16px;font-size:12px;color:#334155;">${FMT.date(v.scheduled_start || v.created_at)}</td>
+              <td style="padding:11px 16px;font-size:13px;font-weight:600;color:#0f1e38;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${prop.property_name || '—'}</td>
+              <td style="padding:11px 16px;text-align:center;"><span style="font-size:11px;font-weight:700;color:${statusColors[v.status]||'#64748b'};background:${v.status==='completed'?'#f0fdf4':v.status==='in_progress'?'#dbeafe':'#f1f5f9'};border-radius:20px;padding:2px 9px;">${FMT.snakeToTitle(v.status)}</span></td>
+              <td style="padding:11px 16px;font-size:13px;font-weight:600;color:#0f1e38;text-align:right;">${Math.round(dur)} min</td>
+            </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function renderHoursBreakdown(visits, from, to) {
+  const container = document.getElementById('hoursBreakdown');
+  if (!visits.length) {
+    container.innerHTML = `<div style="color:#94a3b8;font-size:13px;text-align:center;padding:10px 0;">No data for this period.</div>`;
+    return;
+  }
+
+  const weekMap = {};
+  visits.forEach(v => {
+    const d    = new Date(v.scheduled_start || v.created_at);
+    const sun  = new Date(d); sun.setDate(d.getDate() - d.getDay()); sun.setHours(0,0,0,0);
+    const key  = sun.toISOString().slice(0,10);
+    if (!weekMap[key]) weekMap[key] = { start: sun, visits: 0, minutes: 0 };
+    weekMap[key].visits++;
+    weekMap[key].minutes += (v.duration_minutes || 90);
+  });
+
+  const weeks = Object.values(weekMap).sort((a,b) => b.start - a.start);
+  container.innerHTML = weeks.map(w => {
+    const hrs   = (w.minutes / 60).toFixed(1);
+    const width = Math.min(100, (w.minutes / 60 / 12) * 100);
+    const weekEnd = new Date(w.start); weekEnd.setDate(w.start.getDate() + 6);
+    return `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+          <div style="font-size:12px;font-weight:600;color:#334155;">${w.start.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${weekEnd.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+          <div style="font-size:12px;font-weight:700;color:#162d56;">${hrs}h · ${w.visits} visit${w.visits!==1?'s':''}</div>
+        </div>
+        <div style="height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;">
+          <div style="height:100%;width:${width}%;background:linear-gradient(90deg,#162d56,#3b82f6);border-radius:4px;transition:width .4s;"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderTofHistory() {
+  const container = document.getElementById('empTofHistory');
+  if (!_tofReqs.length) {
+    container.innerHTML = `<div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No time-off requests.</div>`;
+    return;
+  }
+  const statusStyle = {
+    pending:  { bg:'#fef3c7', color:'#b45309' },
+    approved: { bg:'#f0fdf4', color:'#166534' },
+    denied:   { bg:'#fee2e2', color:'#dc2626' },
+    cancelled:{ bg:'#f1f5f9', color:'#64748b' },
+  };
+  const sorted = [..._tofReqs].sort((a,b) => new Date(b.created_at||b.submitted_at) - new Date(a.created_at||a.submitted_at));
+  container.innerHTML = sorted.map(r => {
+    const st   = statusStyle[r.status] || statusStyle.pending;
+    const days = r.days_requested || 1;
+    return `
+      <div style="padding:12px 18px;border-bottom:1px solid #f1f5f9;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#0f1e38;">${FMT.snakeToTitle(r.request_type||'vacation')}</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px;">${FMT.date(r.start_date)} – ${FMT.date(r.end_date)} (${days} day${days!==1?'s':''})</div>
+          </div>
+          <span style="font-size:11px;font-weight:700;border-radius:20px;padding:2px 9px;background:${st.bg};color:${st.color};flex-shrink:0;">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span>
+        </div>
+        ${r.admin_notes ? `<div style="font-size:11px;color:#162d56;margin-top:5px;">Admin: ${r.admin_notes}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leads — CRM — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── MOBILE-ONLY: CRM Leads List ──────────────────────────────── */
+
+    /* Mobile lead cards container: hidden on desktop */
+    #leadMobileCards {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      padding: 0;
+    }
+
+    /* Individual mobile lead card */
+    .mob-lead-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(15,30,56,.04);
+    }
+
+    .mob-lead-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .mob-lead-card-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .mob-lead-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .mob-lead-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f1e38;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mob-lead-card-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      margin-bottom: 10px;
+    }
+
+    .mob-lead-field {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .mob-lead-field-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .mob-lead-field-val {
+      font-size: 12px;
+      color: #334155;
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    .mob-lead-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .mob-lead-date {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    @media (max-width: 768px) {
+      /* Show mobile cards, hide the desktop table */
+      #leadMobileCards {
+        display: flex !important;
+      }
+
+      /* The desktop table wrapper is hidden by the existing .admin-data-table
+         rule in responsive.css — we also hide the overflow-x wrapper */
+      .leads-table-scroll {
+        display: none !important;
+      }
+
+      /* Tighter page padding */
+      .dashboard-content {
+        padding: 14px !important;
+      }
+
+      /* Pipeline bar: scrollable horizontal strip on mobile */
+      .crm-pipeline-bar {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 10px;
+        margin-bottom: 14px;
+        min-width: 0;
+      }
+
+      .crm-pipeline-segment {
+        min-width: 72px;
+        flex-shrink: 0;
+      }
+
+      /* Stats row: 2×2 grid */
+      .crm-stats-row {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+      }
+
+      /* Admin table header: stack title+actions vertically */
+      .admin-table-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        padding: 14px 14px 12px !important;
+      }
+
+      .admin-table-actions {
+        flex-direction: column !important;
+        gap: 8px !important;
+      }
+
+      .admin-search-wrap {
+        width: 100%;
+      }
+
+      .admin-search-input {
+        width: 100% !important;
+        box-sizing: border-box;
+      }
+
+      .admin-filter-select {
+        width: 100% !important;
+        box-sizing: border-box;
+      }
+
+      /* Table card: no overflow cut */
+      .admin-table-card {
+        overflow: visible;
+      }
+
+      /* Mobile cards list padding inside the card */
+      #leadMobileCards {
+        padding: 0 14px 14px;
+      }
+
+      /* Pagination area */
+      .admin-pagination {
+        padding: 10px 14px;
+        font-size: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      /* CRM header banner: stack vertically */
+      .crm-header-banner {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+      }
+
+      .admin-header-actions {
+        width: 100%;
+      }
+
+      .admin-btn-solid {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dashboard-content {
+        padding: 10px !important;
+      }
+
+      .mob-lead-card {
+        padding: 12px 13px;
+      }
+
+      .mob-lead-card-fields {
+        grid-template-columns: 1fr 1fr;
+        gap: 5px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Leads</span>
+          <span class="topbar-welcome">CRM System · Lead management and pipeline</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <!-- Messages icon -->
+        <button
+          class="topbar-icon-btn"
+          data-msg-trigger="admin"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          title="Messages"
+          type="button"
+          onclick="SHWMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <!-- Notifications bell -->
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="admin"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Breadcrumb -->
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;margin-bottom:18px;">
+        <a href="crm-overview.html" style="color:#64748b;text-decoration:none;font-weight:500;">CRM System</a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span style="color:#0f1e38;font-weight:600;">Leads</span>
+      </div>
+
+      <!-- Header -->
+      <div class="crm-header-banner" style="margin-bottom:20px;">
+        <div class="crm-header-left">
+          <div class="crm-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div>
+            <div class="crm-header-title">Lead Management</div>
+            <div class="crm-header-sub">Track and manage incoming leads through your sales pipeline</div>
+          </div>
+        </div>
+        <div class="admin-header-actions">
+          <button class="admin-btn-solid" onclick="openAddLeadModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add New Lead
+          </button>
+        </div>
+      </div>
+
+      <!-- Pipeline Funnel -->
+      <div class="crm-pipeline-bar" style="margin-bottom:20px;">
+        <div class="crm-pipeline-segment new-s" onclick="filterByStatus('new')">
+          <div class="crm-pipeline-label">New</div>
+          <div class="crm-pipeline-count">7</div>
+          <div class="crm-pipeline-pct">30%</div>
+        </div>
+        <div class="crm-pipeline-segment contacted-s" onclick="filterByStatus('contacted')">
+          <div class="crm-pipeline-label">Contacted</div>
+          <div class="crm-pipeline-count">8</div>
+          <div class="crm-pipeline-pct">35%</div>
+        </div>
+        <div class="crm-pipeline-segment qualified-s" onclick="filterByStatus('qualified')">
+          <div class="crm-pipeline-label">Qualified</div>
+          <div class="crm-pipeline-count">5</div>
+          <div class="crm-pipeline-pct">22%</div>
+        </div>
+        <div class="crm-pipeline-segment converted-s" onclick="filterByStatus('converted')">
+          <div class="crm-pipeline-label">Converted</div>
+          <div class="crm-pipeline-count">3</div>
+          <div class="crm-pipeline-pct">13%</div>
+        </div>
+      </div>
+
+      <!-- Summary Stats -->
+      <div class="crm-stats-row" style="margin-bottom:20px;">
+        <div class="crm-stat-card">
+          <div class="crm-stat-top"><div class="crm-stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg></div><span class="crm-stat-trend up">↑ 3</span></div>
+          <div class="crm-stat-value" id="statNewLeads">—</div>
+          <div class="crm-stat-label">New Leads</div>
+        </div>
+        <div class="crm-stat-card">
+          <div class="crm-stat-top"><div class="crm-stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .98h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.05 8.47a16 16 0 006.29 6.29l1.65-1.17a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div><span class="crm-stat-trend neu">—</span></div>
+          <div class="crm-stat-value" id="statContacted">—</div>
+          <div class="crm-stat-label">Contacted</div>
+        </div>
+        <div class="crm-stat-card">
+          <div class="crm-stat-top"><div class="crm-stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><span class="crm-stat-trend up">↑ 2</span></div>
+          <div class="crm-stat-value" id="statQualified">—</div>
+          <div class="crm-stat-label">Qualified</div>
+        </div>
+        <div class="crm-stat-card">
+          <div class="crm-stat-top"><div class="crm-stat-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg></div><span class="crm-stat-trend up">↑ 1</span></div>
+          <div class="crm-stat-value" id="statConverted">—</div>
+          <div class="crm-stat-label">Converted</div>
+        </div>
+      </div>
+
+      <!-- Leads Table -->
+      <div class="admin-table-card">
+        <div class="admin-table-header">
+          <div class="admin-table-title">All Leads <span style="font-size:12px;color:#94a3b8;font-weight:400;margin-left:6px;" id="leadCount">(0)</span></div>
+          <div class="admin-table-actions">
+            <div class="admin-search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="admin-search-input" placeholder="Search leads…" id="leadSearch" oninput="filterLeads()" style="width:220px;" />
+            </div>
+            <select class="admin-filter-select" id="leadStatusFilter" onchange="filterLeads()">
+              <option value="">All Statuses</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="qualified">Qualified</option>
+              <option value="converted">Converted</option>
+              <option value="lost">Lost</option>
+            </select>
+            <select class="admin-filter-select" id="leadSourceFilter" onchange="filterLeads()">
+              <option value="">All Sources</option>
+              <option value="Website">Website</option>
+              <option value="Referral">Referral</option>
+              <option value="Google Ad">Google Ad</option>
+              <option value="Facebook">Facebook</option>
+              <option value="Walk-in">Walk-in</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="leads-table-scroll" style="overflow-x:auto;">
+          <table class="admin-data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Source</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leadTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Mobile card list (hidden on desktop, shown on mobile via CSS) -->
+        <div id="leadMobileCards"></div>
+
+        <div class="admin-pagination">
+          <span id="leadPaginationInfo">Showing 1–15 of 23 leads</span>
+          <div class="admin-page-btns">
+            <button class="admin-page-btn" disabled>‹</button>
+            <button class="admin-page-btn active">1</button>
+            <button class="admin-page-btn">2</button>
+            <button class="admin-page-btn">›</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+// ALL_LEADS is populated from the backend API.
+const LEADS = [];
+
+const LEAD_STATUS_LABELS = {
+  new:       '<span class="tbl-status new-lead">New</span>',
+  contacted: '<span class="tbl-status contacted">Contacted</span>',
+  qualified: '<span class="tbl-status qualified">Qualified</span>',
+  converted: '<span class="tbl-status converted">Converted</span>',
+  lost:      '<span class="tbl-status lost">Lost</span>',
+};
+
+const SOURCE_ICONS = {
+  Website:  '🌐',
+  Referral: '🤝',
+  'Google Ad': '🔍',
+  Facebook: '📘',
+  'Walk-in': '🚶',
+};
+
+function renderLeads(data) {
+  const tbody = document.getElementById('leadTableBody');
+  const mobileList = document.getElementById('leadMobileCards');
+
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="admin-empty-state"><div class="admin-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="admin-empty-title">No leads found</div></div></td></tr>`;
+    mobileList.innerHTML = `<div style="text-align:center;padding:32px 16px;color:#94a3b8;font-size:13px;">No leads found</div>`;
+    return;
+  }
+
+  // Desktop table rows
+  tbody.innerHTML = data.map(l => `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:${avatarColor(l.id)};color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${initials(l.name)}</div>
+          <div class="cell-primary">${l.name}</div>
+        </div>
+      </td>
+      <td style="color:#475569;">${l.email}</td>
+      <td style="color:#475569;white-space:nowrap;">${l.phone}</td>
+      <td>
+        <span style="font-size:13px;">${SOURCE_ICONS[l.source] || '📌'} ${l.source}</span>
+      </td>
+      <td>${LEAD_STATUS_LABELS[l.status] || ''}</td>
+      <td style="color:#64748b;white-space:nowrap;">${l.date}</td>
+      <td class="cell-actions">
+        <button class="tbl-action-btn" onclick="if(typeof SHWNav!=='undefined')SHWNav.saveScroll('crm-leads.html'); window.location.href='crm-lead-profile.html?id=${l.id}'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          View Lead
+        </button>
+      </td>
+    </tr>
+  `).join('');
+
+  // Mobile cards
+  mobileList.innerHTML = data.map(l => `
+    <div class="mob-lead-card">
+      <div class="mob-lead-card-header">
+        <div class="mob-lead-card-identity">
+          <div class="mob-lead-avatar" style="background:${avatarColor(l.id)};">${initials(l.name)}</div>
+          <div>
+            <div class="mob-lead-name">${l.name}</div>
+          </div>
+        </div>
+        <div>${LEAD_STATUS_LABELS[l.status] || ''}</div>
+      </div>
+      <div class="mob-lead-card-fields">
+        <div class="mob-lead-field">
+          <span class="mob-lead-field-label">Email</span>
+          <span class="mob-lead-field-val" style="word-break:break-all;">${l.email}</span>
+        </div>
+        <div class="mob-lead-field">
+          <span class="mob-lead-field-label">Phone</span>
+          <span class="mob-lead-field-val">${l.phone}</span>
+        </div>
+        <div class="mob-lead-field">
+          <span class="mob-lead-field-label">Source</span>
+          <span class="mob-lead-field-val">${SOURCE_ICONS[l.source] || '📌'} ${l.source}</span>
+        </div>
+        <div class="mob-lead-field">
+          <span class="mob-lead-field-label">Created</span>
+          <span class="mob-lead-field-val">${l.date}</span>
+        </div>
+      </div>
+      <div class="mob-lead-card-footer">
+        <span class="mob-lead-date">ID: ${l.id}</span>
+        <button class="tbl-action-btn" onclick="if(typeof SHWNav!=='undefined')SHWNav.saveScroll('crm-leads.html'); window.location.href='crm-lead-profile.html?id=${l.id}'" style="flex-shrink:0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          View Lead
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ALL_LEADS is populated from loadApiLeads()
+let ALL_LEADS = [];
+
+function filterLeads() {
+  const q = document.getElementById('leadSearch').value.toLowerCase();
+  const st = document.getElementById('leadStatusFilter').value;
+  const src = document.getElementById('leadSourceFilter').value;
+  const filtered = ALL_LEADS.filter(l => {
+    const mQ = !q || l.name.toLowerCase().includes(q) || l.email.toLowerCase().includes(q) || l.phone.includes(q);
+    const mS = !st || l.status === st;
+    const mSrc = !src || l.source === src;
+    return mQ && mS && mSrc;
+  });
+  document.getElementById('leadCount').textContent = `(${filtered.length})`;
+  document.getElementById('leadPaginationInfo').textContent = `Showing 1–${Math.min(15, filtered.length)} of ${filtered.length} leads`;
+  renderLeads(filtered);
+}
+
+// Normalize an API lead record into the shape renderLeads() expects
+function normalizeApiLead(r) {
+  const name = r.full_name || r.name || 'Unknown';
+  const rawDate = r.created_at ? new Date(typeof r.created_at === 'number' ? r.created_at : Number(r.created_at)) : null;
+  const dateStr = rawDate && !isNaN(rawDate)
+    ? rawDate.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+    : '—';
+  return {
+    id:     r.id,
+    name,
+    email:  r.email  || '—',
+    phone:  r.phone  || '—',
+    source: r.source || 'Website Inquiry Form',
+    status: r.status || 'new',
+    date:   dateStr,
+    // Extra fields for detail view
+    property_address: r.property_address || '',
+    city:             r.city             || '',
+    zip:              r.zip              || '',
+    property_type:    r.property_type    || '',
+    service_interest: r.service_interest || '',
+    preferred_timing: r.preferred_timing || '',
+    message:          r.message          || '',
+    _fromApi: true,
+  };
+}
+
+async function loadApiLeads() {
+  try {
+    const res = await fetch('tables/leads?limit=200&sort=created_at');
+    if (!res.ok) return;
+    const json = await res.json();
+    const apiRecords = (json.data || []).map(normalizeApiLead);
+    ALL_LEADS = apiRecords;
+  } catch (e) {
+    // API unavailable — ALL_LEADS stays empty
+  } finally {
+    // Update stat cards
+    const setV = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setV('statNewLeads', ALL_LEADS.filter(l => l.status === 'new').length);
+    setV('statContacted', ALL_LEADS.filter(l => l.status === 'contacted').length);
+    setV('statQualified', ALL_LEADS.filter(l => l.status === 'qualified').length);
+    setV('statConverted', ALL_LEADS.filter(l => l.status === 'converted').length);
+    filterLeads();
+  }
+}
+
+function filterByStatus(st) {
+  document.getElementById('leadStatusFilter').value = st;
+  filterLeads();
+}
+
+function initials(name) {
+  const parts = name.replace(/&/g, '').trim().split(/\s+/);
+  return (parts[0][0] + (parts[parts.length - 1][0] || '')).toUpperCase();
+}
+
+const avatarColors = ['#162d56','#0f766e','#7c3aed','#b45309','#dc2626','#15803d','#1d4ed8','#9333ea'];
+function avatarColor(id) {
+  const n = parseInt(id.replace(/\D/g,'')) || 0;
+  return avatarColors[n % avatarColors.length];
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderAdminSidebar('crm-leads');
+  loadApiLeads();
+  if (typeof SHWNav !== 'undefined') SHWNav.restoreScroll('crm-leads.html');
+});
+
+// ─── ADD NEW LEAD MODAL ───────────────────────────────────────────────────────
+function openAddLeadModal() {
+  document.getElementById('addLeadModal').style.display = 'flex';
+}
+function closeAddLeadModal() {
+  document.getElementById('addLeadModal').style.display = 'none';
+  document.getElementById('addLeadForm').reset();
+}
+async function submitAddLead(e) {
+  e.preventDefault();
+  const payload = {
+    full_name:        document.getElementById('alName').value.trim(),
+    email:            document.getElementById('alEmail').value.trim(),
+    phone:            document.getElementById('alPhone').value.trim(),
+    property_address: document.getElementById('alAddress').value.trim(),
+    source:           document.getElementById('alSource').value,
+    notes:            document.getElementById('alNotes').value.trim(),
+    status:           'new',
+    created_at:       Date.now(),
+  };
+  try {
+    const res = await fetch('tables/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error('Failed to create lead');
+    closeAddLeadModal();
+    showToast('Lead added successfully', 'success');
+    loadApiLeads();
+  } catch (err) {
+    showToast('Could not add lead — please try again', 'error');
+  }
+}
+</script>
+
+<!-- Add New Lead Modal -->
+<div id="addLeadModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:16px;padding:28px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="font-size:16px;font-weight:700;color:#0f1e38;">Add New Lead</div>
+      <button onclick="closeAddLeadModal()" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:20px;line-height:1;">×</button>
+    </div>
+    <form id="addLeadForm" onsubmit="submitAddLead(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px;">Full Name *</label>
+          <input id="alName" type="text" class="admin-form-input" placeholder="First and last name" required style="width:100%;box-sizing:border-box;" />
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px;">Source</label>
+          <select id="alSource" class="admin-filter-select" style="width:100%;box-sizing:border-box;">
+            <option value="Website">Website</option>
+            <option value="Referral">Referral</option>
+            <option value="Google Ad">Google Ad</option>
+            <option value="Facebook">Facebook</option>
+            <option value="Walk-in">Walk-in</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px;">Email</label>
+          <input id="alEmail" type="email" class="admin-form-input" placeholder="email@example.com" style="width:100%;box-sizing:border-box;" />
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px;">Phone</label>
+          <input id="alPhone" type="tel" class="admin-form-input" placeholder="(239) 000-0000" style="width:100%;box-sizing:border-box;" />
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px;">Property Address</label>
+        <input id="alAddress" type="text" class="admin-form-input" placeholder="Street address, city, state" style="width:100%;box-sizing:border-box;" />
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px;">Notes</label>
+        <textarea id="alNotes" class="admin-form-textarea" rows="2" placeholder="How they were referred, property context, initial interest…" style="width:100%;box-sizing:border-box;resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button type="button" onclick="closeAddLeadModal()" style="padding:9px 18px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#475569;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+        <button type="submit" style="padding:9px 18px;border-radius:8px;border:none;background:#162d56;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">Add Lead</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

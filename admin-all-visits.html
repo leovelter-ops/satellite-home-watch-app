@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Visits — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── Visit type tag ── */
+    .av-type-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #f1f5f9; color: #475569;
+      border-radius: 6px; font-size: 11px; font-weight: 600;
+      padding: 3px 8px; white-space: nowrap;
+    }
+    /* ── Stats strip ── */
+    .av-stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    @media (max-width: 1100px) { .av-stats { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 640px)  { .av-stats { grid-template-columns: repeat(2,1fr); } }
+
+    /* ── Filters bar ── */
+    .av-filter-bar {
+      background: #fff; border: 1px solid #e2e8f0;
+      border-radius: 12px; padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    }
+    /* ── Table card ── */
+    .av-table-outer {
+      background: #fff; border: 1px solid #e2e8f0;
+      border-radius: 14px; overflow: hidden;
+    }
+    .av-table-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      flex-wrap: wrap;
+    }
+    .av-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+    }
+    .av-table th {
+      padding: 10px 16px; text-align: left;
+      font-size: 11px; font-weight: 600; color: #64748b;
+      text-transform: uppercase; letter-spacing: .5px;
+      border-bottom: 1px solid #f1f5f9; background: #fafafa;
+      white-space: nowrap; cursor: pointer;
+    }
+    .av-table th:hover { color: #162d56; }
+    .av-table td {
+      padding: 12px 16px; border-bottom: 1px solid #f8f9fa;
+      vertical-align: middle;
+    }
+    .av-table tr:last-child td { border-bottom: none; }
+    .av-table tr:hover td { background: #f8faff; cursor: pointer; }
+
+    /* ── Pagination ── */
+    .av-pagination {
+      padding: 14px 20px;
+      border-top: 1px solid #f1f5f9;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      flex-wrap: wrap;
+    }
+    .av-page-btn {
+      width: 32px; height: 32px; border: 1px solid #e2e8f0;
+      border-radius: 8px; background: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: #475569;
+      transition: all .15s;
+    }
+    .av-page-btn:hover { border-color: #162d56; color: #162d56; }
+    .av-page-btn.active { background: #162d56; border-color: #162d56; color: #fff; }
+    .av-page-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── Mobile cards ── */
+    .av-mobile-cards { display: none; padding: 12px; }
+    @media (max-width: 768px) {
+      .av-table-wrap { display: none !important; }
+      .av-mobile-cards { display: flex !important; flex-direction: column; gap: 12px; }
+      .av-filter-bar { flex-direction: column; }
+      .av-filter-bar input, .av-filter-bar select { width: 100%; }
+      .av-filter-bar > div[style*="flex-wrap:nowrap"] { flex-wrap: wrap !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">All Visits</span>
+          <span class="topbar-welcome">Complete visit history across all properties and time</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-msg-trigger="admin"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          title="Messages"
+          type="button"
+          onclick="SHWMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="admin"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Header Banner -->
+      <div class="admin-header-banner">
+        <div>
+          <div class="admin-header-title">All Visits — Historical Archive</div>
+          <div class="admin-header-sub" id="avBannerSub">Loading visit summary…</div>
+        </div>
+        <div class="admin-header-actions">
+          <button class="admin-btn-solid" onclick="exportVisits()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="av-stats" id="avStatsRow">
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="admin-stat-value" id="avStatTotal">—</div>
+          <div class="admin-stat-label">Total Visits</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <div class="admin-stat-value" id="avStatCompleted">—</div>
+          <div class="admin-stat-label">Completed</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div>
+          <div class="admin-stat-value" id="avStatScheduled">—</div>
+          <div class="admin-stat-label">Upcoming</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+          <div class="admin-stat-value" id="avStatCancelled">—</div>
+          <div class="admin-stat-label">Cancelled</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+          <div class="admin-stat-value" id="avStatProperties">—</div>
+          <div class="admin-stat-label">Properties Covered</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="av-filter-bar">
+        <div class="admin-search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" class="admin-search-input" id="avSearch"
+            placeholder="Search visits, properties, inspectors…" oninput="filterVisits()" style="width:260px;" />
+        </div>
+        <select class="admin-filter-select" id="avStatusFilter" onchange="filterVisits()">
+          <option value="">All Statuses</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="en_route">En Route</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <select class="admin-filter-select" id="avTypeFilter" onchange="filterVisits()">
+          <option value="">All Visit Types</option>
+          <option value="routine_inspection">Routine Inspection</option>
+          <option value="storm_prep_inspection">Storm Prep</option>
+          <option value="post_storm_inspection">Post-Storm</option>
+          <option value="vendor_access">Vendor Access</option>
+          <option value="concierge_service">Concierge Service</option>
+          <option value="special_request">Special Request</option>
+          <option value="new_client_walkthrough">New Client Walkthrough</option>
+          <option value="emergency_check">Emergency Check</option>
+        </select>
+        <select class="admin-filter-select" id="avInspectorFilter" onchange="filterVisits()">
+          <option value="">All Inspectors</option>
+        </select>
+        <select class="admin-filter-select" id="avPropertyFilter" onchange="filterVisits()">
+          <option value="">All Properties</option>
+        </select>
+        <!-- Date range: From / To side by side -->
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap;">
+          <label style="font-size:12px;font-weight:600;color:#64748b;white-space:nowrap;">From</label>
+          <input type="date" class="admin-filter-select" id="avDateFrom" onchange="filterVisits()"
+            title="From date" style="max-width:150px;" />
+          <label style="font-size:12px;font-weight:600;color:#64748b;white-space:nowrap;">To</label>
+          <input type="date" class="admin-filter-select" id="avDateTo" onchange="filterVisits()"
+            title="To date" style="max-width:150px;" />
+        </div>
+        <div style="margin-left:auto;font-size:13px;color:#64748b;" id="avCount"></div>
+      </div>
+
+      <!-- Table -->
+      <div class="av-table-outer">
+        <div class="av-table-header">
+          <div style="font-size:15px;font-weight:700;color:#0f1e38;">Visit History</div>
+          <div style="font-size:12px;color:#94a3b8;">Showing all visits across all time. Schedule &amp; Dispatch shows the operational view for today.</div>
+        </div>
+        <div class="av-table-wrap" id="avTableWrap">
+          <table class="av-table" id="avTable">
+            <thead>
+              <tr>
+                <th onclick="sortVisits('scheduled_start')">Date ↕</th>
+                <th onclick="sortVisits('property_name')">Property ↕</th>
+                <th>Inspector</th>
+                <th>Visit Type</th>
+                <th onclick="sortVisits('status')">Status ↕</th>
+                <th>Duration</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="avTableBody">
+              <tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:30px;">Loading visits…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Mobile cards -->
+        <div class="av-mobile-cards" id="avMobileCards"></div>
+        <div class="av-pagination" id="avPagination"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+let _avVisits    = [];
+let _avPropMap   = {};
+let _avEmpMap    = {};
+let _avUserMap   = {};
+let _avFiltered  = [];
+let _avPage      = 1;
+const AV_PAGE_SIZE = 50;
+let _avSortField = 'scheduled_start';
+let _avSortAsc   = false;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderAdminSidebar('admin-all-visits');
+  document.getElementById('topbarAvatar').textContent = ADMIN_SESSION.initials;
+  await loadAllVisits();
+});
+
+async function loadAllVisits() {
+  const [visitsRes, propsRes, empsRes, usersRes] = await Promise.all([
+    empApiGetAll('visits'),
+    empApiGetAll('properties'),
+    empApiGetAll('employees'),
+    empApiGetAll('users'),
+  ]);
+
+  _avVisits  = visitsRes.data || [];
+  const props  = propsRes.data  || [];
+  const emps   = empsRes.data   || [];
+  const users  = usersRes.data  || [];
+
+  _avPropMap = buildMap(props);
+  _avEmpMap  = buildMap(emps);
+  _avUserMap = buildMap(users);
+
+  // Populate filters
+  const inspSel = document.getElementById('avInspectorFilter');
+  emps.filter(e => e.role === 'inspector').forEach(e => {
+    const u = _avUserMap[e.user_id] || {};
+    const opt = document.createElement('option');
+    opt.value = e.id;
+    opt.textContent = u.full_name || e.id;
+    inspSel.appendChild(opt);
+  });
+
+  const propSel = document.getElementById('avPropertyFilter');
+  props.sort((a,b) => (a.property_name||'').localeCompare(b.property_name||'')).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.property_name;
+    propSel.appendChild(opt);
+  });
+
+  // Stats
+  const total     = _avVisits.length;
+  const completed = _avVisits.filter(v => v.status === 'completed').length;
+  const scheduled = _avVisits.filter(v => v.status === 'scheduled').length;
+  const cancelled = _avVisits.filter(v => v.status === 'cancelled').length;
+  const propCount = new Set(_avVisits.map(v => v.property_id)).size;
+
+  document.getElementById('avStatTotal').textContent      = total;
+  document.getElementById('avStatCompleted').textContent  = completed;
+  document.getElementById('avStatScheduled').textContent  = scheduled;
+  document.getElementById('avStatCancelled').textContent  = cancelled;
+  document.getElementById('avStatProperties').textContent = propCount;
+  document.getElementById('avBannerSub').textContent =
+    `${total} total visits · ${completed} completed · ${scheduled} upcoming`;
+
+  filterVisits();
+}
+
+function filterVisits() {
+  const q        = (document.getElementById('avSearch').value || '').toLowerCase();
+  const status   = document.getElementById('avStatusFilter').value;
+  const type     = document.getElementById('avTypeFilter').value;
+  const inspId   = document.getElementById('avInspectorFilter').value;
+  const propId   = document.getElementById('avPropertyFilter').value;
+  const dateFrom = document.getElementById('avDateFrom').value;
+  const dateTo   = document.getElementById('avDateTo').value;
+
+  _avFiltered = _avVisits.filter(v => {
+    const prop  = _avPropMap[v.property_id] || {};
+    const emp   = _avEmpMap[v.assigned_employee_id] || {};
+    const user  = _avUserMap[emp.user_id] || {};
+    const vDate = v.scheduled_start ? v.scheduled_start.slice(0, 10) : '';
+
+    const matchQ = !q ||
+      (prop.property_name || '').toLowerCase().includes(q) ||
+      (user.full_name || '').toLowerCase().includes(q) ||
+      (v.visit_type || '').toLowerCase().includes(q) ||
+      (prop.address_line1 || '').toLowerCase().includes(q);
+    const matchStatus = !status || v.status === status;
+    const matchType   = !type   || v.visit_type === type;
+    const matchInsp   = !inspId || v.assigned_employee_id === inspId;
+    const matchProp   = !propId || v.property_id === propId;
+    const matchFrom   = !dateFrom || vDate >= dateFrom;
+    const matchTo     = !dateTo   || vDate <= dateTo;
+
+    return matchQ && matchStatus && matchType && matchInsp && matchProp && matchFrom && matchTo;
+  });
+
+  // Sort
+  _avFiltered.sort((a, b) => {
+    let aVal, bVal;
+    if (_avSortField === 'property_name') {
+      aVal = (_avPropMap[a.property_id]?.property_name || '').toLowerCase();
+      bVal = (_avPropMap[b.property_id]?.property_name || '').toLowerCase();
+    } else if (_avSortField === 'status') {
+      aVal = a.status || ''; bVal = b.status || '';
+    } else {
+      aVal = a.scheduled_start || ''; bVal = b.scheduled_start || '';
+    }
+    if (aVal < bVal) return _avSortAsc ? -1 : 1;
+    if (aVal > bVal) return _avSortAsc ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('avCount').textContent = `${_avFiltered.length} visit${_avFiltered.length !== 1 ? 's' : ''}`;
+  _avPage = 1;
+  renderVisitsTable();
+}
+
+function sortVisits(field) {
+  if (_avSortField === field) {
+    _avSortAsc = !_avSortAsc;
+  } else {
+    _avSortField = field;
+    _avSortAsc = field === 'property_name';
+  }
+  filterVisits();
+}
+
+const STATUS_CLASS = {
+  scheduled: 'scheduled', en_route: 'in_progress', arrived: 'in_progress',
+  in_progress: 'in_progress', completed: 'completed', cancelled: 'pending',
+};
+
+function renderVisitsTable() {
+  const start = (_avPage - 1) * AV_PAGE_SIZE;
+  const page  = _avFiltered.slice(start, start + AV_PAGE_SIZE);
+
+  const tbody = document.getElementById('avTableBody');
+  const mobileCards = document.getElementById('avMobileCards');
+
+  if (!_avFiltered.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#94a3b8;">No visits found. Try adjusting your filters.</td></tr>`;
+    mobileCards.innerHTML = `<div class="admin-empty-state"><div class="admin-empty-title">No visits found</div></div>`;
+    renderPagination();
+    return;
+  }
+
+  tbody.innerHTML = page.map(v => {
+    const prop = _avPropMap[v.property_id] || {};
+    const emp  = _avEmpMap[v.assigned_employee_id] || {};
+    const user = _avUserMap[emp.user_id] || {};
+    const date = v.scheduled_start ? FMT.date(v.scheduled_start) : '—';
+    const time = v.scheduled_start ? FMT.time(v.scheduled_start) : '';
+    const dur  = v.estimated_duration_mins ? `${v.estimated_duration_mins}m` : '—';
+    const sc   = STATUS_CLASS[v.status] || 'scheduled';
+    const isCompleted = v.status === 'completed';
+    const primaryLabel = isCompleted ? 'View Details' : 'Manage';
+    const primaryAction = isCompleted
+      ? `event.stopPropagation();window.location.href='admin-visit-detail.html?visitId=${v.id}'`
+      : `event.stopPropagation();goToSchedule('${v.id}')`;
+    const primaryIcon = isCompleted
+      ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`
+      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+    return `<tr onclick="goToVisit('${v.id}')" title="${isCompleted ? 'View visit details' : 'Manage in Schedule & Dispatch'}">
+      <td><div style="font-weight:600;color:#0f1e38;">${date}</div><div style="font-size:11px;color:#94a3b8;">${time}</div></td>
+      <td><div style="font-weight:600;color:#0f1e38;">${escHtml(prop.property_name || '—')}</div><div style="font-size:11px;color:#94a3b8;">${escHtml(prop.address_line1 || '')}</div></td>
+      <td>${escHtml(user.full_name || 'Unassigned')}</td>
+      <td><span class="av-type-tag">${FMT.snakeToTitle(v.visit_type || '—')}</span></td>
+      <td><span class="tbl-status ${sc}">${FMT.snakeToTitle(v.status || '—')}</span></td>
+      <td style="color:#64748b;">${dur}</td>
+      <td style="text-align:right;">
+        <button class="tbl-action-btn" onclick="${primaryAction}">
+          ${primaryIcon}
+          ${primaryLabel}
+        </button>
+        <button class="tbl-action-btn" onclick="event.stopPropagation();goToProperty('${v.property_id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+          Property
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Mobile cards
+  mobileCards.innerHTML = page.map(v => {
+    const prop = _avPropMap[v.property_id] || {};
+    const emp  = _avEmpMap[v.assigned_employee_id] || {};
+    const user = _avUserMap[emp.user_id] || {};
+    const date = v.scheduled_start ? FMT.date(v.scheduled_start) : '—';
+    const sc   = STATUS_CLASS[v.status] || 'scheduled';
+    const isCompleted = v.status === 'completed';
+    const primaryLabel = isCompleted ? 'View Details' : 'Manage';
+    const primaryAction = isCompleted
+      ? `window.location.href='admin-visit-detail.html?visitId=${v.id}'`
+      : `goToSchedule('${v.id}')`;
+    return `
+      <div class="admin-mobile-card" onclick="goToVisit('${v.id}')">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#0f1e38;">${escHtml(prop.property_name || '—')}</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px;">${date}</div>
+          </div>
+          <span class="tbl-status ${sc}">${FMT.snakeToTitle(v.status || '—')}</span>
+        </div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:6px;">${escHtml(user.full_name || 'Unassigned')} · ${FMT.snakeToTitle(v.visit_type || '—')}</div>
+        <div style="display:flex;gap:8px;">
+          <button class="tbl-action-btn" onclick="event.stopPropagation();${primaryAction}">${primaryLabel}</button>
+          <button class="tbl-action-btn" onclick="event.stopPropagation();goToProperty('${v.property_id}')">Property</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  renderPagination();
+}
+
+function renderPagination() {
+  const total = _avFiltered.length;
+  const pages = Math.ceil(total / AV_PAGE_SIZE);
+  const pag = document.getElementById('avPagination');
+
+  if (pages <= 1) { pag.innerHTML = `<div style="font-size:13px;color:#64748b;">${total} visit${total !== 1 ? 's' : ''}</div>`; return; }
+
+  let html = `<div style="font-size:13px;color:#64748b;">Page ${_avPage} of ${pages} (${total} visits)</div><div style="display:flex;gap:4px;align-items:center;">`;
+  html += `<button class="av-page-btn" onclick="goToPage(${_avPage - 1})" ${_avPage === 1 ? 'disabled' : ''}>‹</button>`;
+  for (let p = Math.max(1, _avPage - 2); p <= Math.min(pages, _avPage + 2); p++) {
+    html += `<button class="av-page-btn${p === _avPage ? ' active' : ''}" onclick="goToPage(${p})">${p}</button>`;
+  }
+  html += `<button class="av-page-btn" onclick="goToPage(${_avPage + 1})" ${_avPage === pages ? 'disabled' : ''}>›</button>`;
+  html += `</div>`;
+  pag.innerHTML = html;
+}
+
+function goToPage(p) {
+  const pages = Math.ceil(_avFiltered.length / AV_PAGE_SIZE);
+  if (p < 1 || p > pages) return;
+  _avPage = p;
+  renderVisitsTable();
+  window.scrollTo(0, 0);
+}
+
+function goToVisit(visitId) {
+  const visit = _avVisits.find(v => v.id === visitId);
+  if (!visit) return;
+  if (visit.status === 'completed') {
+    // Completed visit → admin/executive visit details page (never employee portal)
+    window.location.href = `admin-visit-detail.html?visitId=${visitId}`;
+  } else {
+    // Active / upcoming visit → open Schedule & Dispatch management flow
+    goToSchedule(visitId);
+  }
+}
+
+function goToSchedule(visitId) {
+  // Find the date of this visit and open Schedule & Dispatch with that visit
+  const visit = _avVisits.find(v => v.id === visitId);
+  if (visit && visit.scheduled_start) {
+    const dateStr = visit.scheduled_start.slice(0, 10);
+    window.location.href = `admin-schedule.html?visitId=${visitId}&date=${dateStr}`;
+  } else {
+    window.location.href = 'admin-schedule.html';
+  }
+}
+
+function goToProperty(propId) {
+  window.location.href = `admin-property-detail.html?propId=${propId}`;
+}
+
+function exportVisits() {
+  if (!_avFiltered.length) { showToast('No visits to export.', 'error'); return; }
+  const rows = [['Date', 'Property', 'Address', 'Inspector', 'Visit Type', 'Status', 'Duration (mins)']];
+  _avFiltered.forEach(v => {
+    const prop = _avPropMap[v.property_id] || {};
+    const emp  = _avEmpMap[v.assigned_employee_id] || {};
+    const user = _avUserMap[emp.user_id] || {};
+    rows.push([
+      v.scheduled_start ? FMT.date(v.scheduled_start) : '',
+      prop.property_name || '',
+      prop.address_line1 || '',
+      user.full_name || '',
+      FMT.snakeToTitle(v.visit_type || ''),
+      FMT.snakeToTitle(v.status || ''),
+      v.estimated_duration_mins || '',
+    ]);
+  });
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'satellite-all-visits.csv';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('CSV exported!', 'success');
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

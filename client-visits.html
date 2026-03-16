@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Visits — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/visits.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+<div class="app-wrapper">
+
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar (rendered by JS) -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Client navigation"></aside>
+
+  <!-- Mobile Topbar (injected by app.js renderSidebar) -->
+
+  <!-- ════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════ -->
+  <div class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">All Visits</span>
+          <span class="topbar-welcome">Visit history &amp; schedule</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-client-msg-trigger="client"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Messages"
+          type="button"
+          onclick="SHWClientMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span data-client-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="client"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <div class="topbar-avatar" onclick="window.location.href='client-account.html'" role="button" aria-label="My account" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <!-- ════════════════════════════════════════
+         PAGE BODY
+    ════════════════════════════════════════ -->
+    <main class="dashboard-content">
+      <div class="visits-page">
+
+        <!-- ── SUMMARY BAR (counts filled by visits-data.js) ── -->
+        <div class="visits-summary-bar" role="region" aria-label="Visit totals">
+          <div class="visits-summary-item completed">
+            <span class="visits-summary-count" id="summaryCompleted">—</span>
+            <span class="visits-summary-label">Completed</span>
+          </div>
+          <div class="visits-summary-item scheduled">
+            <span class="visits-summary-count" id="summaryScheduled">—</span>
+            <span class="visits-summary-label">Scheduled</span>
+          </div>
+          <div class="visits-summary-item inprogress">
+            <span class="visits-summary-count" id="summaryInProgress">—</span>
+            <span class="visits-summary-label">In Progress</span>
+          </div>
+          <div class="visits-summary-item cancelled">
+            <span class="visits-summary-count" id="summaryCancelled">—</span>
+            <span class="visits-summary-label">Cancelled</span>
+          </div>
+        </div>
+        <div style="background:white; border:var(--border-light); border-top:none; border-radius:0 0 var(--radius-xl) var(--radius-xl); margin-top:-16px; margin-bottom:var(--space-6); padding:var(--space-2) var(--space-5); text-align:right; box-shadow:var(--shadow-xs);">
+          <span style="font-size:0.7rem; color:var(--color-text-light); font-style:italic;">Past 90 days across all properties</span>
+        </div>
+
+        <!-- ── SERVICE PLAN CONTEXT BANNER ── -->
+        <div style="display:flex;align-items:flex-start;gap:12px;background:linear-gradient(135deg,#e8eef8 0%,#f0f9ff 100%);border:1px solid #c0d0ea;border-radius:12px;padding:14px 18px;margin-bottom:20px;">
+          <div style="width:36px;height:36px;background:#162d56;color:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:#0f1e38;margin-bottom:4px;">
+              Routine visits are scheduled automatically from your active service plan.
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:4px;">
+              <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;background:#e8eef8;color:#162d56;border-radius:12px;padding:2px 10px;">
+                <span style="width:6px;height:6px;border-radius:50%;background:#162d56;"></span>Plan-Generated
+              </span>
+              <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;background:#f0fdf4;color:#166534;border-radius:12px;padding:2px 10px;">
+                <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;"></span>One-Off / Special
+              </span>
+              <span style="font-size:11px;color:#64748b;">Need a special visit?</span>
+              <a href="client-request-service.html" style="font-size:11px;font-weight:700;color:#162d56;text-decoration:none;">Request a Service Visit →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── FILTER / SEARCH BAR ── -->
+        <div class="visits-filter-bar" role="search" aria-label="Filter visits">
+          <div class="visits-filter-row">
+
+            <!-- Search -->
+            <div class="visits-search-wrap">
+              <svg class="visits-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                class="visits-search-input"
+                type="text"
+                id="visitsSearch"
+                placeholder="Search visits..."
+                aria-label="Search visits"
+                autocomplete="off"
+              />
+            </div>
+
+            <!-- Property Selector (populated dynamically) -->
+            <select class="visits-filter-select" id="filterProperty" aria-label="Filter by property">
+              <option value="">All Properties</option>
+            </select>
+
+            <!-- Service Type -->
+            <select class="visits-filter-select" id="filterService" aria-label="Filter by service type">
+              <option value="">All Service Types</option>
+              <option value="routine">Routine Inspection</option>
+              <option value="storm">Storm Preparation Check</option>
+              <option value="vendor">Vendor Supervision</option>
+              <option value="concierge">Concierge Service Visit</option>
+              <option value="movein">Move-In Preparation</option>
+              <option value="leavingtown">Leaving Town Inspection</option>
+            </select>
+
+            <!-- Status -->
+            <select class="visits-filter-select" id="filterStatus" aria-label="Filter by status">
+              <option value="">All Statuses</option>
+              <option value="completed">Completed</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="inprogress">In Progress</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+
+            <div class="visits-filter-divider" aria-hidden="true"></div>
+
+            <!-- Date Range -->
+            <select class="visits-filter-select" id="filterDate" aria-label="Filter by date range">
+              <option value="3m" selected>Last 3 Months</option>
+              <option value="1m">Last Month</option>
+              <option value="6m">Last 6 Months</option>
+              <option value="1y">Last Year</option>
+              <option value="all">All Time</option>
+            </select>
+
+            <!-- Sort -->
+            <select class="visits-filter-select" id="filterSort" aria-label="Sort visits">
+              <option value="newest" selected>Most Recent</option>
+              <option value="oldest">Oldest First</option>
+              <option value="property">By Property</option>
+              <option value="type">By Service Type</option>
+            </select>
+
+            <!-- Visit Source -->
+            <select class="visits-filter-select" id="filterSource" aria-label="Filter by visit source">
+              <option value="">All Sources</option>
+              <option value="plan">Plan-Generated (Routine)</option>
+              <option value="oneoff">One-Off / Special</option>
+            </select>
+
+            <!-- Reset -->
+            <div class="visits-filter-actions">
+              <button class="visits-filter-reset-btn" onclick="resetFilters()" aria-label="Clear all filters">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Clear filters
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── LIST HEADER ── -->
+        <div class="visits-list-header">
+          <span class="visits-list-title">
+            Showing <span id="visibleCount">—</span> visits
+            <span class="visits-list-count" id="filterLabel" style="margin-left:4px;"></span>
+          </span>
+          <a href="client-request-service.html" class="visits-cta-btn" aria-label="Schedule a Special Visit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            Schedule a Special Visit
+          </a>
+        </div>
+
+        <!-- ── VISITS LIST (populated by visits-data.js) ── -->
+        <div class="visits-list" id="visitsList" role="list" aria-label="Visit entries">
+          <!-- NO PLACEHOLDER DATA — visit cards are rendered dynamically by visits-data.js -->
+          <div id="visitsLoading" aria-live="polite" style="padding:40px;text-align:center;color:#94a3b8;font-size:14px;">Loading visits…</div>
+        </div><!-- /visits-list -->
+
+        <!-- ── EMPTY STATE (hidden by default, shown via JS when no results) ── -->
+        <div class="visits-empty-state" id="visitsEmptyState" role="status" aria-live="polite" style="display:none;">
+          <div class="visits-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              <line x1="9" y1="16" x2="15" y2="16"/>
+            </svg>
+          </div>
+          <p class="visits-empty-title">No visits found for this time period.</p>
+          <p class="visits-empty-sub">Try adjusting your filters or selecting a different property.</p>
+        </div>
+
+      </div><!-- /visits-page -->
+    </main>
+  </div><!-- /main-content -->
+</div><!-- /app-wrapper -->
+
+<!-- ── SCRIPTS ── -->
+<script src="js/nav.js"></script>
+<script src="js/app.js"></script>
+<script src="js/sidebar.js"></script>
+<script>
+  // Render sidebar with 'visits' as active page
+  renderSidebar('visits');
+
+  // ── Visit Detail Navigation ──
+  function openVisitDetail(visitId) {
+    if (typeof SHWNav !== 'undefined') SHWNav.saveScroll('client-visits.html');
+    window.location.href = 'client-visit-detail.html?id=' + visitId;
+  }
+
+  function resetFilters() {
+    const s = document.getElementById('visitsSearch');
+    const p = document.getElementById('filterProperty');
+    const sv = document.getElementById('filterService');
+    const st = document.getElementById('filterStatus');
+    const d = document.getElementById('filterDate');
+    const so = document.getElementById('filterSort');
+    const src = document.getElementById('filterSource');
+    if (s)  s.value  = '';
+    if (p)  p.value  = '';
+    if (sv) sv.value = '';
+    if (st) st.value = '';
+    if (d)  d.value  = '3m';
+    if (so) so.value = 'newest';
+    if (src) src.value = '';
+    if (typeof applyFilters === 'function') applyFilters();
+  }
+
+  // Restore scroll position after returning from detail page
+  if (typeof SHWNav !== 'undefined') SHWNav.restoreScroll('client-visits.html');
+</script>
+
+<!-- ═══════════════════════════════════════════
+     BACKEND DATA LAYER
+════════════════════════════════════════════ -->
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/visits-data.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/client-msg-panel.js"></script>
+
+</body>
+</html>

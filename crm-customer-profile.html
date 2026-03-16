@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Profile — CRM — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/service-plan.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text" id="pageTitleText">Customer Profile</span>
+          <span class="topbar-welcome">CRM System · Customer File</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Breadcrumb -->
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;margin-bottom:18px;">
+        <a href="crm-overview.html" style="color:#64748b;text-decoration:none;font-weight:500;">CRM System</a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <a href="crm-customers.html" onclick="event.preventDefault(); (typeof SHWNav !== 'undefined' ? SHWNav.back('crm-customers.html') : window.location.href='crm-customers.html')" style="color:#64748b;text-decoration:none;font-weight:500;">Customers</a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span style="color:#0f1e38;font-weight:600;" id="breadcrumbName">—</span>
+      </div>
+
+      <!-- Profile Hero -->
+      <div class="crm-profile-hero">
+        <div class="crm-profile-hero-top">
+          <div class="crm-profile-hero-left">
+            <div class="crm-profile-big-avatar" id="heroAvatar">—</div>
+            <div>
+              <div class="crm-profile-name" id="heroName">—</div>
+              <div class="crm-profile-email">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;opacity:.7;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span id="heroEmail">—</span>
+              </div>
+              <div class="crm-profile-phone">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;opacity:.7;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .98h3a2 2 0 012 1.72 12.05 12.05 0 00.67 2.7 2 2 0 01-.45 2.11L6.05 8.47a16 16 0 006.29 6.29l1.65-1.17a2 2 0 012.11-.45 12.05 12.05 0 002.7.67A2 2 0 0122 16.92z"/></svg>
+                <span id="heroPhone">—</span>
+              </div>
+            </div>
+          </div>
+          <div class="crm-profile-actions">
+            <button class="crm-action-btn" onclick="openProfileEmailModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Email Customer
+            </button>
+            <button class="crm-action-btn" onclick="openAddNoteModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Add Internal Note
+            </button>
+            <button class="crm-action-btn" onclick="showToast('Opening message thread…','info')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              Message Client
+            </button>
+            <button class="crm-action-btn" onclick="window.location.href='admin-schedule.html'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Schedule Visit
+            </button>
+            <button class="crm-action-btn" onclick="sendCustomerInvitation()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              <span id="inviteBtnLabel">Resend Invitation</span>
+            </button>
+            <button class="crm-action-btn" onclick="openAccountActionModal('suspend')" id="suspendBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+              Suspend Account
+            </button>
+            <button class="crm-action-btn" onclick="openAccountActionModal('archive')" id="archiveBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+              Archive Account
+            </button>
+          </div>
+        </div>
+        <div class="crm-profile-meta-row">
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Account Status</div>
+            <div class="crm-profile-meta-val">
+              <span id="heroAccountStatus"><span style="width:8px;height:8px;border-radius:50%;background:#94a3b8;display:inline-block;"></span> <strong style="color:#64748b;">—</strong></span>
+            </div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Invitation Status</div>
+            <div class="crm-profile-meta-val">
+              <span id="heroInviteStatus" style="display:inline-flex;align-items:center;gap:5px;background:#f1f5f9;color:#64748b;border-radius:20px;padding:2px 9px;font-size:11px;font-weight:600;">—</span>
+            </div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Activation Date</div>
+            <div class="crm-profile-meta-val" id="heroActivationDate">—</div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Properties</div>
+            <div class="crm-profile-meta-val" id="heroPropCount">—</div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Account Manager</div>
+            <div class="crm-profile-meta-val" id="accountManagerName">—</div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Join Date</div>
+            <div class="crm-profile-meta-val" id="heroJoinDate">—</div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Total Visits</div>
+            <div class="crm-profile-meta-val" id="heroTotalVisits">—</div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Open Alerts</div>
+            <div class="crm-profile-meta-val" id="heroOpenAlerts">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Tabs -->
+      <div class="crm-profile-tabs-wrap">
+        <div class="crm-profile-tabs" id="profileTabs">
+          <div class="crm-profile-tab active" onclick="switchTab('overview')">Overview</div>
+          <div class="crm-profile-tab" onclick="switchTab('properties')">
+            Properties <span class="crm-profile-tab-badge" id="tabBadgeProperties">—</span>
+          </div>
+          <div class="crm-profile-tab" onclick="switchTab('visits')">
+            Visits <span class="crm-profile-tab-badge" id="tabBadgeVisits">—</span>
+          </div>
+          <div class="crm-profile-tab" onclick="switchTab('alerts')">
+            Alerts <span class="crm-profile-tab-badge" id="tabBadgeAlerts" style="background:#fee2e2;color:#dc2626;">—</span>
+          </div>
+          <div class="crm-profile-tab" onclick="switchTab('reports')">
+            Reports <span class="crm-profile-tab-badge" id="tabBadgeReports">—</span>
+          </div>
+          <div class="crm-profile-tab" onclick="switchTab('documents')">
+            Documents <span class="crm-profile-tab-badge" id="tabBadgeDocuments">—</span>
+          </div>
+          <div class="crm-profile-tab" onclick="switchTab('notes')">
+            Internal Notes <span class="crm-profile-tab-badge" id="tabBadgeNotes">—</span>
+          </div>
+          <div class="crm-profile-tab" onclick="switchTab('service-plans')">
+            Service Plans
+          </div>
+          <div class="crm-profile-tab" onclick="switchTab('requests')">
+            Requests <span class="crm-profile-tab-badge" id="tabBadgeRequests">—</span>
+          </div>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <div id="tab-overview" class="crm-tab-panel active">
+          <div style="display:grid;grid-template-columns:1fr 340px;gap:20px;">
+            <!-- Timeline -->
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#0f1e38;margin-bottom:16px;">Customer Activity Timeline</div>
+              <div class="crm-timeline" id="overviewTimeline">
+                <div style="padding:24px;text-align:center;color:#94a3b8;font-size:13px;">Loading activity…</div>
+              </div>
+            </div>
+
+            <!-- Right column: summary -->
+            <div>
+              <div class="admin-summary-card">
+                <div class="admin-summary-header">Account Summary</div>
+                <div class="admin-summary-body">
+                  <div class="admin-summary-list">
+                    <div class="admin-summary-row">
+                      <span class="admin-summary-key">Customer Since</span>
+                      <span class="admin-summary-val" id="sumCustomerSince">—</span>
+                    </div>
+                    <div class="admin-summary-row">
+                      <span class="admin-summary-key">Lead Source</span>
+                      <span class="admin-summary-val" id="sumLeadSource">—</span>
+                    </div>
+                    <div class="admin-summary-row">
+                      <span class="admin-summary-key">Properties</span>
+                      <span class="admin-summary-val" id="sumProperties">—</span>
+                    </div>
+                    <div class="admin-summary-row">
+                      <span class="admin-summary-key">Plan</span>
+                      <span class="admin-summary-val" id="crmPlanSummary">—</span>
+                    </div>
+                    <div class="admin-summary-row">
+                      <span class="admin-summary-key">Total Visits</span>
+                      <span class="admin-summary-val" id="sumTotalVisits">—</span>
+                    </div>
+                    <div class="admin-summary-row">
+                      <span class="admin-summary-key">Last Visit</span>
+                      <span class="admin-summary-val" id="sumLastVisit">—</span>
+                    </div>
+                    <div class="admin-summary-row">
+                      <span class="admin-summary-key">Next Scheduled</span>
+                      <span class="admin-summary-val" id="crmNextVisit">—</span>
+                    </div>
+                    <div class="admin-summary-row">
+                      <span class="admin-summary-key">Open Alerts</span>
+                      <span class="admin-summary-val" id="sumOpenAlerts">—</span>
+                    </div>
+                    <div class="admin-summary-row">
+                      <span class="admin-summary-key">Account Status</span>
+                      <span class="admin-summary-val" id="sumAccountStatus">—</span>
+                    </div>
+                    <div class="admin-summary-row">
+                      <span class="admin-summary-key">Invitation</span>
+                      <span class="admin-summary-val">
+                        <span style="display:inline-flex;align-items:center;gap:5px;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600;">Accepted</span>
+                      </span>
+                    </div>
+                    <div class="admin-summary-row">
+                      <span class="admin-summary-key">Activated</span>
+                      <span class="admin-summary-val">Jan 14, 2022</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Account Actions Card -->
+              <div class="admin-summary-card">
+                <div class="admin-summary-header">Account Actions</div>
+                <div class="admin-summary-body">
+                  <div style="display:flex;flex-direction:column;gap:8px;">
+                    <button class="admin-add-btn" style="width:100%;justify-content:flex-start;gap:8px;" onclick="sendCustomerInvitation()">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                      <span id="inviteBtnLabel2">Resend Invitation</span>
+                    </button>
+                    <button style="width:100%;justify-content:flex-start;gap:8px;padding:8px 16px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;" onclick="openAccountActionModal('suspend')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+                      Suspend Account
+                    </button>
+                    <button style="width:100%;justify-content:flex-start;gap:8px;padding:8px 16px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;" onclick="openAccountActionModal('archive')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/></svg>
+                      Archive Account
+                    </button>
+                    <a href="admin-invitations.html" style="width:100%;justify-content:flex-start;gap:8px;padding:8px 16px;background:#e8eef8;color:#162d56;border:1px solid #c0d0ea;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;text-decoration:none;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                      Invitation History
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+                <div class="admin-summary-card">
+                <div class="admin-summary-header">Recent Notes</div>
+                <div class="admin-summary-body" style="padding:12px 18px;" id="profileRecentNotes">
+                  <div style="color:#94a3b8;font-size:13px;text-align:center;padding:12px 0;">No notes yet.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROPERTIES TAB -->
+        <div id="tab-properties" class="crm-tab-panel">
+          <div style="background:#f0f6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="margin-top:1px;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p style="font-size:12px;color:#1e40af;margin:0;line-height:1.5;"><strong>Admin-only:</strong> Properties are linked to customers by admins and executives. Customers cannot add their own properties through the client portal. To link a new property, use the <a href="admin-properties.html" style="color:#1e40af;font-weight:700;">Properties page</a>.</p>
+          </div>
+          <div id="crmPropertiesList">
+            <div style="text-align:center;padding:32px 16px;color:#94a3b8;font-size:13px;">Loading properties…</div>
+          </div>
+        </div>
+
+        <!-- VISITS TAB -->
+        <div id="tab-visits" class="crm-tab-panel">
+          <table class="admin-data-table" id="visitsTable">
+            <thead><tr><th>Date</th><th>Property</th><th>Inspector</th><th>Type</th><th>Status</th><th>Report</th></tr></thead>
+            <tbody id="visitsTableBody">
+              <tr><td colspan="6" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">Loading visits…</td></tr>
+            </tbody>
+          </table>
+          <div class="admin-pagination" id="visitsPagination" style="display:none;"></div>
+        </div>
+
+        <!-- ALERTS TAB -->
+        <div id="tab-alerts" class="crm-tab-panel">
+          <div id="crmAlertsList">
+            <div style="text-align:center;padding:32px 16px;color:#94a3b8;font-size:13px;">Loading alerts…</div>
+          </div>
+        </div>
+
+        <!-- REPORTS TAB -->
+        <div id="tab-reports" class="crm-tab-panel">
+          <table class="admin-data-table">
+            <thead><tr><th>Report</th><th>Property</th><th>Inspector</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="reportsTableBody">
+              <tr><td colspan="5" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">Loading reports…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- DOCUMENTS TAB -->
+        <div id="tab-documents" class="crm-tab-panel">
+          <div class="crm-placeholder-grid" id="crmDocumentsList">
+            <div style="text-align:center;padding:32px 16px;color:#94a3b8;font-size:13px;">Loading documents…</div>
+          </div>
+        </div>
+
+        <!-- NOTES TAB -->
+        <div id="tab-notes" class="crm-tab-panel">
+          <!-- Internal Notes header + warning -->
+          <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:10px 16px;margin-bottom:18px;display:flex;align-items:flex-start;gap:10px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:#b45309;">🔒 Internal Staff Notes — Not Visible to Customers</div>
+              <div style="font-size:11px;color:#92400e;margin-top:2px;">These notes are private to staff, managers, and executives only. They will never appear in the customer portal.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="font-size:14px;font-weight:700;color:#0f1e38;">Internal Staff Notes <span id="noteCount" style="font-size:12px;font-weight:600;color:#94a3b8;margin-left:6px;"></span></div>
+            <button class="admin-add-btn" onclick="openAddNoteModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Internal Note
+            </button>
+          </div>
+
+          <!-- Note filter -->
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+            <select style="padding:7px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;color:#475569;background:#fff;outline:none;" onchange="filterNotes(this.value)">
+              <option value="">All Note Types</option>
+              <option value="general">General</option>
+              <option value="account">Account Management</option>
+              <option value="property">Property</option>
+              <option value="billing">Billing</option>
+              <option value="complaint">Complaint / Issue</option>
+            </select>
+          </div>
+
+          <div id="notesListEl">
+            <div style="padding:32px;text-align:center;color:#94a3b8;font-size:13px;">Loading notes…</div>
+          </div>
+        </div>
+
+        <!-- SERVICE PLANS TAB -->
+        <div id="tab-service-plans" class="crm-tab-panel">
+          <div class="sp-auto-info-banner" style="margin-bottom:16px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <div>
+              Service plans automatically generate routine visits across all schedules and property views.
+              <strong>One-off visits</strong> (storm prep, vendor supervision, etc.) exist alongside these plans and can be added from any property's detail page.
+              <a href="admin-properties.html" style="color:#162d56;font-weight:700;text-decoration:none;margin-left:4px;">Manage on Properties Page →</a>
+            </div>
+          </div>
+
+          <!-- Dynamic plans list — loaded from API -->
+          <div id="crmServicePlansList">
+            <div style="padding:24px;text-align:center;color:#94a3b8;font-size:13px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28" style="display:block;margin:0 auto 8px;opacity:.4;">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              Loading service plans…
+            </div>
+          </div>
+
+          <!-- One-Off Visit Types reference -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;margin-top:16px;">
+            <div style="font-size:12px;font-weight:700;color:#334155;margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px;">One-Off Visit Types Available</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+              <span class="visit-origin-pill oneoff">Storm Prep</span>
+              <span class="visit-origin-pill oneoff">Post-Storm Inspection</span>
+              <span class="visit-origin-pill oneoff">Vendor Supervision</span>
+              <span class="visit-origin-pill oneoff">Concierge Service</span>
+              <span class="visit-origin-pill oneoff">Special Request</span>
+              <span class="visit-origin-pill oneoff">Emergency Check</span>
+            </div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:8px;">These are scheduled manually from the property page and do not affect the recurring plan frequency.</div>
+            <div style="margin-top:12px;">
+              <button onclick="window.location.href='admin-schedule.html#new'" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#162d56;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s;"
+                onmouseover="this.style.background='#1e3a6a'" onmouseout="this.style.background='#162d56'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Schedule One-Off Visit
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- REQUESTS TAB -->
+        <div id="tab-requests" class="crm-tab-panel">
+          <table class="admin-data-table">
+            <thead><tr><th>Request</th><th>Property</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="requestsTableBody">
+              <tr><td colspan="5" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">Loading requests…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div><!-- end tabs wrap -->
+
+    </main>
+  </div>
+</div>
+
+<!-- ════ ACCOUNT ACTION MODAL ════ -->
+<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;" id="acctActionModal">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;">
+    <div style="padding:20px 24px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:17px;font-weight:700;color:#0f1e38;" id="acctModalTitle">Account Action</div>
+      <button onclick="closeAcctModal()" style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#64748b;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div style="padding:24px;" id="acctModalBody"></div>
+    <div style="padding:16px 24px;border-top:1px solid #f1f5f9;display:flex;justify-content:flex-end;gap:10px;">
+      <button onclick="closeAcctModal()" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+      <button id="acctModalConfirmBtn" style="border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;" onclick="confirmAccountAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TOAST ════ -->
+<div id="crmToastContainer" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;"></div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/service-plan-engine.js"></script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+// ── Customer profile — loaded from URL param + API ──────────────────────────────
+// customerId is read from ?id=<id> query parameter.
+// All profile fields are populated from the live backend.
+const _customerId = new URLSearchParams(window.location.search).get('id') || null;
+let CUSTOMER = { id: _customerId };
+
+let pendingAcctAction = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderAdminSidebar('crm-customers');
+  // Set account manager from session
+  const amEl = document.getElementById('accountManagerName');
+  if (amEl) amEl.textContent = ADMIN_SESSION.name || '—';
+  // Load customer data from backend
+  loadCustomerProfile();
+});
+
+// ── Load customer profile from backend ───────────────────────────────────────────
+async function loadCustomerProfile() {
+  if (!_customerId) {
+    renderProfileError('No customer ID provided. Please navigate from the Customers list.');
+    return;
+  }
+  try {
+    const res  = await fetch(`tables/clients/${_customerId}`);
+    if (!res.ok) throw new Error('Customer not found');
+    const data = await res.json();
+    CUSTOMER = data;
+    populateProfileHeader(data);
+    initCrmServicePlanData();
+  } catch (err) {
+    renderProfileError('Unable to load customer profile. Please try again.');
+  }
+}
+
+function renderProfileError(msg) {
+  const hero = document.querySelector('.crm-profile-hero');
+  if (hero) hero.innerHTML = `<div style="padding:40px;text-align:center;color:#94a3b8;font-size:14px;">${msg}</div>`;
+}
+
+function populateProfileHeader(data) {
+  const fmtDate = iso => {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return isNaN(d) ? '—' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+  const name     = data.full_name || data.name || '—';
+  const initials = name.replace(/&/g,'').trim().split(/\s+/).map(w => w[0] || '').join('').slice(0,2).toUpperCase() || '?';
+
+  // Hero section
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || '—'; };
+  setText('heroName',     name);
+  setText('heroEmail',    data.email || '—');
+  setText('heroPhone',    data.phone || '—');
+  setText('heroAvatar',   initials);
+  setText('breadcrumbName', name);
+  setText('heroActivationDate', fmtDate(data.activated_at || data.created_at));
+  setText('heroPropCount', data.property_count != null ? data.property_count + ' Enrolled' : '—');
+  setText('heroJoinDate',  fmtDate(data.created_at));
+  setText('heroTotalVisits', data.total_visits != null ? data.total_visits : '—');
+  setText('heroOpenAlerts',  data.open_alerts  != null ? data.open_alerts  : '—');
+
+  // Status
+  const statusEl = document.getElementById('heroAccountStatus');
+  if (statusEl) {
+    const isActive = data.status === 'active';
+    statusEl.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${isActive?'#22c55e':'#94a3b8'};display:inline-block;"></span> <strong style="color:${isActive?'#166534':'#64748b'};">${data.status ? data.status.charAt(0).toUpperCase() + data.status.slice(1) : '—'}</strong>`;
+  }
+  // Invite status
+  const invEl = document.getElementById('heroInviteStatus');
+  if (invEl) {
+    const inv = data.invitation_status || (data.portal_access === 'active' ? 'accepted' : '—');
+    const invColor = inv === 'accepted' ? { bg:'#dcfce7', c:'#166534' } : inv === 'pending' ? { bg:'#fff7ed', c:'#c2410c' } : { bg:'#f1f5f9', c:'#64748b' };
+    invEl.style.background = invColor.bg;
+    invEl.style.color = invColor.c;
+    invEl.textContent = inv.charAt(0).toUpperCase() + inv.slice(1);
+  }
+
+  // Account manager
+  const amEl = document.getElementById('accountManagerName');
+  if (amEl && data.account_manager_name) amEl.textContent = data.account_manager_name;
+
+  // Tab badges
+  if (data.property_count != null) setText('tabBadgeProperties', data.property_count);
+  if (data.total_visits   != null) setText('tabBadgeVisits',     data.total_visits);
+  if (data.open_alerts    != null) setText('tabBadgeAlerts',     data.open_alerts);
+
+  // Summary card
+  setText('sumCustomerSince', fmtDate(data.created_at));
+  setText('sumLeadSource',    data.lead_source || '—');
+  setText('sumProperties',    data.property_count != null ? data.property_count + ' enrolled' : '—');
+  setText('sumTotalVisits',   data.total_visits != null ? data.total_visits + ' completed' : '—');
+  setText('sumLastVisit',     fmtDate(data.last_visit_date));
+  const alertEl = document.getElementById('sumOpenAlerts');
+  if (alertEl) { alertEl.textContent = data.open_alerts || '0'; if (data.open_alerts > 0) { alertEl.style.color = '#f97316'; alertEl.style.fontWeight = '700'; } }
+  const accStatusEl = document.getElementById('sumAccountStatus');
+  if (accStatusEl) {
+    const isActive = data.status === 'active';
+    accStatusEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:5px;background:${isActive?'#dcfce7':'#f1f5f9'};color:${isActive?'#166534':'#64748b'};border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600;">● ${data.status ? data.status.charAt(0).toUpperCase() + data.status.slice(1) : '—'}</span>`;
+  }
+
+  // Activity timeline
+  loadCustomerTimeline(data.id);
+  loadCustomerVisitsTable(data.id);
+}
+
+// ── Load activity timeline from backend ─────────────────────────────────────────
+async function loadCustomerTimeline(clientId) {
+  const el = document.getElementById('overviewTimeline');
+  if (!el) return;
+  try {
+    const res  = await fetch(`tables/activity_feed_events?limit=10&sort=created_at`);
+    const data = await res.json();
+    const fmtD = iso => { if (!iso) return '—'; const d = new Date(iso); return isNaN(d) ? '—' : d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + ' · ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
+    const events = (data.data || []).filter(e => e.client_id === clientId);
+    if (!events.length) {
+      el.innerHTML = '<div style="padding:24px;text-align:center;color:#94a3b8;font-size:13px;">No activity recorded yet.</div>';
+      return;
+    }
+    el.innerHTML = events.map(e => `
+      <div class="crm-timeline-item">
+        <div class="crm-timeline-dot blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></div>
+        <div class="crm-timeline-date">${fmtD(e.created_at)}</div>
+        <div class="crm-timeline-title">${e.title || '—'}</div>
+        <div class="crm-timeline-body">${e.description || ''}</div>
+      </div>`).join('');
+  } catch (err) {
+    el.innerHTML = '<div style="padding:24px;text-align:center;color:#94a3b8;font-size:13px;">Unable to load activity.</div>';
+  }
+}
+
+// ── Load visits table from backend ────────────────────────────────────────────────
+async function loadCustomerVisitsTable(clientId) {
+  const tbody = document.getElementById('visitsTableBody');
+  if (!tbody) return;
+  try {
+    // Get properties for this client, then visits
+    const propsRes = await fetch(`tables/properties?limit=50`);
+    const propsData = await propsRes.json();
+    const propIds = new Set((propsData.data || []).filter(p => p.client_id === clientId).map(p => p.id));
+    const propMap = {};
+    (propsData.data || []).forEach(p => { propMap[p.id] = p; });
+
+    const visitsRes = await fetch(`tables/visits?limit=100&sort=scheduled_start`);
+    const visitsData = await visitsRes.json();
+    const visits = (visitsData.data || []).filter(v => propIds.has(v.property_id));
+
+    if (CUSTOMER) {
+      if (document.getElementById('tabBadgeVisits')) document.getElementById('tabBadgeVisits').textContent = visits.length;
+      if (document.getElementById('heroTotalVisits')) document.getElementById('heroTotalVisits').textContent = visits.length;
+      if (document.getElementById('sumTotalVisits')) document.getElementById('sumTotalVisits').textContent = visits.length + ' completed';
+    }
+
+    if (!visits.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">No visits found for this customer.</td></tr>';
+      return;
+    }
+
+    const fmtDate = iso => { if (!iso) return '—'; const d = new Date(iso); return isNaN(d) ? '—' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); };
+    tbody.innerHTML = visits.slice(0, 20).map(v => {
+      const prop = propMap[v.property_id] || {};
+      const propName = prop.property_name || prop.address_line1 || '—';
+      const inspector = v.inspector_short || v.assigned_employee_name || '—';
+      const type = (v.visit_type || '').replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase()) || '—';
+      const statusCls = v.status === 'completed' ? 'completed' : v.status === 'scheduled' ? 'scheduled' : '';
+      const reportLink = v.report_published ? `<a href="admin-reports.html" style="color:#162d56;font-size:12px;font-weight:600;">View →</a>` : '—';
+      return `<tr>
+        <td>${fmtDate(v.scheduled_start)}</td>
+        <td>${propName}</td>
+        <td>${inspector}</td>
+        <td>${type}</td>
+        <td><span class="tbl-status ${statusCls}">${v.status || '—'}</span></td>
+        <td>${reportLink}</td>
+      </tr>`;
+    }).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">Unable to load visits.</td></tr>';
+  }
+}
+
+// ── Load customer notes from backend ─────────────────────────────────────────────
+async function loadCustomerNotes(clientId) {
+  const el = document.getElementById('notesListEl');
+  if (!el) return;
+  try {
+    const res  = await fetch(`tables/client_notes?limit=50`);
+    const data = await res.json();
+    const notes = (data.data || []).filter(n => n.client_id === clientId).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+    const cntEl = document.getElementById('noteCount');
+    if (cntEl) cntEl.textContent = notes.length ? notes.length + ' notes' : '';
+    if (document.getElementById('tabBadgeNotes')) document.getElementById('tabBadgeNotes').textContent = notes.length || '';
+
+    if (!notes.length) {
+      el.innerHTML = '<div style="padding:32px;text-align:center;color:#94a3b8;font-size:13px;">No internal notes yet. Add the first note using the button above.</div>';
+      return;
+    }
+
+    const fmtDate = iso => { if (!iso) return '—'; const d = new Date(iso); return isNaN(d) ? '—' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' · ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
+    const catColors = { general:'#8b5cf6', account:'#162d56', property:'#f59e0b', billing:'#dc2626', complaint:'#ef4444' };
+    el.innerHTML = notes.map(n => {
+      const color = catColors[n.note_type] || '#94a3b8';
+      const authorInitials = (n.author_name || '?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      return `<div class="crm-note-card" style="border-left:3px solid ${color};">
+        <div class="crm-note-top">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:26px;height:26px;border-radius:50%;background:${color};color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;">${authorInitials}</div>
+            <span class="crm-note-author">${n.author_name || '—'}</span>
+            <span style="font-size:10px;font-weight:600;background:#f1f5f9;color:#475569;border-radius:20px;padding:1px 7px;">${n.note_type || 'general'}</span>
+          </div>
+          <span class="crm-note-date">${fmtDate(n.created_at)}</span>
+        </div>
+        <div class="crm-note-body">${n.body || n.content || ''}</div>
+        <div style="margin-top:8px;display:flex;gap:8px;">
+          <button class="tbl-action-btn" onclick="showToast('Edit note — backend required','info')" style="font-size:11px;padding:4px 10px;">Edit</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (err) {
+    el.innerHTML = '<div style="padding:32px;text-align:center;color:#94a3b8;font-size:13px;">Unable to load notes.</div>';
+  }
+}
+
+async function initCrmServicePlanData() {
+  try {
+    // Fetch all relevant data
+    const [plansRes, propsRes, usersRes, empsRes] = await Promise.all([
+      fetch('tables/property_service_plans?limit=50').then(r => r.json()),
+      fetch('tables/properties?limit=50').then(r => r.json()),
+      fetch('tables/users?limit=100').then(r => r.json()),
+      fetch('tables/employees?limit=50').then(r => r.json()),
+    ]);
+
+    const apiPlans    = plansRes.data  || [];
+    const apiProps    = propsRes.data  || [];
+    const apiUsers    = usersRes.data  || [];
+    const apiEmps     = empsRes.data   || [];
+
+    // Build lookup maps
+    const propMap = {};
+    apiProps.forEach(p => { propMap[p.id] = p; });
+    const userMap = {};
+    apiUsers.forEach(u => { userMap[u.id] = u; });
+    const empMap = {};
+    apiEmps.forEach(e => { empMap[e.id] = e; });
+
+    // Customer's plans (in production: filter by clientId from URL)
+    const custPlans = apiPlans.filter(p => p.client_id === CUSTOMER.id);
+
+    // Render only plans belonging to this customer
+    const plansToRender = custPlans;
+
+    // Render plan cards
+    const listEl = document.getElementById('crmServicePlansList');
+    const fmtD = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '—';
+    const snakeToTitle = s => s ? s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : '—';
+
+    const planStatusBadgeMap = {
+      active:    'background:#dcfce7;color:#166534',
+      paused:    'background:#fef3c7;color:#92400e',
+      cancelled: 'background:#fee2e2;color:#991b1b',
+    };
+    const planStatusDotMap = {
+      active: '#22c55e', paused: '#f59e0b', cancelled: '#ef4444',
+    };
+
+    let allNextDates = [];
+
+    const cardsHtml = plansToRender.map((plan, idx) => {
+      const prop   = propMap[plan.property_id] || {};
+      const propName =
+        [prop.property_name, prop.address_line1, prop.city, prop.state].filter(Boolean).join(', ') ||
+        `Property ${idx + 1}`;
+      const propId = plan.property_id;
+
+      const emp  = empMap[plan.assigned_inspector_id] || {};
+      const user = userMap[emp.user_id] || {};
+      const inspectorName = user.full_name || 'Unassigned';
+
+      const nextDates = ServicePlanEngine.generateVisitDates(plan, 4);
+      const nextDate  = nextDates[0] || null;
+      if (nextDate) allNextDates.push(nextDate);
+
+      const statusStyle = planStatusBadgeMap[plan.status] || planStatusBadgeMap.active;
+      const statusDot   = planStatusDotMap[plan.status]   || '#22c55e';
+      const statusLabel = snakeToTitle(plan.status);
+
+      const pauseOrResume = plan.status === 'active'
+        ? `<button class="sp-btn-action warning" onclick="crmPlanAction('pause','${plan.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            Pause Plan
+           </button>`
+        : plan.status === 'paused'
+        ? `<button class="sp-btn-action success" onclick="crmPlanAction('resume','${plan.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Resume Plan
+           </button>`
+        : '';
+
+      const pauseNotice = plan.status === 'paused' ? `
+        <div class="sp-plan-notice warning">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+          Plan is paused. No new routine visits are being generated until resumed.
+        </div>` : '';
+
+      const cancelNotice = plan.status === 'cancelled' ? `
+        <div class="sp-plan-notice danger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          Plan is cancelled. Historical visits and reports are preserved.
+        </div>` : '';
+
+      // Upcoming dates mini strip
+      const upcomingStrip = nextDates.length && plan.status === 'active' ? `
+        <div style="margin-top:12px;padding:10px 0 0;border-top:1px solid #f1f5f9;">
+          <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Next Scheduled Visits</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            ${nextDates.slice(0, 4).map((d, i) => `
+              <span style="font-size:11px;font-weight:600;background:${i===0?'#e8eef8':'#f1f5f9'};color:${i===0?'#162d56':'#475569'};border-radius:6px;padding:3px 8px;">
+                ${fmtD(d)}
+              </span>`).join('')}
+          </div>
+        </div>` : '';
+
+      return `
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;font-weight:700;color:#0f1e38;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            <a href="admin-properties.html?propId=${propId}" style="color:#162d56;text-decoration:none;">${propName}</a>
+          </div>
+          <div class="sp-plan-card">
+            <div class="sp-plan-card-header">
+              <div class="sp-plan-card-title">
+                <div class="sp-plan-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <div>
+                  <div class="sp-plan-name">${snakeToTitle(plan.plan_type)}</div>
+                  <div class="sp-plan-freq">${snakeToTitle(plan.frequency)} Inspections</div>
+                </div>
+              </div>
+              <span style="display:inline-flex;align-items:center;gap:5px;${statusStyle};border-radius:20px;padding:2px 10px;font-size:11px;font-weight:600;">
+                <span style="width:6px;height:6px;border-radius:50%;background:${statusDot};display:inline-block;"></span>
+                ${statusLabel}
+              </span>
+            </div>
+            ${pauseNotice}${cancelNotice}
+            <div class="sp-plan-grid">
+              <div class="sp-plan-field"><div class="sp-plan-field-label">Frequency</div><div class="sp-plan-field-val">${snakeToTitle(plan.frequency)}</div></div>
+              <div class="sp-plan-field"><div class="sp-plan-field-label">Start Date</div><div class="sp-plan-field-val">${fmtD(plan.start_date)}</div></div>
+              <div class="sp-plan-field"><div class="sp-plan-field-label">Preferred Day</div><div class="sp-plan-field-val">${snakeToTitle(plan.preferred_day)}</div></div>
+              <div class="sp-plan-field"><div class="sp-plan-field-label">Time Window</div><div class="sp-plan-field-val">${snakeToTitle(plan.preferred_time_window)}</div></div>
+              <div class="sp-plan-field"><div class="sp-plan-field-label">Inspector</div><div class="sp-plan-field-val">${inspectorName}</div></div>
+              <div class="sp-plan-field">
+                <div class="sp-plan-field-label">Next Visit</div>
+                <div class="sp-plan-field-val" style="font-weight:700;color:#162d56;">${fmtD(nextDate)}</div>
+              </div>
+            </div>
+            ${upcomingStrip}
+            <div class="sp-actions-row">
+              <button class="sp-btn-action" onclick="window.location.href='admin-properties.html?propId=${propId}'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg>
+                Manage Plan
+              </button>
+              ${pauseOrResume}
+              <button class="sp-btn-action" onclick="crmPlanAction('regenerate','${plan.id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+                Regenerate Visits
+              </button>
+              <button class="sp-btn-action" onclick="window.location.href='admin-schedule.html#new'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add One-Off Visit
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    listEl.innerHTML = cardsHtml || `
+      <div class="sp-no-plan-card">
+        <div class="sp-no-plan-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="sp-no-plan-text">No service plans assigned</div>
+        <div class="sp-no-plan-sub">Assign a service plan to the customer's properties to auto-generate routine visits.</div>
+        <a href="admin-properties.html" style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:9px 18px;background:#162d56;color:#fff;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;">
+          Go to Properties
+        </a>
+      </div>`;
+
+    // Update account summary next visit
+    allNextDates.sort();
+    const nvSummary = document.getElementById('crmNextVisit');
+    if (nvSummary && allNextDates[0]) nvSummary.textContent = fmtD(allNextDates[0]);
+
+    // Plan summary in account summary card
+    const planSummaryEl = document.getElementById('crmPlanSummary');
+    const activePlans   = plansToRender.filter(p => p.status === 'active');
+    if (planSummaryEl && activePlans.length) {
+      const freqLabel = snakeToTitle(activePlans[0].frequency);
+      planSummaryEl.innerHTML = `<span class="sp-inline-pill active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="9" height="9"><polyline points="20 6 9 17 4 12"/></svg>
+        ${activePlans.length}× ${freqLabel} Active
+      </span>`;
+    }
+
+  } catch (e) {
+    // Plan init error — non-fatal
+    document.getElementById('crmServicePlansList').innerHTML = `
+      <div style="padding:16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;font-size:12px;color:#991b1b;">
+        Could not load service plan data. Please check the connection or reload the page.
+      </div>`;
+  }
+}
+
+// CRM plan quick actions
+async function crmPlanAction(action, planId) {
+  const labels = {
+    pause:      { msg: 'Pause this service plan? Future routine visits will stop until resumed.', fn: () => ServicePlanEngine.pausePlan(planId) },
+    resume:     { msg: 'Resume this service plan? Routine visits will start generating again.',  fn: () => ServicePlanEngine.resumePlan(planId) },
+    regenerate: { msg: 'Regenerate future visits from this plan?', fn: async () => {
+      const res   = await fetch('tables/property_service_plans?limit=50');
+      const data  = await res.json();
+      const plan  = (data.data || []).find(p => p.id === planId);
+      if (plan) await ServicePlanEngine.regenerateFutureVisits(plan);
+    }},
+  };
+  const cfg = labels[action];
+  if (!cfg) return;
+  if (!confirm(cfg.msg)) return;
+  const { error } = await cfg.fn();
+  if (error) { showToast('Error: ' + error, 'error'); return; }
+  showToast(`Plan ${action}d successfully`, 'success');
+  initCrmServicePlanData();
+}
+
+function switchTab(key) {
+  document.querySelectorAll('.crm-profile-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.crm-tab-panel').forEach(p => p.classList.remove('active'));
+  const tabMap = {
+    overview:'Overview', properties:'Properties', visits:'Visits', alerts:'Alerts',
+    reports:'Reports', documents:'Documents', notes:'Notes', requests:'Requests',
+    'service-plans':'Service Plans'
+  };
+  document.querySelectorAll('.crm-profile-tab').forEach(t => {
+    if (t.textContent.trim().startsWith(tabMap[key])) t.classList.add('active');
+  });
+  const panel = document.getElementById('tab-' + key);
+  if (panel) panel.classList.add('active');
+
+  // Lazy-load tab data on first activation
+  const cid = CUSTOMER.id || _customerId;
+  if (!cid) return;
+  if (key === 'properties' && !panel._loaded) { panel._loaded = true; loadCrmProperties(cid); }
+  if (key === 'alerts'     && !panel._loaded) { panel._loaded = true; loadCrmAlerts(cid); }
+  if (key === 'reports'    && !panel._loaded) { panel._loaded = true; loadCrmReports(cid); }
+  if (key === 'documents'  && !panel._loaded) { panel._loaded = true; loadCrmDocuments(cid); }
+  if (key === 'visits'     && !panel._loaded) { panel._loaded = true; loadCustomerVisitsTable(cid); }
+  if (key === 'notes'      && !panel._loaded) { panel._loaded = true; loadCrmNotes(cid); }
+  if (key === 'requests'   && !panel._loaded) { panel._loaded = true; loadCrmRequests(cid); }
+}
+
+async function loadCrmProperties(clientId) {
+  const el = document.getElementById('crmPropertiesList');
+  if (!el) return;
+  try {
+    const res = await fetch(`tables/properties?limit=50`);
+    if (!res.ok) throw new Error();
+    const json = await res.json();
+    const props = (json.data || []).filter(p => p.client_id === clientId || p.user_id === clientId);
+    if (!props.length) { el.innerHTML = '<div style="text-align:center;padding:32px 16px;color:#94a3b8;font-size:13px;">No properties enrolled yet.</div>'; return; }
+    el.innerHTML = props.map(p => `<div class="crm-prop-card"><div class="crm-prop-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><div style="flex:1;"><div class="crm-prop-name">${p.property_name||p.address||'—'}</div><div class="crm-prop-addr">${[p.city,p.state].filter(Boolean).join(', ')||'—'}</div><div class="crm-prop-status"><span class="tbl-status ${p.status||'active'}">${(p.status||'Active')}</span></div></div><div style="text-align:right;"><button class="tbl-action-btn" style="margin-top:8px;" onclick="window.location.href='admin-property-detail.html?id=${p.id}'">View Property</button></div></div>`).join('');
+  } catch { el.innerHTML = '<div style="text-align:center;padding:32px 16px;color:#94a3b8;font-size:13px;">Unable to load properties.</div>'; }
+}
+
+async function loadCrmAlerts(clientId) {
+  const el = document.getElementById('crmAlertsList');
+  if (!el) return;
+  try {
+    const res = await fetch(`tables/alerts?limit=50`);
+    if (!res.ok) throw new Error();
+    const json = await res.json();
+    const alerts = (json.data || []).filter(a => a.client_id === clientId || a.user_id === clientId);
+    if (!alerts.length) { el.innerHTML = '<div style="text-align:center;padding:32px 16px;color:#94a3b8;font-size:13px;">No alerts on record.</div>'; return; }
+    const PRIORITY_COLORS = { urgent:'#fef2f2', high:'#fff7ed', medium:'#fff7ed', low:'#f0fdf4' };
+    const PRIORITY_TEXT   = { urgent:'#dc2626', high:'#c2410c', medium:'#b45309', low:'#15803d' };
+    el.innerHTML = alerts.map(a => {
+      const bg = PRIORITY_COLORS[a.priority||'medium']||'#fff7ed';
+      const tc = PRIORITY_TEXT[a.priority||'medium']||'#b45309';
+      return `<div style="background:${bg};border:1px solid #fed7aa;border-radius:10px;padding:16px 18px;margin-bottom:14px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;"><div><div style="font-size:14px;font-weight:700;color:${tc};">${a.title||'Alert'}</div><div style="font-size:12px;color:#92400e;margin-top:4px;">${a.property_name||'—'} · ${a.date_created ? new Date(a.date_created).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</div><div style="font-size:12px;color:#64748b;margin-top:6px;">${a.description||''}</div></div><div style="text-align:right;flex-shrink:0;"><span class="tbl-status ${a.status||'open'}">${a.priority||'medium'}</span></div></div></div>`;
+    }).join('');
+  } catch { el.innerHTML = '<div style="text-align:center;padding:32px 16px;color:#94a3b8;font-size:13px;">Unable to load alerts.</div>'; }
+}
+
+async function loadCrmReports(clientId) {
+  const tbody = document.getElementById('reportsTableBody');
+  if (!tbody) return;
+  try {
+    const res = await fetch(`tables/reports?limit=50`);
+    if (!res.ok) throw new Error();
+    const json = await res.json();
+    const reports = (json.data || []).filter(r => r.client_id === clientId || r.user_id === clientId);
+    if (!reports.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">No reports on file.</td></tr>'; return; }
+    tbody.innerHTML = reports.map(r => {
+      const d = r.report_date || r.date_created;
+      const dateStr = d ? new Date(typeof d==='number'?d:Number(d)).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+      return `<tr><td><div class="cell-primary">${r.report_title||r.title||'Report'}</div></td><td>${r.property_name||'—'}</td><td>${r.inspector_name||'—'}</td><td>${dateStr}</td><td class="cell-actions"><button class="tbl-action-btn" onclick="window.location.href='client-reports.html'">View</button></td></tr>`;
+    }).join('');
+  } catch { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">Unable to load reports.</td></tr>'; }
+}
+
+async function loadCrmDocuments(clientId) {
+  const el = document.getElementById('crmDocumentsList');
+  if (!el) return;
+  try {
+    const res = await fetch(`tables/documents?limit=50`);
+    if (!res.ok) throw new Error();
+    const json = await res.json();
+    const docs = (json.data || []).filter(d => d.client_id === clientId || d.user_id === clientId);
+    if (!docs.length) { el.innerHTML = '<div style="text-align:center;padding:32px 16px;color:#94a3b8;font-size:13px;">No documents uploaded yet.</div>'; return; }
+    el.innerHTML = docs.map(doc => {
+      const bytes = doc.file_size ? (doc.file_size > 1048576 ? (doc.file_size/1048576).toFixed(1)+' MB' : Math.round(doc.file_size/1024)+' KB') : '';
+      const d = doc.created_at ? new Date(typeof doc.created_at==='number'?doc.created_at:Number(doc.created_at)).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+      return `<div class="crm-placeholder-card"><div style="display:flex;gap:12px;align-items:center;"><div style="width:36px;height:36px;background:#dbeafe;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg></div><div><div class="crm-placeholder-card-title">${doc.document_name||doc.title||'Document'}</div><div class="crm-placeholder-card-body">${d}${bytes?' · '+bytes:''}</div></div></div></div>`;
+    }).join('');
+  } catch { el.innerHTML = '<div style="text-align:center;padding:32px 16px;color:#94a3b8;font-size:13px;">Unable to load documents.</div>'; }
+}
+
+async function loadCrmNotes(clientId) {
+  const el = document.getElementById('notesListEl');
+  if (!el) return;
+  try {
+    const res = await fetch(`tables/internal_notes?limit=50`);
+    if (!res.ok) throw new Error();
+    const json = await res.json();
+    const notes = (json.data || []).filter(n => n.client_id === clientId || n.customer_id === clientId);
+    const cnt = document.getElementById('noteCount');
+    if (cnt) cnt.textContent = `(${notes.length})`;
+    if (!notes.length) { el.innerHTML = '<div style="background:#f8fafc;border:1px dashed #e2e8f0;border-radius:10px;padding:24px;text-align:center;color:#94a3b8;font-size:13px;">No notes yet. Add the first note for this customer.</div>'; return; }
+    const TYPE_COLORS = { general:'#ede9fe', account:'#e8eef8', property:'#fef3c7', billing:'#f0fdf4', complaint:'#fee2e2' };
+    const TYPE_TEXT   = { general:'#6d28d9', account:'#162d56', property:'#b45309', billing:'#166534', complaint:'#dc2626' };
+    const TYPE_LABELS = { general:'General', account:'Account Management', property:'Property', billing:'Billing', complaint:'Complaint / Issue' };
+    el.innerHTML = notes.map(n => {
+      const d = n.created_at ? new Date(typeof n.created_at==='number'?n.created_at:Number(n.created_at)).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+      const ini = (n.author_name||'').replace(/&/g,'').trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'—';
+      const t = n.note_type||n.type||'general';
+      return `<div class="crm-note-card" style="border-left:3px solid ${TYPE_TEXT[t]||'#162d56'};margin-top:12px;"><div class="crm-note-top"><div style="display:flex;align-items:center;gap:8px;"><div style="width:26px;height:26px;border-radius:50%;background:#162d56;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;">${ini}</div><span class="crm-note-author">${n.author_name||'—'}</span><span style="font-size:10px;font-weight:600;background:${TYPE_COLORS[t]||'#f1f5f9'};color:${TYPE_TEXT[t]||'#334155'};border-radius:20px;padding:1px 7px;">${TYPE_LABELS[t]||t}</span></div><span class="crm-note-date">${d}</span></div><div class="crm-note-body">${(n.body||n.note||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div></div>`;
+    }).join('');
+  } catch { el.innerHTML = '<div style="text-align:center;padding:16px;color:#94a3b8;font-size:13px;">Unable to load notes.</div>'; }
+}
+
+async function loadCrmRequests(clientId) {
+  const tbody = document.getElementById('requestsTableBody');
+  if (!tbody) return;
+  try {
+    const res = await fetch(`tables/service_requests?limit=50`);
+    if (!res.ok) throw new Error();
+    const json = await res.json();
+    const reqs = (json.data || []).filter(r => r.client_id === clientId || r.user_id === clientId);
+    if (!reqs.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">No service requests on file.</td></tr>'; return; }
+    tbody.innerHTML = reqs.map(r => {
+      const d = r.created_at ? new Date(typeof r.created_at==='number'?r.created_at:Number(r.created_at)).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+      return `<tr><td><div class="cell-primary">${r.request_type||r.type||'Request'}</div><div class="cell-secondary">${r.description||''}</div></td><td>${r.property_name||'—'}</td><td>${d}</td><td><span class="tbl-status ${r.status||'new'}">${r.status||'New'}</span></td><td class="cell-actions"><button class="tbl-action-btn" onclick="window.location.href='crm-request-detail.html?id=${r.id}'">View</button></td></tr>`;
+    }).join('');
+  } catch { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">Unable to load requests.</td></tr>'; }
+}
+
+// ── Send / Resend Invitation ──────────────────────────────────────────────────
+async function sendCustomerInvitation() {
+  const btn = document.querySelector('[onclick="sendCustomerInvitation()"]');
+  const label = document.getElementById('inviteBtnLabel');
+  if (btn) btn.disabled = true;
+  if (label) label.textContent = 'Sending…';
+
+  try {
+    const token     = 'tok-' + Math.random().toString(36).slice(2, 12);
+    const expiresAt = new Date(Date.now() + 7 * 86400000).toISOString();
+    const now       = new Date().toISOString();
+
+    // Create/update invitation record
+    await fetch('tables/invitations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: 'inv-' + Math.random().toString(36).slice(2, 10),
+        email:  CUSTOMER.email,
+        role:   'client',
+        invited_name: CUSTOMER.name,
+        related_customer_name: CUSTOMER.name,
+        token,
+        status: 'pending',
+        created_at:  now,
+        expires_at:  expiresAt,
+        accepted_at: null,
+        created_by_user_id: ADMIN_SESSION.userId,
+        created_by_name: ADMIN_SESSION.name,
+      }),
+    });
+
+    // Update customer user status to "invited" if not yet active
+    if (CUSTOMER.accountStatus !== 'active') {
+      await fetch(`tables/users/${CUSTOMER.userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ account_status: 'invited', invited_at: now }),
+      });
+    }
+
+    // Update the meta-row badge
+    const invBadge = document.querySelector('.crm-profile-meta-item:nth-child(2) .crm-profile-meta-val span');
+    if (invBadge) {
+      invBadge.textContent = 'Pending';
+      invBadge.style.background = '#fff7ed';
+      invBadge.style.color = '#c2410c';
+    }
+
+    showToast(`Invitation sent to ${CUSTOMER.email}! Link valid for 7 days.`, 'success');
+    if (label) label.textContent = 'Invitation Sent ✓';
+    setTimeout(() => { if (label) label.textContent = 'Resend Invitation'; if (btn) btn.disabled = false; }, 3000);
+  } catch (err) {
+    showToast('Failed to send invitation. Please try again.', 'error');
+    if (label) label.textContent = 'Resend Invitation';
+    if (btn) btn.disabled = false;
+  }
+}
+
+function openAccountActionModal(action) {
+  pendingAcctAction = action;
+  const modal = document.getElementById('acctActionModal');
+  const title = document.getElementById('acctModalTitle');
+  const body  = document.getElementById('acctModalBody');
+  const btn   = document.getElementById('acctModalConfirmBtn');
+
+  if (action === 'suspend') {
+    title.textContent = 'Suspend Customer Account';
+    title.style.color = '#d97706';
+    body.innerHTML = `
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px 16px;display:flex;gap:12px;margin-bottom:16px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <p style="font-size:13px;color:#92400e;margin:0;line-height:1.5;">Suspending this account will prevent <strong>${CUSTOMER.full_name || CUSTOMER.name || 'this customer'}</strong> from signing into the client portal. All their records are preserved.</p>
+      </div>
+      <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">Reason (optional)</label>
+      <textarea style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;" rows="2" placeholder="Internal reason for suspension…"></textarea>`;
+    btn.textContent = 'Suspend Account';
+    btn.style.cssText = 'background:#d97706;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;';
+  } else if (action === 'archive') {
+    title.textContent = 'Archive Customer Account';
+    title.style.color = '#475569';
+    body.innerHTML = `
+      <div style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;display:flex;gap:12px;margin-bottom:16px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+        <p style="font-size:13px;color:#475569;margin:0;line-height:1.5;">This will archive <strong>${CUSTOMER.full_name || CUSTOMER.name || 'this customer'}</strong>'s account. They will not be able to sign in. All historical records are retained. Reversible by an executive.</p>
+      </div>`;
+    btn.textContent = 'Archive Account';
+    btn.style.cssText = 'background:#64748b;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;';
+  }
+  modal.style.display = 'flex';
+}
+
+function closeAcctModal() {
+  document.getElementById('acctActionModal').style.display = 'none';
+  pendingAcctAction = null;
+}
+
+async function confirmAccountAction() {
+  const btn = document.getElementById('acctModalConfirmBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Processing…'; }
+
+  try {
+    const statusMap = { suspend: 'suspended', archive: 'archived' };
+    const newStatus = statusMap[pendingAcctAction];
+
+    if (newStatus && CUSTOMER.userId) {
+      await fetch(`tables/users/${CUSTOMER.userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ account_status: newStatus }),
+      });
+      CUSTOMER.accountStatus = newStatus;
+    }
+
+    const msgs = {
+      suspend: `Account suspended. ${(CUSTOMER && CUSTOMER.full_name) || 'Customer'} cannot sign in.`,
+      archive:  'Account archived. Records preserved.',
+    };
+    showToast(msgs[pendingAcctAction] || 'Done.', 'success');
+
+    // Update the Account Status badge in the meta row
+    const statusDot  = document.querySelector('.crm-profile-meta-item:first-child .crm-profile-meta-val span span:first-child');
+    const statusText = document.querySelector('.crm-profile-meta-item:first-child .crm-profile-meta-val span strong');
+    if (pendingAcctAction === 'suspend') {
+      if (statusDot)  statusDot.style.background = '#eab308';
+      if (statusText) { statusText.textContent = 'Suspended'; statusText.style.color = '#854d0e'; }
+    } else if (pendingAcctAction === 'archive') {
+      if (statusDot)  statusDot.style.background = '#94a3b8';
+      if (statusText) { statusText.textContent = 'Archived'; statusText.style.color = '#475569'; }
+    }
+
+    closeAcctModal();
+  } catch (err) {
+    showToast('Action failed. Please try again.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Confirm'; }
+  }
+}
+
+function showToast(msg, type = 'success') {
+  const c = document.getElementById('crmToastContainer');
+  const t = document.createElement('div');
+  const cfg = {
+    success: { bg: '#f0fdf4', color: '#166534', border: '#bbf7d0' },
+    error:   { bg: '#fef2f2', color: '#dc2626', border: '#fca5a5' },
+    info:    { bg: '#f0f6ff', color: '#1e40af', border: '#bfdbfe' },
+  }[type] || {};
+  t.style.cssText = `background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border};padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.1);max-width:320px;`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// ── Profile Email Modal ────────────────────────────────────────────────────────
+function openProfileEmailModal() {
+  const lbl = document.getElementById('pemCustomerLabel');
+  if (lbl) lbl.textContent = [CUSTOMER.full_name || CUSTOMER.name, CUSTOMER.email].filter(Boolean).join(' · ') || '—';
+  document.getElementById('profileEmailModal').style.display = 'flex';
+  document.getElementById('pem-subject').value = '';
+  document.getElementById('pem-body').value = '';
+}
+function closeProfileEmailModal() {
+  document.getElementById('profileEmailModal').style.display = 'none';
+}
+function sendProfileEmail() {
+  const s = document.getElementById('pem-subject').value.trim();
+  const b = document.getElementById('pem-body').value.trim();
+  if (!s) { showToast('Please enter a subject', 'error'); return; }
+  if (!b) { showToast('Please enter a message', 'error'); return; }
+  closeProfileEmailModal();
+  showToast('Email queued for ' + CUSTOMER.email + ' — backend required', 'success');
+}
+
+// ── Add Internal Note Modal ────────────────────────────────────────────────────
+function openAddNoteModal() {
+  document.getElementById('addNoteModal').style.display = 'flex';
+  document.getElementById('note-body').value = '';
+}
+function closeAddNoteModal() {
+  document.getElementById('addNoteModal').style.display = 'none';
+}
+function saveNewNote() {
+  const body = document.getElementById('note-body').value.trim();
+  const type = document.getElementById('note-type').value;
+  if (!body) { showToast('Note cannot be empty', 'error'); return; }
+  const authorName = ADMIN_SESSION.name || '—';
+  const authorInitials = ADMIN_SESSION.initials || authorName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) || '—';
+  const typeColors = { general: '#ede9fe', account: '#e8eef8', property: '#fef3c7', billing: '#f0fdf4', complaint: '#fee2e2' };
+  const typeTextColors = { general: '#6d28d9', account: '#162d56', property: '#b45309', billing: '#166534', complaint: '#dc2626' };
+  const typeLabels = { general: 'General', account: 'Account Management', property: 'Property', billing: 'Billing', complaint: 'Complaint / Issue' };
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) + ' · ' + now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+  const newCard = `
+    <div class="crm-note-card" style="border-left:3px solid #162d56;margin-top:12px;">
+      <div class="crm-note-top">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:26px;height:26px;border-radius:50%;background:#162d56;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;">${authorInitials}</div>
+          <span class="crm-note-author">${authorName}</span>
+          <span style="font-size:10px;font-weight:600;background:${typeColors[type]||'#f1f5f9'};color:${typeTextColors[type]||'#334155'};border-radius:20px;padding:1px 7px;">${typeLabels[type]||type}</span>
+        </div>
+        <span class="crm-note-date">${dateStr}</span>
+      </div>
+      <div class="crm-note-body">${body.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      <div style="margin-top:6px;"><span style="font-size:10px;font-weight:600;color:#94a3b8;background:#f8fafc;border-radius:4px;padding:2px 6px;">🆕 New</span></div>
+    </div>`;
+  const notesList = document.getElementById('notesListEl');
+  notesList.insertAdjacentHTML('afterbegin', newCard);
+  closeAddNoteModal();
+  showToast('Internal note added', 'success');
+  // Switch to notes tab
+  switchTab('notes');
+}
+
+function filterNotes(val) {
+  // Placeholder — backend will filter by type
+  showToast('Note filtering — backend required', 'info');
+}
+</script>
+
+<!-- ════ PROFILE EMAIL MODAL ════ -->
+<div id="profileEmailModal" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeProfileEmailModal()">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:540px;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:calc(100vh - 40px);overflow-y:auto;">
+    <div style="padding:22px 24px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:17px;font-weight:700;color:#0f1e38;">Email Customer</div>
+        <div style="font-size:12px;color:#64748b;margin-top:2px;" id="pemCustomerLabel">—</div>
+        <span style="display:inline-block;margin-top:6px;font-size:11px;font-weight:600;background:#e8eef8;color:#162d56;border-radius:20px;padding:2px 10px;">🔔 Operational Email — Customer Facing</span>
+      </div>
+      <button onclick="closeProfileEmailModal()" style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#64748b;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div style="padding:24px;">
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">Subject *</label>
+        <input type="text" id="pem-subject" placeholder="Email subject…" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;" />
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">Message *</label>
+        <textarea id="pem-body" rows="6" placeholder="Write your message…" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      </div>
+      <div style="background:#f0f6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;font-size:12px;color:#1e40af;display:flex;gap:8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Email delivery requires backend integration. This queues the message for sending.
+      </div>
+    </div>
+    <div style="padding:16px 24px;border-top:1px solid #f1f5f9;display:flex;justify-content:flex-end;gap:10px;">
+      <button onclick="closeProfileEmailModal()" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+      <button onclick="sendProfileEmail()" style="background:#162d56;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Queue Email
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ADD INTERNAL NOTE MODAL ════ -->
+<div id="addNoteModal" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeAddNoteModal()">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div style="padding:22px 24px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:17px;font-weight:700;color:#0f1e38;">Add Internal Note</div>
+        <div style="font-size:12px;color:#64748b;margin-top:2px;">🔒 Staff &amp; Admin only — not visible to customers</div>
+      </div>
+      <button onclick="closeAddNoteModal()" style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#64748b;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div style="padding:24px;">
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">Note Type</label>
+        <select id="note-type" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;color:#334155;outline:none;">
+          <option value="general">General</option>
+          <option value="account">Account Management</option>
+          <option value="property">Property</option>
+          <option value="billing">Billing</option>
+          <option value="complaint">Complaint / Issue</option>
+        </select>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">Note *</label>
+        <textarea id="note-body" rows="5" placeholder="Enter your internal note here…" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      </div>
+      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:9px 14px;font-size:12px;color:#92400e;display:flex;gap:8px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        This note is private. It will never appear in the customer portal.
+      </div>
+    </div>
+    <div style="padding:16px 24px;border-top:1px solid #f1f5f9;display:flex;justify-content:flex-end;gap:10px;">
+      <button onclick="closeAddNoteModal()" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+      <button onclick="saveNewNote()" style="background:#162d56;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg>
+        Save Internal Note
+      </button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

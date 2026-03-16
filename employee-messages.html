@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Messages — Satellite Home Watch (Staff)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/employee.css" />
+  <link rel="stylesheet" href="css/messages.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── EMPLOYEE MESSAGES — MOBILE RESPONSIVE ─────────────────────── */
+
+    /* Prevent horizontal overflow globally on this page */
+    body, .app-wrapper, .main-content {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    /* ── Full-height messages container ── */
+    .emp-msg-container {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      height: calc(100vh - 65px);
+      overflow: hidden;
+    }
+
+    /* ── Thread list panel ── */
+    .emp-msg-sidebar {
+      border-right: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .emp-msg-sidebar-search {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      flex-shrink: 0;
+    }
+
+    .emp-msg-sidebar-search input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .emp-msg-sidebar-list {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* ── Message view panel ── */
+    .emp-msg-main {
+      display: flex;
+      flex-direction: column;
+      background: #f8fafc;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    /* ── Thread header (inside msg view) ── */
+    .emp-msg-thread-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .emp-msg-thread-header-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .emp-msg-thread-header-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f1e38;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .emp-msg-thread-header-meta {
+      font-size: 12px;
+      color: #64748b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Mobile back button ── */
+    .emp-msg-back-btn {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      color: #162d56;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .emp-msg-back-btn:hover { background: #e8eef8; }
+    .emp-msg-back-btn svg { width: 16px; height: 16px; }
+
+    /* ── Message list scroll area ── */
+    .emp-msg-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    /* ── Reply composer ── */
+    .emp-msg-composer {
+      padding: 16px 20px;
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
+      flex-shrink: 0;
+    }
+
+    .emp-msg-composer-inner {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .emp-msg-composer-textarea {
+      flex: 1;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: none;
+      min-height: 60px;
+      max-height: 140px;
+      outline: none;
+      line-height: 1.5;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    .emp-msg-composer-textarea:focus {
+      border-color: #162d56;
+      box-shadow: 0 0 0 3px rgba(22,45,86,0.08);
+    }
+
+    .emp-msg-send-btn {
+      padding: 10px 18px;
+      font-size: 13px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════
+       MOBILE: single-panel sliding layout
+    ══════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .emp-msg-container {
+        /* Topbar is hidden on ≤1024px — main-content gets padding-top:56px */
+        height: calc(100vh - 56px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .emp-msg-container {
+        grid-template-columns: 1fr;
+        position: relative;
+        height: calc(100vh - 56px);
+        overflow: hidden;
+      }
+
+      /* Thread list: full-width, absolute positioned */
+      .emp-msg-sidebar {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        width: 100%;
+        transform: translateX(0);
+        transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+        border-right: none;
+      }
+
+      /* Main message view: slides in from right */
+      .emp-msg-main {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        background: #f8fafc;
+        transform: translateX(100%);
+        transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+      }
+
+      /* When thread is open: main slides in, sidebar slides out */
+      .emp-msg-container.thread-open .emp-msg-main {
+        transform: translateX(0);
+      }
+      .emp-msg-container.thread-open .emp-msg-sidebar {
+        transform: translateX(-30%);
+        pointer-events: none;
+      }
+
+      /* Show back button on mobile */
+      .emp-msg-back-btn {
+        display: flex;
+      }
+
+      /* Composer: prevent iOS zoom, stick to bottom */
+      .emp-msg-composer-textarea {
+        font-size: 16px !important;
+      }
+      .emp-msg-composer {
+        padding: 12px 14px;
+      }
+      .emp-msg-messages {
+        padding: 14px;
+      }
+
+      /* Thread header compact */
+      .emp-msg-thread-header {
+        padding: 12px 14px;
+        gap: 8px;
+      }
+      .emp-msg-thread-header-title {
+        font-size: 14px;
+      }
+
+      /* New Message button in topbar: hide label on very small */
+    }
+
+    @media (max-width: 480px) {
+      .emp-msg-send-btn span {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Messages</span>
+          <span class="topbar-welcome">Staff communication hub</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <!-- Messages notification icon (active page indicator) -->
+        <button
+          class="topbar-icon-btn emp-msg-notif-btn"
+          id="empMsgNotifBtn"
+          aria-label="Message notifications"
+          title="Messages"
+          type="button"
+          onclick="openEmpMsgNotif(this)"
+          style="color:#162d56;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span class="topbar-notif-badge" id="empMsgBadge" style="display:none;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="employee"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <button class="emp-btn-start" onclick="openNewThread()" style="font-size:13px;padding:8px 16px;display:flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Message
+        </button>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:0;">
+      <div class="emp-msg-container" id="empMsgContainer">
+
+        <!-- Thread List (Left Panel) -->
+        <div class="emp-msg-sidebar">
+          <div class="emp-msg-sidebar-search">
+            <input type="text" id="threadSearch" placeholder="Search messages…" oninput="filterThreads()" />
+            <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+              <button onclick="setEmpFilter(this,'active')" id="efAll" style="flex:1;padding:4px 8px;font-size:11px;font-weight:600;border-radius:6px;border:1px solid #e2e8f0;background:#162d56;color:#fff;cursor:pointer;">Active</button>
+              <button onclick="setEmpFilter(this,'archived')" id="efArchived" style="flex:1;padding:4px 8px;font-size:11px;font-weight:600;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;cursor:pointer;">Archived</button>
+            </div>
+          </div>
+          <div class="emp-msg-sidebar-list" id="threadList">
+            <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">Loading threads…</div>
+          </div>
+        </div>
+
+        <!-- Message View (Right Panel) -->
+        <div class="emp-msg-main" id="messageArea">
+          <!-- Empty state -->
+          <div id="noThreadSelected" style="flex:1;display:flex;align-items:center;justify-content:center;height:100%;">
+            <div class="emp-empty-state">
+              <div class="emp-empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              </div>
+              <div class="emp-empty-title">Select a conversation</div>
+              <div class="emp-empty-text">Choose a thread from the list to read and reply.</div>
+            </div>
+          </div>
+
+          <!-- Active thread view -->
+          <div id="activeThread" style="display:none;flex-direction:column;height:100%;">
+            <!-- Thread header -->
+            <div class="emp-msg-thread-header">
+              <button class="emp-msg-back-btn" onclick="closeMobileThread()" aria-label="Back to threads">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                Back
+              </button>
+              <div class="emp-msg-thread-header-info">
+                <div class="emp-msg-thread-header-title" id="threadTitle">—</div>
+                <div class="emp-msg-thread-header-meta" id="threadMeta">—</div>
+              </div>
+              <button onclick="archiveEmpThread()" id="empArchiveBtn" style="font-size:11px;padding:5px 10px;border:1px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#64748b;cursor:pointer;flex-shrink:0;">Archive</button>
+              <button onclick="deleteEmpThread()" style="font-size:11px;padding:5px 10px;border:1px solid #fca5a5;border-radius:6px;background:#fff;color:#dc2626;cursor:pointer;flex-shrink:0;">Delete</button>
+              <button class="emp-btn-secondary" onclick="closeThread()" style="font-size:12px;padding:6px 12px;flex-shrink:0;">✕ Close</button>
+            </div>
+
+            <!-- Messages -->
+            <div class="emp-msg-messages" id="messagesList"></div>
+
+            <!-- Reply box -->
+            <div class="emp-msg-composer">
+              <div id="empAttachPreview" style="display:none;flex-wrap:wrap;gap:5px;padding:0 0 6px 0;"></div>
+              <div class="emp-msg-composer-inner">
+                <label style="width:36px;height:36px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;" title="Attach file">
+                  <input type="file" multiple style="display:none;" onchange="handleEmpAttach(this)" />
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                </label>
+                <textarea id="replyText" class="emp-msg-composer-textarea"
+                  placeholder="Write a message…"
+                  onkeydown="handleReplyKey(event)"></textarea>
+                <button class="emp-btn-start in-progress emp-msg-send-btn" onclick="sendReply()">
+                  <span>Send</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- New Thread Modal -->
+<div id="newThreadModal" class="emp-modal-overlay" style="display:none;">
+  <div class="emp-modal">
+    <div class="emp-modal-header">
+      <div class="emp-modal-title">New Message Thread</div>
+      <button class="emp-modal-close" onclick="closeNewThread()">✕</button>
+    </div>
+    <div class="emp-modal-body">
+      <!-- Info banner: messages go to Support Team -->
+      <div style="background:#f0f5ff;border:1px solid #c7d8f5;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div style="font-size:12px;color:#162d56;line-height:1.5;">
+          <strong>Sending to: Support Team (All Admins)</strong><br>
+          Your message will be sent to the administrative team. An admin will be assigned to your conversation and you’ll see who you’re talking to once they respond.
+        </div>
+      </div>
+      <div class="vd-form-group" style="margin-bottom:14px;">
+        <label class="vd-form-label">Subject *</label>
+        <input type="text" class="vd-form-input" id="newSubject" placeholder="e.g., Follow-up on property inspection" />
+      </div>
+      <div class="vd-form-group" style="margin-bottom:14px;">
+        <label class="vd-form-label">Related Property</label>
+        <select class="vd-form-select" id="newPropertyId">
+          <option value="">General (No specific property)</option>
+        </select>
+      </div>
+      <div class="vd-form-group" style="margin-bottom:14px;">
+        <label class="vd-form-label">Thread Type</label>
+        <select class="vd-form-select" id="newThreadType">
+          <option value="general">General</option>
+          <option value="visit_related">Visit Related</option>
+          <option value="alert_followup">Alert Follow-up</option>
+          <option value="service_request">Service Request</option>
+          <option value="internal">Internal</option>
+        </select>
+      </div>
+      <div class="vd-form-group">
+        <label class="vd-form-label">Message *</label>
+        <textarea class="vd-notes-area" id="newMessage" rows="4" placeholder="Type your message…"></textarea>
+      </div>
+    </div>
+    <div class="emp-modal-footer">
+      <button class="emp-btn-secondary" onclick="closeNewThread()">Cancel</button>
+      <button class="emp-btn-start in-progress" onclick="createThread()">Send Message</button>
+    </div>
+  </div>
+</div>
+
+<!-- Message Notifications Panel -->
+<div id="empMsgNotifPanel" style="display:none;position:fixed;top:60px;right:16px;width:340px;max-width:calc(100vw - 32px);background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 32px rgba(22,45,86,.15);z-index:9999;">
+  <div style="padding:14px 16px 10px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:14px;font-weight:700;color:#0f1e38;">Message Notifications</div>
+    <button onclick="closeEmpMsgNotif()" style="background:none;border:none;font-size:18px;color:#94a3b8;cursor:pointer;line-height:1;">×</button>
+  </div>
+  <div id="empMsgNotifList" style="max-height:340px;overflow-y:auto;padding:8px 0;">
+    <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No new messages</div>
+  </div>
+  <div style="padding:10px 16px;border-top:1px solid #f1f5f9;text-align:center;">
+    <a href="employee-messages.html" style="font-size:13px;font-weight:600;color:#162d56;text-decoration:none;">View All Messages →</a>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/emp-msg-notif.js"></script>
+<script>
+let _threads     = [];
+let _activeThread = null;
+let _propMap     = {};
+let _userMap     = {};
+let _empFilter   = 'active'; // 'active' | 'archived'
+let _empAttachments = [];
+
+function setEmpFilter(btn, filter) {
+  _empFilter = filter;
+  document.getElementById('efAll').style.background     = filter === 'active'   ? '#162d56' : '#f8fafc';
+  document.getElementById('efAll').style.color          = filter === 'active'   ? '#fff'    : '#64748b';
+  document.getElementById('efArchived').style.background = filter === 'archived' ? '#162d56' : '#f8fafc';
+  document.getElementById('efArchived').style.color      = filter === 'archived' ? '#fff'    : '#64748b';
+  filterThreads();
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderEmpSidebar('emp-messages');
+  await loadData();
+  await loadThreads();
+  initEmpMsgNotif();
+
+  // ── History-based back navigation ──────────────────────────
+  // Record a baseline history state (thread = null = list view)
+  history.replaceState({ thread: null }, '', window.location.href);
+
+  // Listen for browser Back / Forward
+  window.addEventListener('popstate', function(e) {
+    const state = e.state;
+    if (!state) return;
+    if (!state.thread) {
+      // Back to list
+      _empCloseThread();
+    } else {
+      // Forward to a thread
+      selectThread(state.thread);
+    }
+  });
+
+  // ── Auto-open thread from URL params (?threadId=) or hash (#threadId) ──
+  const params = new URLSearchParams(window.location.search);
+  const autoThreadId = params.get('threadId') || (window.location.hash ? window.location.hash.slice(1) : null);
+  if (autoThreadId) {
+    // Wait a tick so threads are rendered, then select
+    setTimeout(() => selectThread(autoThreadId), 80);
+  }
+});
+
+async function loadData() {
+  const [propsRes, usersRes] = await Promise.all([
+    empApiGetAll('properties'),
+    empApiGetAll('users'),
+  ]);
+  _propMap = buildMap(propsRes.data || []);
+  _userMap = buildMap(usersRes.data || []);
+
+  // Populate property selector in new thread modal
+  const sel = document.getElementById('newPropertyId');
+  Object.values(_propMap).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.property_name;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadThreads() {
+  const [threadsRes, participantsRes] = await Promise.all([
+    empApiGetAll('message_threads'),
+    empApiGetAll('thread_participants'),
+  ]);
+
+  const allThreads = threadsRes.data || [];
+  const participants = participantsRes.data || [];
+
+  // Find threads where this user is a participant
+  const myParticipations = participants.filter(p => p.user_id === EMP_SESSION.userId);
+  const myThreadIds = new Set(myParticipations.map(p => p.thread_id));
+
+  _threads = allThreads
+    .filter(t => myThreadIds.has(t.id) && (_empFilter === 'archived' ? t.is_archived : !t.is_archived))
+    .sort((a,b) => new Date(b.last_message_at) - new Date(a.last_message_at));
+
+  filterThreads();
+}
+
+function filterThreads() {
+  const q = (document.getElementById('threadSearch').value || '').toLowerCase();
+  const filtered = q
+    ? _threads.filter(t => (t.subject || '').toLowerCase().includes(q) || (_propMap[t.property_id]?.property_name || '').toLowerCase().includes(q))
+    : _threads;
+  renderThreadList(filtered);
+}
+
+function renderThreadList(threads) {
+  const container = document.getElementById('threadList');
+  if (!threads.length) {
+    container.innerHTML = `<div style="padding:30px;text-align:center;color:#94a3b8;font-size:13px;">No conversations yet</div>`;
+    return;
+  }
+  container.innerHTML = threads.map(t => {
+    const prop = _propMap[t.property_id] || {};
+    const isActive = _activeThread?.id === t.id;
+    // Assigned admin / supervisor label
+    let adminLabel = '';
+    if (t.assigned_admin_id && _userMap[t.assigned_admin_id]) {
+      const adminUser = _userMap[t.assigned_admin_id];
+      const adminName = adminUser.full_name || 'Admin';
+      if (t.thread_type === 'visit_customer') {
+        adminLabel = `<div style="font-size:11px;color:#166534;font-weight:600;margin-top:2px;">🛡 Supervised by: ${adminName}</div>`;
+      } else {
+        adminLabel = `<div style="font-size:11px;color:#162d56;font-weight:600;margin-top:2px;">💬 ${adminName}</div>`;
+      }
+    } else if (t.acceptance_status === 'pending') {
+      adminLabel = `<div style="font-size:11px;color:#64748b;margin-top:2px;">📋 No supervisor assigned yet — messages delivered normally</div>`;
+    } else {
+      adminLabel = `<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Awaiting admin response</div>`;
+    }
+    return `
+      <div onclick="selectThread('${t.id}')"
+        style="padding:14px 16px;border-bottom:1px solid #f1f5f9;cursor:pointer;background:${isActive ? '#e8eef8' : '#fff'};transition:background .15s;"
+        onmouseenter="if('${t.id}'!==(_activeThread?.id||''))this.style.background='#f8fafc'"
+        onmouseleave="if('${t.id}'!==(_activeThread?.id||''))this.style.background='#fff'">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+          <div style="font-size:13px;font-weight:600;color:#0f1e38;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;">${t.subject || 'No subject'}</div>
+          <div style="font-size:11px;color:#94a3b8;flex-shrink:0;">${FMT.relTime(t.last_message_at)}</div>
+        </div>
+        <div style="font-size:12px;color:#64748b;">${prop.property_name || 'General'} · ${FMT.snakeToTitle(t.thread_type || 'general')}</div>
+        ${adminLabel}
+      </div>`;
+  }).join('');
+}
+
+async function selectThread(threadId) {
+  const thread = _threads.find(t => t.id === threadId);
+  if (!thread) return;
+  _activeThread = thread;
+
+  // Update thread list highlight
+  filterThreads();
+
+  const prop = _propMap[thread.property_id] || {};
+  document.getElementById('threadTitle').textContent = thread.subject || 'Conversation';
+
+  // Show assigned admin clearly in thread meta
+  let adminInfo = '';
+  if (thread.assigned_admin_id && _userMap[thread.assigned_admin_id]) {
+    const adminUser = _userMap[thread.assigned_admin_id];
+    const adminName = adminUser.full_name || 'Admin';
+    adminInfo = thread.thread_type === 'visit_customer'
+      ? `🛡 Supervised by: ${adminName}`
+      : `Assigned to: ${adminName}`;
+  } else if (thread.acceptance_status === 'pending') {
+    adminInfo = '📋 Unassigned supervisor — messages delivered to customer normally';
+  } else {
+    adminInfo = 'Support Team — Awaiting assignment';
+  }
+  document.getElementById('threadMeta').textContent = [
+    adminInfo,
+    prop.property_name ? `Property: ${prop.property_name}` : null,
+    `Started ${FMT.date(thread.created_at)}`,
+  ].filter(Boolean).join(' · ');
+
+  // Load messages for this thread
+  const { data: msgs } = await empApiGetAll('messages');
+  const threadMsgs = (msgs || [])
+    .filter(m => m.thread_id === threadId)
+    .sort((a,b) => new Date(a.sent_at) - new Date(b.sent_at));
+
+  renderMessages(threadMsgs);
+
+  document.getElementById('noThreadSelected').style.display = 'none';
+  document.getElementById('activeThread').style.display = 'flex';
+  // Update archive button label
+  const archBtn = document.getElementById('empArchiveBtn');
+  if (archBtn) archBtn.textContent = thread.is_archived ? 'Unarchive' : 'Archive';
+
+  // Mobile: slide in the right panel and push history
+  const container = document.getElementById('empMsgContainer');
+  container.classList.add('thread-open');
+  // Push history entry on mobile so browser Back returns to thread list
+  if (window.innerWidth <= 768 && typeof SHWNav !== 'undefined') {
+    SHWNav.pushThread(threadId);
+  }
+}
+
+function renderMessages(messages) {
+  const container = document.getElementById('messagesList');
+  if (!messages.length) {
+    container.innerHTML = `<div style="text-align:center;color:#94a3b8;font-size:13px;padding:30px;">No messages in this thread yet.</div>`;
+    return;
+  }
+  container.innerHTML = messages.map(m => {
+    const isMine = m.sender_user_id === EMP_SESSION.userId;
+    const sender = _userMap[m.sender_user_id] || {};
+    const initials = FMT.initials(sender.full_name || '??');
+    let attachHtml = '';
+    if (m.attachments && m.attachments.length) {
+      attachHtml = `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;">` +
+        m.attachments.map(a => `<a href="${a.url||'#'}" target="_blank" rel="noopener"
+          style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;
+                 background:${isMine?'rgba(255,255,255,.15)':'#f1f5f9'};color:${isMine?'#fff':'#162d56'};
+                 border-radius:5px;padding:3px 8px;border:1px solid ${isMine?'rgba(255,255,255,.25)':'#e2e8f0'};text-decoration:none;">
+          📎 ${a.name||'Attachment'}</a>`).join('') + `</div>`;
+    }
+    return `
+      <div id="empwrap-${m.id}" style="display:flex;gap:10px;margin-bottom:16px;${isMine ? 'flex-direction:row-reverse;' : ''}">
+        <div style="width:32px;height:32px;border-radius:50%;background:${isMine ? '#162d56' : '#e2e8f0'};color:${isMine ? '#fff' : '#475569'};font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${initials}</div>
+        <div style="max-width:72%;min-width:0;">
+          <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;display:flex;align-items:center;gap:6px;${isMine ? 'flex-direction:row-reverse;' : ''}">
+            <span>${sender.full_name || 'Unknown'} · ${FMT.relTime(m.sent_at)}</span>
+            <button onclick="deleteEmpMessage('${m.id}')" title="Delete" style="background:none;border:none;cursor:pointer;opacity:.5;padding:0;transition:opacity .15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
+          <div style="background:${isMine ? '#162d56' : '#fff'};color:${isMine ? '#fff' : '#334155'};border:${isMine ? 'none' : '1px solid #e2e8f0'};border-radius:${isMine ? '14px 14px 4px 14px' : '14px 14px 14px 4px'};padding:10px 14px;font-size:13px;line-height:1.5;word-break:break-word;overflow-wrap:anywhere;">
+            ${m.body || ''}${attachHtml}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendReply() {
+  if (!_activeThread) return;
+  const body = document.getElementById('replyText').value.trim();
+  if (!body && !_empAttachments.length) return;
+
+  const attachMeta = _empAttachments.map(f => ({ name: f.name, size: f.size, type: f.type, url: '#' }));
+  const now = new Date().toISOString();
+  const { error } = await empApiPost('messages', {
+    thread_id:      _activeThread.id,
+    sender_user_id: EMP_SESSION.userId,
+    body: body || '',
+    attachments: attachMeta.length ? attachMeta : null,
+    sent_at:        now,
+    is_read:        false,
+  });
+  if (error) { showToast('Failed to send message', 'error'); return; }
+
+  await empApiPatch('message_threads', _activeThread.id, { last_message_at: now });
+  document.getElementById('replyText').value = '';
+  _empAttachments = [];
+  renderEmpAttachPreview();
+  await selectThread(_activeThread.id);
+}
+
+function handleEmpAttach(input) {
+  _empAttachments = [..._empAttachments, ...Array.from(input.files || [])];
+  renderEmpAttachPreview();
+  input.value = '';
+}
+
+function renderEmpAttachPreview() {
+  const el = document.getElementById('empAttachPreview');
+  if (!_empAttachments.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = 'flex';
+  el.innerHTML = _empAttachments.map((f, i) => `
+    <span style="display:inline-flex;align-items:center;gap:5px;background:#f0f5ff;border:1px solid #c7d8f5;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;color:#162d56;">
+      📎 ${f.name}
+      <button onclick="removeEmpAttach(${i})" style="background:none;border:none;cursor:pointer;color:#94a3b8;padding:0;font-size:13px;">×</button>
+    </span>`).join('');
+}
+
+function removeEmpAttach(idx) {
+  _empAttachments.splice(idx, 1);
+  renderEmpAttachPreview();
+}
+
+async function deleteEmpMessage(msgId) {
+  if (!confirm('Delete this message?')) return;
+  try {
+    await fetch(`tables/messages/${msgId}`, { method: 'DELETE' });
+    const el = document.getElementById(`empwrap-${msgId}`);
+    if (el) el.remove();
+    showToast('Message deleted.', 'success');
+  } catch { showToast('Could not delete message.', 'error'); }
+}
+
+async function archiveEmpThread() {
+  if (!_activeThread) return;
+  const isArchived = !!_activeThread.is_archived;
+  const action = isArchived ? 'Unarchive' : 'Archive';
+  if (!confirm(`${action} this conversation?`)) return;
+  try {
+    await empApiPatch('message_threads', _activeThread.id, { is_archived: !isArchived });
+    const btn = document.getElementById('empArchiveBtn');
+    _activeThread.is_archived = !isArchived;
+    if (btn) btn.textContent = isArchived ? 'Archive' : 'Unarchive';
+    showToast(isArchived ? 'Conversation unarchived.' : 'Conversation archived.', 'success');
+    await loadThreads();
+    if (!isArchived) closeThread();
+  } catch { showToast('Could not update thread.', 'error'); }
+}
+
+async function deleteEmpThread() {
+  if (!_activeThread) return;
+  if (!confirm('Permanently delete this conversation? This cannot be undone.')) return;
+  try {
+    await fetch(`tables/message_threads/${_activeThread.id}`, { method: 'DELETE' });
+    _activeThread = null;
+    await loadThreads();
+    closeThread();
+    showToast('Conversation deleted.', 'success');
+  } catch { showToast('Could not delete conversation.', 'error'); }
+}
+
+function handleReplyKey(e) {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) sendReply();
+}
+
+function closeThread() {
+  _activeThread = null;
+  document.getElementById('noThreadSelected').style.display = 'flex';
+  document.getElementById('activeThread').style.display = 'none';
+  document.getElementById('empMsgContainer').classList.remove('thread-open');
+  filterThreads();
+}
+
+function closeMobileThread() {
+  // Mobile back button — use history.back() on mobile (history entry was pushed)
+  // popstate listener will call _empCloseThread()
+  if (window.innerWidth <= 768 && history.length > 1) {
+    history.back();
+  } else {
+    _empCloseThread();
+  }
+}
+
+function _empCloseThread() {
+  // Close thread and return to list (called by back button and popstate)
+  document.getElementById('empMsgContainer').classList.remove('thread-open');
+  _activeThread = null;
+  document.getElementById('noThreadSelected').style.display = 'flex';
+  document.getElementById('activeThread').style.display = 'none';
+  filterThreads();
+}
+
+function openNewThread() {
+  document.getElementById('newThreadModal').style.display = 'flex';
+}
+function closeNewThread() {
+  document.getElementById('newThreadModal').style.display = 'none';
+}
+
+async function createThread() {
+  const subject = document.getElementById('newSubject').value.trim();
+  const body    = document.getElementById('newMessage').value.trim();
+  const propId  = document.getElementById('newPropertyId').value || null;
+  const type    = document.getElementById('newThreadType').value;
+
+  if (!subject || !body) { showToast('Subject and message are required', 'error'); return; }
+
+  const now = new Date().toISOString();
+  const { data: thread, error } = await empApiPost('message_threads', {
+    subject, thread_type: type,
+    property_id:        propId,
+    created_by_user_id: EMP_SESSION.userId,
+    last_message_at:    now,
+    created_at:         now,
+    updated_at:         now,
+    is_archived:        false,
+    // No assigned_admin_id yet — awaiting admin pickup
+    assigned_admin_id:  null,
+    // Mark as employee-to-admin thread
+    thread_direction:   'employee_to_admin',
+  });
+  if (error || !thread) { showToast('Failed to create thread', 'error'); return; }
+
+  // Add sending employee as participant
+  await empApiPost('thread_participants', {
+    thread_id: thread.id, user_id: EMP_SESSION.userId,
+    role: 'author', joined_at: now,
+  });
+
+  // Auto-add ALL admin users as participants so all admins can see & pick up the conversation
+  try {
+    const { data: users } = await empApiGetAll('users');
+    const adminUsers = (users || []).filter(u => ['executive','manager','admin'].includes(u.role));
+    await Promise.all(adminUsers.map(u =>
+      empApiPost('thread_participants', {
+        thread_id: thread.id, user_id: u.id,
+        role: 'admin', joined_at: now,
+      })
+    ));
+  } catch(e) {
+    // Non-fatal: thread still created, admins may not be auto-added if users table empty
+  }
+
+  // Send first message
+  await empApiPost('messages', {
+    thread_id: thread.id, sender_user_id: EMP_SESSION.userId,
+    body, sent_at: now, is_read: false,
+  });
+
+  showToast('Message sent to Support Team!', 'success');
+  closeNewThread();
+  document.getElementById('newSubject').value = '';
+  document.getElementById('newMessage').value = '';
+  await loadThreads();
+  selectThread(thread.id);
+}
+</script>
+</body>
+</html>

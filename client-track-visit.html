@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Track Visit — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/track-visit.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+<div class="app-wrapper">
+
+  <!-- Mobile overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar (rendered by JS) -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Client navigation"></aside>
+
+  <!-- ════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════ -->
+  <div class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Track Visit</span>
+          <span class="topbar-welcome">Live inspection progress and status updates</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-client-msg-trigger="client"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Messages"
+          type="button"
+          onclick="SHWClientMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span data-client-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="client"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <div class="topbar-avatar" onclick="window.location.href='client-account.html'" role="button" aria-label="My account">JM</div>
+      </div>
+    </header>
+
+    <!-- ════════════════════════════════════════
+         PAGE BODY
+    ════════════════════════════════════════ -->
+    <main class="dashboard-content">
+      <div class="track-visit-page" id="trackVisitPage">
+
+        <!-- ── ACTIVE VISIT VIEW (shown when visit is active) ── -->
+        <div id="activeVisitView">
+
+          <!-- ── TOP: ACTIVE VISIT SUMMARY CARD ── -->
+          <div class="tv-summary-card" role="region" aria-label="Active visit summary">
+
+            <div class="tv-summary-left">
+              <div class="tv-summary-badge-row">
+                <span class="tv-live-dot" aria-label="Live tracking active">Live</span>
+                <span class="tv-summary-type-badge">Routine Inspection</span>
+              </div>
+
+              <h1 class="tv-summary-title visit-summary-type" id="tvVisitType">—</h1>
+              <p class="tv-summary-property visit-summary-property" id="tvPropertyName">—</p>
+
+              <div class="tv-summary-meta-grid">
+                <div class="tv-summary-meta-item">
+                  <span class="tv-summary-meta-label">Inspector</span>
+                  <span class="tv-summary-meta-value visit-summary-inspector" id="tvSummaryInspector">—</span>
+                </div>
+                <div class="tv-summary-meta-item">
+                  <span class="tv-summary-meta-label">Scheduled</span>
+                  <span class="tv-summary-meta-value visit-summary-date" id="tvSummaryScheduled">—</span>
+                </div>
+                <div class="tv-summary-meta-item">
+                  <span class="tv-summary-meta-label">Current Status</span>
+                  <span class="tv-summary-meta-value visit-summary-status" id="tvSummaryStatus">—</span>
+                </div>
+                <div class="tv-summary-meta-item">
+                  <span class="tv-summary-meta-label">Est. Duration</span>
+                  <span class="tv-summary-meta-value" id="tvSummaryDuration">—</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="tv-summary-right">
+              <div class="tv-eta-box" aria-label="Estimated arrival time">
+                <div class="tv-eta-label">Est. Arrival</div>
+                <div class="tv-eta-time" id="tvEtaTime">—</div>
+                <div class="tv-eta-sub" id="tvEtaSub">—</div>
+              </div>
+            </div>
+
+          </div><!-- /.tv-summary-card -->
+
+          <!-- ── TWO-COLUMN GRID ── -->
+          <div class="tv-grid">
+
+            <!-- ── LEFT / MAIN COLUMN ── -->
+            <div class="tv-main-col">
+
+              <!-- VISIT PROGRESS TRACKER ── -->
+              <div class="tv-card tv-progress-card" role="region" aria-label="Inspection progress">
+                <div class="tv-card-header">
+                  <h2 class="tv-card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    Inspection Progress
+                  </h2>
+                </div>
+                <div class="tv-card-body">
+                  <div class="tv-progress-steps" role="list" aria-label="Inspection stage progress">
+
+                    <!-- Step 1: Completed -->
+                    <div class="tv-step step-completed" role="listitem" aria-label="Visit Scheduled – completed">
+                      <div class="tv-step-indicator" aria-hidden="true">
+                        <svg class="tv-step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                      <div class="tv-step-content">
+                        <div class="tv-step-label">Visit Scheduled</div>
+                        <div class="tv-step-sublabel">Inspection confirmed and assigned</div>
+                      </div>
+                      <div class="tv-step-time" id="tvStepScheduledTime">—</div>
+                    </div>
+
+                    <!-- Step 2: Active -->
+                    <div class="tv-step step-active" role="listitem" aria-current="step" aria-label="Inspector En Route – currently active">
+                      <div class="tv-step-indicator" aria-hidden="true">
+                        <svg class="tv-step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+                      </div>
+                      <div class="tv-step-content">
+                        <div class="tv-step-label">Inspector En Route</div>
+                        <div class="tv-step-sublabel" id="tvEnRouteLabel">— is heading to your property</div>
+                        <span class="tv-step-active-badge">In Progress</span>
+                      </div>
+                      <div class="tv-step-time" id="tvStepEnRouteTime">—</div>
+                    </div>
+
+                    <!-- Step 3: Pending -->
+                    <div class="tv-step step-pending" role="listitem" aria-label="Arrived at Property – not started">
+                      <div class="tv-step-indicator" aria-hidden="true">
+                        <svg class="tv-step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                      </div>
+                      <div class="tv-step-content">
+                        <div class="tv-step-label">Arrived at Property</div>
+                        <div class="tv-step-sublabel">Inspector checks in on arrival</div>
+                      </div>
+                      <div class="tv-step-time" id="tvStepArrivedTime">—</div>
+                    </div>
+
+                    <!-- Step 4: Pending -->
+                    <div class="tv-step step-pending" role="listitem" aria-label="Inspection In Progress – not started">
+                      <div class="tv-step-indicator" aria-hidden="true">
+                        <svg class="tv-step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg>
+                      </div>
+                      <div class="tv-step-content">
+                        <div class="tv-step-label">Inspection In Progress</div>
+                        <div class="tv-step-sublabel">Active walkthrough and documentation</div>
+                      </div>
+                      <div class="tv-step-time" id="tvStepInProgressTime">—</div>
+                    </div>
+
+                    <!-- Step 5: Pending -->
+                    <div class="tv-step step-pending" role="listitem" aria-label="Report Being Prepared – not started">
+                      <div class="tv-step-indicator" aria-hidden="true">
+                        <svg class="tv-step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                      </div>
+                      <div class="tv-step-content">
+                        <div class="tv-step-label">Report Being Prepared</div>
+                        <div class="tv-step-sublabel">Inspector compiles findings and photos</div>
+                      </div>
+                      <div class="tv-step-time" id="tvStepReportTime">—</div>
+                    </div>
+
+                    <!-- Step 6: Pending -->
+                    <div class="tv-step step-pending" role="listitem" aria-label="Report Published – not started">
+                      <div class="tv-step-indicator" aria-hidden="true">
+                        <svg class="tv-step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                      </div>
+                      <div class="tv-step-content">
+                        <div class="tv-step-label">Report Published</div>
+                        <div class="tv-step-sublabel">Full report available in your portal</div>
+                      </div>
+                      <div class="tv-step-time" id="tvStepPublishedTime">—</div>
+                    </div>
+
+                  </div><!-- /.tv-progress-steps -->
+                </div><!-- /.tv-card-body -->
+              </div><!-- /.tv-progress-card -->
+
+              <!-- MAP PANEL ── -->
+              <div class="tv-card tv-map-card" role="region" aria-label="Inspector location map">
+                <div class="tv-card-header">
+                  <h2 class="tv-card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/>
+                      <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    Inspector Location
+                  </h2>
+                  <span style="font-size:var(--text-xs);font-weight:600;color:var(--navy-500);background:var(--navy-50);padding:3px 10px;border-radius:var(--radius-full);border:1px solid var(--navy-100);">En Route</span>
+                </div>
+
+                <!-- Map area -->
+                <div class="tv-card-body">
+                  <div class="tv-map-area" role="img" aria-label="Static map showing inspector route to property">
+
+                    <!-- Grid texture -->
+                    <div class="tv-map-grid" aria-hidden="true"></div>
+
+                    <!-- Faux road network -->
+                    <div class="tv-map-road-h" style="top:38%;left:0;width:100%;" aria-hidden="true"></div>
+                    <div class="tv-map-road-h" style="top:65%;left:0;width:100%;height:8px;opacity:0.5;" aria-hidden="true"></div>
+                    <div class="tv-map-road-v" style="left:30%;top:0;height:100%;" aria-hidden="true"></div>
+                    <div class="tv-map-road-v" style="left:68%;top:0;height:100%;width:8px;opacity:0.5;" aria-hidden="true"></div>
+                    <div class="tv-map-road-h" style="top:20%;left:30%;width:38%;height:4px;opacity:0.45;transform:rotate(-4deg);" aria-hidden="true"></div>
+
+                    <!-- Route dashed line from inspector to property -->
+                    <div class="tv-map-route" style="left:14%;top:26%;width:52%;height:48%;border-bottom:none;border-left:none;border-top-right-radius:80px;" aria-hidden="true"></div>
+
+                    <!-- Inspector pin (animated) -->
+                    <div class="tv-map-inspector-pin" style="left:13%;top:58%;" aria-hidden="true">
+                      <div class="tv-pin-bubble">
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16 10 8"/></svg><span id="tvMapInspectorLabel">—</span>
+                      </div>
+                      <div class="tv-pin-dot"></div>
+                    </div>
+
+                    <!-- Property destination pin -->
+                    <div class="tv-map-property-pin" style="right:14%;top:18%;" aria-hidden="true">
+                      <div class="tv-property-bubble">
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:4px;"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span id="tvMapPropertyLabel">—</span>
+                      </div>
+                      <div class="tv-property-dot"></div>
+                    </div>
+
+                    
+                  </div><!-- /.tv-map-area -->
+
+                  <!-- Map info bar -->
+                  <div class="tv-map-info-bar" role="group" aria-label="Inspector proximity details">
+                    <div class="tv-map-info-cell">
+                      <span class="tv-map-info-label">Inspector</span>
+                      <span class="tv-map-info-value tv-map-value-accent" id="tvMapInspectorName">—</span>
+                    </div>
+                    <div class="tv-map-info-cell">
+                      <span class="tv-map-info-label">Distance</span>
+                      <span class="tv-map-info-value" id="tvMapDistance">—</span>
+                    </div>
+                    <div class="tv-map-info-cell">
+                      <span class="tv-map-info-label">Est. Arrival</span>
+                      <span class="tv-map-info-value tv-map-value-accent" id="tvMapEta">—</span>
+                    </div>
+                  </div>
+
+                </div><!-- /.tv-card-body -->
+              </div><!-- /.tv-map-card -->
+
+              <!-- REPORT FOLLOW-UP ── -->
+              <div class="tv-report-followup" role="region" aria-label="Inspection report availability">
+                <div class="tv-report-icon-wrap" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                  </svg>
+                </div>
+                <div class="tv-report-text-group">
+                  <div class="tv-report-heading">Inspection Report</div>
+                  <p class="tv-report-desc">Your full inspection report will be available once the visit is completed and reviewed by your inspector.</p>
+                </div>
+                <a href="client-reports.html" class="tv-report-action-btn" aria-label="View inspection reports">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  View Inspection Reports
+                </a>
+              </div><!-- /.tv-report-followup -->
+
+            </div><!-- /.tv-main-col -->
+
+            <!-- ── RIGHT / SIDE COLUMN ── -->
+            <div class="tv-side-col">
+
+              <!-- VISIT DETAILS CARD ── -->
+              <div class="tv-card" role="region" aria-label="Visit details">
+                <div class="tv-card-header">
+                  <h2 class="tv-card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <rect x="3" y="4" width="18" height="18" rx="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Visit Details
+                  </h2>
+                </div>
+                <div class="tv-card-body">
+                  <div class="tv-details-list">
+                    <div class="tv-detail-row">
+                      <span class="tv-detail-label">Visit Type</span>
+                      <span class="tv-detail-value" id="tvVisitType">—</span>
+                    </div>
+                    <div class="tv-detail-row">
+                      <span class="tv-detail-label">Property</span>
+                      <span class="tv-detail-value" id="tvVisitProperty">—</span>
+                    </div>
+                    <div class="tv-detail-row">
+                      <span class="tv-detail-label">Address</span>
+                      <span class="tv-detail-value address-value" id="tvVisitAddress">—</span>
+                    </div>
+                    <div class="tv-detail-row">
+                      <span class="tv-detail-label">Scheduled</span>
+                      <span class="tv-detail-value" id="tvVisitScheduled">—</span>
+                    </div>
+                    <div class="tv-detail-row">
+                      <span class="tv-detail-label">Est. Duration</span>
+                      <span class="tv-detail-value" id="tvVisitDuration">—</span>
+                    </div>
+                  </div>
+                </div>
+              </div><!-- /.tv-card -->
+
+              <!-- INSPECTOR INFO CARD ── -->
+              <div class="tv-card tv-inspector-card" role="region" aria-label="Assigned inspector">
+                <div class="tv-card-header">
+                  <h2 class="tv-card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    Inspector
+                  </h2>
+                </div>
+                <div class="tv-card-body">
+                  <div class="tv-inspector-profile">
+                    <div class="tv-inspector-avatar" id="tvInspectorAvatar" aria-label="Inspector initials">—</div>
+                    <div class="tv-inspector-info">
+                      <div class="tv-inspector-name" id="tvInspectorName">—</div>
+                      <div class="tv-inspector-team">Satellite Home Watch Team</div>
+                      <div class="tv-inspector-status-row">
+                        <span class="tv-inspector-badge badge-enroute" id="tvInspectorBadge" aria-label="Inspector status">
+                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16 10 8"/></svg>
+                          <span id="tvInspectorBadgeText">—</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div><!-- /.tv-inspector-card -->
+
+              <!-- RECENT UPDATES TIMELINE ── -->
+              <div class="tv-card" role="region" aria-label="Recent visit status updates">
+                <div class="tv-card-header">
+                  <h2 class="tv-card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Recent Updates
+                  </h2>
+                </div>
+                <div class="tv-card-body">
+                  <div class="tv-timeline" role="list" aria-label="Visit status timeline" id="tvTimeline">
+                    <!-- Populated by track-visit-data.js when visit data is available -->
+                    <p style="font-size:12px;color:var(--navy-400);text-align:center;padding:16px 0;">
+                      Status updates will appear here once your visit is underway.
+                    </p>
+                  </div><!-- /.tv-timeline -->
+                </div><!-- /.tv-card-body -->
+              </div><!-- /.tv-card -->
+
+            </div><!-- /.tv-side-col -->
+
+          </div><!-- /.tv-grid -->
+
+        </div><!-- /#activeVisitView -->
+
+        <!-- ── EMPTY STATE (shown when no active visit) ── -->
+        <div id="noActiveVisitView" style="display:none;">
+          <div class="tv-card">
+            <div class="tv-no-active-state" role="status" aria-live="polite">
+
+              <div class="tv-no-active-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+              </div>
+
+              <div style="text-align:center;">
+                <h2 class="tv-no-active-title">No active visit is being tracked right now.</h2>
+                <p class="tv-no-active-desc" style="margin-top:var(--space-2);">Your inspector will appear here as soon as your next visit begins.</p>
+              </div>
+
+              <!-- Next scheduled visit card -->
+              <div class="tv-next-visit-card" aria-label="Your next scheduled visit">
+                <div class="tv-next-visit-label">Your Next Scheduled Visit</div>
+                <div class="tv-next-visit-type" id="tvNextVisitType">—</div>
+                <div class="tv-next-visit-property" id="tvNextVisitProperty">—</div>
+                <div class="tv-next-visit-date-row" id="tvNextVisitDateRow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  <span id="tvNextVisitDate">—</span>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="tv-no-active-actions">
+                <a href="client-visits.html" class="tv-btn-primary">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  View All Visits
+                </a>
+                <a href="dashboard.html" class="tv-btn-secondary">
+                  Return to Dashboard
+                </a>
+              </div>
+
+            </div><!-- /.tv-no-active-state -->
+          </div><!-- /.tv-card -->
+        </div><!-- /#noActiveVisitView -->
+
+      </div><!-- /.track-visit-page -->
+    </main>
+
+  </div><!-- /.main-content -->
+</div><!-- /.app-wrapper -->
+
+<script src="js/nav.js"></script>
+<script src="js/app.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/track-visit-data.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/client-msg-panel.js"></script>
+<script>renderSidebar('track');</script>
+</body>
+</html>

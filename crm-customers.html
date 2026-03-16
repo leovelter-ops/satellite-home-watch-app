@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customers — CRM — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ════════════════════════════════════════
+       CRM CUSTOMERS — MOBILE CARD LIST
+       Only applied on mobile (≤ 768px).
+       Desktop is completely unaffected.
+    ════════════════════════════════════════ */
+
+    /* Hidden on desktop, shown on mobile */
+    .crm-mobile-cards-list {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      /* Show mobile card list */
+      .crm-mobile-cards-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 0 0;
+      }
+
+      /* Individual customer card */
+      .crm-mobile-card {
+        background: #fff;
+        border-radius: 14px;
+        border: 1px solid rgba(10, 22, 40, 0.1);
+        box-shadow: 0 1px 4px rgba(10,22,40,0.07);
+        padding: 14px 14px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      /* Card header: avatar + name + status badge */
+      .crm-mobile-card-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .crm-mobile-card-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #162d56;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        letter-spacing: 0.03em;
+      }
+
+      .crm-mobile-card-identity {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .crm-mobile-card-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #0f1e38;
+        line-height: 1.3;
+        word-break: break-word;
+      }
+
+      .crm-mobile-card-manager {
+        font-size: 11px;
+        color: #94a3b8;
+        margin-top: 2px;
+      }
+
+      /* Status badge sits top-right */
+      .crm-mobile-card-header .tbl-status {
+        flex-shrink: 0;
+        margin-left: auto;
+      }
+
+      /* Info fields grid */
+      .crm-mobile-card-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px 10px;
+        padding: 8px 0;
+        border-top: 1px solid rgba(10,22,40,0.07);
+        border-bottom: 1px solid rgba(10,22,40,0.07);
+      }
+
+      .crm-mobile-card-field {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11.5px;
+        color: #475569;
+        min-width: 0;
+      }
+
+      .crm-mobile-card-field svg {
+        width: 12px;
+        height: 12px;
+        color: #94a3b8;
+        flex-shrink: 0;
+      }
+
+      .crm-mobile-card-field span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+      }
+
+      /* Email field takes full width */
+      .crm-mobile-card-fields .crm-mobile-card-field:first-child {
+        grid-column: 1 / -1;
+      }
+
+      /* Card footer: view button */
+      .crm-mobile-card-footer {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .crm-mobile-view-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 7px 14px;
+        background: #162d56;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s ease;
+        text-decoration: none;
+        letter-spacing: 0.01em;
+      }
+
+      .crm-mobile-view-btn:hover {
+        background: #1e3d6e;
+      }
+
+      /* Empty state for mobile */
+      .crm-mobile-empty {
+        text-align: center;
+        padding: 32px 16px;
+        font-size: 13px;
+        color: #94a3b8;
+        font-weight: 500;
+      }
+
+      /* Adjust table card padding on mobile */
+      .admin-table-card {
+        padding-bottom: 4px !important;
+      }
+
+      /* Make filters stack on mobile */
+      .admin-table-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+      }
+
+      .admin-table-actions {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+      }
+
+      .admin-search-wrap {
+        width: 100% !important;
+      }
+
+      .admin-search-wrap input,
+      .admin-search-input {
+        width: 100% !important;
+      }
+
+      .admin-filter-select {
+        width: 100% !important;
+      }
+
+      .admin-add-btn {
+        width: 100% !important;
+        justify-content: center !important;
+      }
+
+      /* CRM stats cards: 2-column on mobile */
+      .crm-stats-row {
+        grid-template-columns: 1fr 1fr !important;
+      }
+
+      /* Main content padding on mobile */
+      .dashboard-content {
+        padding: 16px !important;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .crm-mobile-card-fields {
+        grid-template-columns: 1fr;
+      }
+
+      .crm-mobile-card-fields .crm-mobile-card-field:first-child {
+        grid-column: 1;
+      }
+    }
+
+    /* Bulk action bar buttons */
+    .bulk-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.18);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    .bulk-action-btn:hover { background: rgba(255,255,255,.28); }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Customers</span>
+          <span class="topbar-welcome">CRM System · All customer accounts</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <!-- Messages icon -->
+        <button
+          class="topbar-icon-btn"
+          data-msg-trigger="admin"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          title="Messages"
+          type="button"
+          onclick="SHWMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <!-- Notifications bell -->
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="admin"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Breadcrumb -->
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;margin-bottom:18px;">
+        <a href="crm-overview.html" style="color:#64748b;text-decoration:none;font-weight:500;">CRM System</a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span style="color:#0f1e38;font-weight:600;">Customers</span>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="crm-stats-row" style="margin-bottom:20px;">
+        <div class="crm-stat-card">
+          <div class="crm-stat-top"><div class="crm-stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="crm-stat-trend"></span></div>
+          <div class="crm-stat-value">—</div>
+          <div class="crm-stat-label">Total Customers</div>
+        </div>
+        <div class="crm-stat-card">
+          <div class="crm-stat-top"><div class="crm-stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><span class="crm-stat-trend"></span></div>
+          <div class="crm-stat-value">—</div>
+          <div class="crm-stat-label">Active Customers</div>
+        </div>
+        <div class="crm-stat-card">
+          <div class="crm-stat-top"><div class="crm-stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div><span class="crm-stat-trend"></span></div>
+          <div class="crm-stat-value">—</div>
+          <div class="crm-stat-label">Invitation Pending</div>
+        </div>
+        <div class="crm-stat-card">
+          <div class="crm-stat-top"><div class="crm-stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="crm-stat-trend"></span></div>
+          <div class="crm-stat-value">—</div>
+          <div class="crm-stat-label">Past Customers</div>
+        </div>
+      </div>
+
+      <!-- Bulk Actions Bar (shown when items selected) -->
+      <div id="bulkActionsBar" style="display:none;background:#162d56;border-radius:10px;padding:10px 16px;margin-bottom:14px;display:none;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span id="bulkSelCount" style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;">0 selected</span>
+        <div style="flex:1;"></div>
+        <button class="bulk-action-btn" onclick="bulkEmail('selected')" title="Email selected customers">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Email Selected
+        </button>
+        <button class="bulk-action-btn" onclick="bulkResendInvitation()" title="Resend invitation to selected">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Resend Invitations
+        </button>
+        <button class="bulk-action-btn" onclick="bulkExport()" title="Export selected">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+        <button class="bulk-action-btn" onclick="bulkAssignManager()" title="Assign account manager">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          Assign Manager
+        </button>
+        <button style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;" onclick="clearSelection()">
+          ✕ Clear
+        </button>
+      </div>
+
+      <!-- Table Card -->
+      <div class="admin-table-card">
+        <div class="admin-table-header">
+          <div class="admin-table-title">All Customers</div>
+          <div class="admin-table-actions">
+            <div class="admin-search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="admin-search-input" placeholder="Search customers…" id="customerSearch" oninput="filterCustomers()" style="width:240px;" />
+            </div>
+            <select class="admin-filter-select" id="statusFilter" onchange="filterCustomers()">
+              <option value="">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="prospect">Prospect</option>
+              <option value="past">Past Client</option>
+            </select>
+            <select class="admin-filter-select" id="inviteFilter" onchange="filterCustomers()">
+              <option value="">All Invitations</option>
+              <option value="accepted">Accepted</option>
+              <option value="pending">Pending</option>
+              <option value="expired">Expired</option>
+              <option value="revoked">Revoked</option>
+            </select>
+            <!-- Campaign Email button -->
+            <div style="position:relative;">
+              <button class="admin-btn-solid" id="emailCampaignBtn" onclick="toggleEmailMenu()" style="display:flex;align-items:center;gap:6px;padding:8px 14px;font-size:12px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                Email Customers
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div id="emailMenu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:220px;z-index:200;overflow:hidden;">
+                <div style="padding:8px 0;">
+                  <div style="padding:8px 14px;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #f1f5f9;margin-bottom:4px;">Operational</div>
+                  <button onclick="bulkEmail('all-active');toggleEmailMenu();" style="width:100%;text-align:left;padding:9px 14px;background:none;border:none;font-size:13px;color:#334155;cursor:pointer;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='none'">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    Email All Active Customers
+                  </button>
+                  <button onclick="bulkEmail('all-invited');toggleEmailMenu();" style="width:100%;text-align:left;padding:9px 14px;background:none;border:none;font-size:13px;color:#334155;cursor:pointer;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='none'">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    Resend Invitations (Pending)
+                  </button>
+                  <div style="padding:8px 14px;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;margin:4px 0;">Campaign / Announcement</div>
+                  <button onclick="openCampaignModal();toggleEmailMenu();" style="width:100%;text-align:left;padding:9px 14px;background:none;border:none;font-size:13px;color:#334155;cursor:pointer;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='none'">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    Send Campaign / Announcement
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button class="admin-add-btn" onclick="openAddCustomerModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Customer
+            </button>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="admin-data-table" id="customerTable">
+            <thead>
+              <tr>
+                <th style="width:38px;"><input type="checkbox" id="selectAllCheck" onchange="toggleSelectAll(this)" title="Select all" style="cursor:pointer;width:15px;height:15px;" /></th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Properties</th>
+                <th>Status</th>
+                <th>Invitation</th>
+                <th>Joined Date</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="customerTableBody">
+              <!-- Rows rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ════════════════════════════════════
+             MOBILE CUSTOMER CARDS
+             (visible only on mobile, hidden on desktop)
+        ════════════════════════════════════ -->
+        <div id="customerMobileCards" class="crm-mobile-cards-list">
+          <!-- Cards rendered by JS -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="admin-pagination">
+          <span id="paginationInfo">Loading…</span>
+          <div class="admin-page-btns">
+            <button class="admin-page-btn" disabled>‹</button>
+            <button class="admin-page-btn active">1</button>
+            <button class="admin-page-btn">2</button>
+            <button class="admin-page-btn">3</button>
+            <span style="padding:0 4px;color:#94a3b8;">…</span>
+            <button class="admin-page-btn">10</button>
+            <button class="admin-page-btn">›</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+// ── Stat cards ──
+function updateStatCards(data) {
+  const all = data || [];
+  const total    = all.length;
+  const active   = all.filter(c => c.status === 'active').length;
+  const invited  = all.filter(c => c.invitation_status === 'pending' || c.invitation_status === 'sent').length;
+  const past     = all.filter(c => c.status === 'past' || c.status === 'past_client').length;
+
+  const statVals = document.querySelectorAll('.crm-stat-value');
+  if (statVals[0]) statVals[0].textContent = total;
+  if (statVals[1]) statVals[1].textContent = active;
+  if (statVals[2]) statVals[2].textContent = invited;
+  if (statVals[3]) statVals[3].textContent = past;
+
+  const pInfo = document.getElementById('paginationInfo');
+  if (pInfo) pInfo.textContent = `Showing 1–${Math.min(15, total)} of ${total} customers`;
+}
+
+const statusMap = {
+  active:       '<span class="tbl-status active">Active</span>',
+  prospect:     '<span class="tbl-status prospect">Prospect</span>',
+  past:         '<span class="tbl-status past-client">Past Customer</span>',
+  past_client:  '<span class="tbl-status past-client">Past Customer</span>',
+};
+
+const statusLabelMap = {
+  active:       { text: 'Active',        cls: 'tbl-status active'      },
+  prospect:     { text: 'Prospect',      cls: 'tbl-status prospect'    },
+  past:         { text: 'Past Customer', cls: 'tbl-status past-client' },
+  past_client:  { text: 'Past Customer', cls: 'tbl-status past-client' },
+};
+
+const inviteMap = {
+  accepted:    '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;background:#dcfce7;color:#166534;border-radius:20px;padding:2px 8px;white-space:nowrap;"><span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;"></span>Accepted</span>',
+  pending:     '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;background:#fff7ed;color:#c2410c;border-radius:20px;padding:2px 8px;white-space:nowrap;"><span style="width:6px;height:6px;border-radius:50%;background:#fb923c;display:inline-block;"></span>Pending</span>',
+  sent:        '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;background:#fff7ed;color:#c2410c;border-radius:20px;padding:2px 8px;white-space:nowrap;"><span style="width:6px;height:6px;border-radius:50%;background:#fb923c;display:inline-block;"></span>Sent</span>',
+  expired:     '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;background:#f1f5f9;color:#475569;border-radius:20px;padding:2px 8px;white-space:nowrap;"><span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;display:inline-block;"></span>Expired</span>',
+  revoked:     '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;background:#fee2e2;color:#dc2626;border-radius:20px;padding:2px 8px;white-space:nowrap;"><span style="width:6px;height:6px;border-radius:50%;background:#ef4444;display:inline-block;"></span>Revoked</span>',
+  not_invited: '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;background:#f1f5f9;color:#64748b;border-radius:20px;padding:2px 8px;white-space:nowrap;"><span style="width:6px;height:6px;border-radius:50%;background:#cbd5e1;display:inline-block;"></span>Not Invited</span>',
+};
+
+let _allCustomers = [];
+let _selectedCustomers = new Set();
+
+// ── Fetch from backend ─────────────────────────────────────────────────────────
+async function loadCustomers() {
+  const tbody = document.getElementById('customerTableBody');
+  const mobileEl = document.getElementById('customerMobileCards');
+  if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">Loading customers…</td></tr>`;
+
+  try {
+    const res  = await fetch('tables/clients?limit=500&page=1');
+    const data = await res.json();
+    _allCustomers = data.data || [];
+    updateStatCards(_allCustomers);
+    renderTable(_allCustomers);
+  } catch (err) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8"><div class="admin-empty-state"><div class="admin-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="admin-empty-title">Unable to load customers</div><div class="admin-empty-sub">Check your backend connection and try again.</div></div></td></tr>`;
+  }
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('customerTableBody');
+  const mobileEl = document.getElementById('customerMobileCards');
+  if (!data || !data.length) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8"><div class="admin-empty-state"><div class="admin-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="admin-empty-title">No customers found</div></div></td></tr>`;
+    if (mobileEl) mobileEl.innerHTML = '<div class="crm-mobile-empty" style="padding:32px;text-align:center;color:#94a3b8;font-size:13px;">No customers found</div>';
+    return;
+  }
+
+  const invStatus = c => c.invitation_status || (c.portal_access === 'active' ? 'accepted' : 'not_invited');
+  const managerName = c => c.account_manager_name || c.manager || '—';
+  const propCount   = c => c.property_count != null ? c.property_count : (c.props || '—');
+  const joinedDate  = c => {
+    if (!c.created_at) return '—';
+    const d = new Date(c.created_at);
+    return isNaN(d) ? '—' : d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  };
+
+  if (tbody) {
+    tbody.innerHTML = data.map(c => {
+      const inv = invStatus(c);
+      return `
+      <tr data-id="${c.id}" style="${_selectedCustomers.has(c.id) ? 'background:#f0f5ff;' : ''}">
+        <td style="text-align:center;">
+          <input type="checkbox" class="row-check" data-id="${c.id}" ${_selectedCustomers.has(c.id) ? 'checked' : ''} onchange="toggleRowSelect('${c.id}',this)" style="cursor:pointer;width:15px;height:15px;" />
+        </td>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:#162d56;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${initials(c.full_name || c.name || '?')}</div>
+            <div>
+              <div class="cell-primary">${c.full_name || c.name || '—'}</div>
+              <div class="cell-secondary">Mgr: ${managerName(c)}</div>
+            </div>
+          </div>
+        </td>
+        <td style="color:#475569;">${c.email || '—'}</td>
+        <td style="text-align:center;">
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:#162d56;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            ${propCount(c)}
+          </span>
+        </td>
+        <td>${statusMap[c.status] || `<span class="tbl-status">${c.status || '—'}</span>`}</td>
+        <td>${inviteMap[inv] || inviteMap.not_invited}</td>
+        <td style="color:#64748b;white-space:nowrap;">${joinedDate(c)}</td>
+        <td class="cell-actions">
+          <button class="tbl-action-btn" onclick="if(typeof SHWNav!=='undefined')SHWNav.saveScroll('crm-customers.html'); window.location.href='crm-customer-profile.html?id=${c.id}'" title="View customer file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            View File
+          </button>
+          <button class="tbl-action-btn" onclick="emailCustomer('${c.id}','${(c.full_name||c.name||'').replace(/'/g,"\\'")}','${c.email||''}')" title="Send email to this customer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Email
+          </button>
+          ${inv === 'not_invited' || inv === 'expired' ? `<button class="tbl-action-btn" style="color:#162d56;border-color:#c7d8f5;" onclick="sendInviteForProspect('${c.id}','${(c.full_name||c.name||'').replace(/'/g,"\\'")}','${c.email||''}')" title="Send portal invitation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send Invite
+          </button>` : inv === 'pending' || inv === 'sent' ? `<button class="tbl-action-btn" onclick="resendInvitation('${c.id}','${(c.full_name||c.name||'').replace(/'/g,"\\'")}')">Resend Invite</button>` : ''}
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  if (mobileEl) {
+    mobileEl.innerHTML = data.map(c => {
+      const s   = statusLabelMap[c.status] || { text: c.status || '—', cls: 'tbl-status' };
+      const inv = invStatus(c);
+      return `
+      <div class="crm-mobile-card">
+        <div class="crm-mobile-card-header">
+          <div class="crm-mobile-card-avatar">${initials(c.full_name || c.name || '?')}</div>
+          <div class="crm-mobile-card-identity">
+            <div class="crm-mobile-card-name">${c.full_name || c.name || '—'}</div>
+            <div class="crm-mobile-card-manager">Manager: ${managerName(c)}</div>
+          </div>
+          <span class="${s.cls}">${s.text}</span>
+        </div>
+        <div class="crm-mobile-card-fields">
+          <div class="crm-mobile-card-field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span>${c.email || '—'}</span>
+          </div>
+          <div class="crm-mobile-card-field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            <span>${propCount(c)} propert${propCount(c) === 1 ? 'y' : 'ies'}</span>
+          </div>
+          <div class="crm-mobile-card-field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <span>Invite: ${inv}</span>
+          </div>
+          <div class="crm-mobile-card-field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>${joinedDate(c)}</span>
+          </div>
+        </div>
+        <div class="crm-mobile-card-footer">
+          <button class="crm-mobile-view-btn" onclick="if(typeof SHWNav!=='undefined')SHWNav.saveScroll('crm-customers.html'); window.location.href='crm-customer-profile.html?id=${c.id}'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            View File
+          </button>
+          <button class="crm-mobile-view-btn" style="background:#f0f5ff;color:#162d56;" onclick="emailCustomer('${c.id}','${(c.full_name||c.name||'').replace(/'/g,"\\'")}','${c.email||''}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Email
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function filterCustomers() {
+  const q  = (document.getElementById('customerSearch')?.value || '').toLowerCase();
+  const st = document.getElementById('statusFilter')?.value || '';
+  const iv = document.getElementById('inviteFilter')?.value || '';
+  const invStatus = c => c.invitation_status || (c.portal_access === 'active' ? 'accepted' : 'not_invited');
+
+  const filtered = _allCustomers.filter(c => {
+    const name  = (c.full_name || c.name || '').toLowerCase();
+    const email = (c.email || '').toLowerCase();
+    const matchQ = !q  || name.includes(q) || email.includes(q);
+    const matchS = !st || c.status === st;
+    const matchI = !iv || invStatus(c) === iv;
+    return matchQ && matchS && matchI;
+  });
+
+  const pInfo = document.getElementById('paginationInfo');
+  if (pInfo) pInfo.textContent = `Showing 1–${Math.min(15, filtered.length)} of ${filtered.length} customers`;
+  renderTable(filtered);
+}
+
+// ── Selection helpers ──────────────────────────────────────────────────────────
+function toggleRowSelect(id, chkbox) {
+  if (chkbox.checked) _selectedCustomers.add(id);
+  else _selectedCustomers.delete(id);
+  updateBulkBar();
+}
+
+function toggleSelectAll(masterChk) {
+  document.querySelectorAll('.row-check').forEach(chk => {
+    chk.checked = masterChk.checked;
+    if (masterChk.checked) _selectedCustomers.add(chk.dataset.id);
+    else _selectedCustomers.delete(chk.dataset.id);
+  });
+  updateBulkBar();
+}
+
+function clearSelection() {
+  _selectedCustomers.clear();
+  document.querySelectorAll('.row-check').forEach(c => c.checked = false);
+  const master = document.getElementById('selectAllCheck');
+  if (master) master.checked = false;
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const bar = document.getElementById('bulkActionsBar');
+  const cnt = _selectedCustomers.size;
+  if (cnt > 0) {
+    bar.style.display = 'flex';
+    document.getElementById('bulkSelCount').textContent = `${cnt} customer${cnt > 1 ? 's' : ''} selected`;
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+// ── Email actions ──────────────────────────────────────────────────────────────
+function emailCustomer(id, name, email) {
+  openEmailModal([{ id, name, email }], 'operational');
+}
+
+function bulkEmail(scope) {
+  let recipients = [];
+  const invStatus = c => c.invitation_status || (c.portal_access === 'active' ? 'accepted' : 'not_invited');
+  if (scope === 'selected') {
+    recipients = _allCustomers.filter(c => _selectedCustomers.has(c.id)).map(c => ({ id: c.id, name: c.full_name || c.name || '', email: c.email || '' }));
+  } else if (scope === 'all-active') {
+    recipients = _allCustomers.filter(c => c.status === 'active').map(c => ({ id: c.id, name: c.full_name || c.name || '', email: c.email || '' }));
+  } else if (scope === 'all-invited') {
+    recipients = _allCustomers.filter(c => ['pending','sent','expired'].includes(invStatus(c))).map(c => ({ id: c.id, name: c.full_name || c.name || '', email: c.email || '' }));
+  }
+  openTemplatePicker(recipients, 'operational');
+}
+
+function bulkResendInvitation() {
+  const ids   = Array.from(_selectedCustomers);
+  const names = _allCustomers.filter(c => ids.includes(c.id)).map(c => c.full_name || c.name || '').join(', ');
+  showToast(`Resending invitations to: ${names || 'selected customers'} — backend required`, 'info');
+}
+
+function bulkExport() {
+  const ids     = Array.from(_selectedCustomers);
+  const expData = _allCustomers.filter(c => ids.includes(c.id));
+  if (!expData.length) { showToast('No customers selected', 'error'); return; }
+  const rows = [['Name','Email','Status','Invitation','Created']].concat(
+    expData.map(c => [c.full_name||c.name||'', c.email||'', c.status||'', c.invitation_status||'', c.created_at||''])
+  );
+  const csv = rows.map(r => r.map(v => `"${(v+'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a   = document.createElement('a');
+  a.href     = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'customers-export.csv'; a.click();
+  showToast(`Exported ${expData.length} customers as CSV`, 'success');
+}
+
+function bulkAssignManager() {
+  showToast('Assign Account Manager — backend required', 'info');
+}
+
+function resendInvitation(id, name) {
+  showToast(`Resending invitation to ${name} — backend required`, 'info');
+}
+
+// ── Send Invite for prospect ───────────────────────────────────────────────────
+async function sendInviteForProspect(custId, custName, custEmail) {
+  if (!custEmail) { showToast('No email address for this customer.', 'error'); return; }
+  if (!confirm(`Send a portal invitation to ${custName} (${custEmail})?\n\nThis will create an invitation record on the Invitations page.`)) return;
+
+  const token     = 'tok-' + Math.random().toString(36).slice(2, 12);
+  const now       = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + 7 * 86400000).toISOString();
+
+  try {
+    await fetch('tables/invitations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email:                 custEmail,
+        role:                  'client',
+        invited_name:          custName,
+        related_customer_id:   custId,
+        token,
+        status:                'pending',
+        created_at:            now,
+        expires_at:            expiresAt,
+        accepted_at:           null,
+        created_by_user_id:    ADMIN_SESSION.userId,
+        created_by_name:       ADMIN_SESSION.name,
+      }),
+    });
+
+    // Update customer invitation status
+    await fetch(`tables/clients/${custId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ invitation_status: 'pending', updated_at: now }),
+    });
+
+    // Update in-memory
+    const mem = _allCustomers.find(c => c.id === custId);
+    if (mem) mem.invitation_status = 'pending';
+
+    showToast(`Invitation sent to ${custName}!`, 'success');
+    renderTable(_allCustomers);
+  } catch (err) {
+    showToast('Failed to send invitation. Please try again.', 'error');
+  }
+}
+
+// ── Email modal ────────────────────────────────────────────────────────────────
+function openEmailModal(recipients, type) {
+  const modal = document.getElementById('emailModal');
+  if (!modal) return;
+  const isOp  = type === 'operational';
+  document.getElementById('emailModalTitle').textContent = isOp ? 'Send Email to Customer' : 'Send Campaign / Announcement';
+  document.getElementById('emailTypeTag').textContent    = isOp ? '🔔 Operational Email' : '📣 Campaign / Announcement';
+  document.getElementById('emailTypeTag').style.background = isOp ? '#e8eef8' : '#f3e8ff';
+  document.getElementById('emailTypeTag').style.color       = isOp ? '#162d56' : '#7c3aed';
+  document.getElementById('emailRecipientCount').textContent = `${recipients.length} recipient${recipients.length !== 1 ? 's' : ''}`;
+  document.getElementById('emailRecipientList').innerHTML = recipients.slice(0, 5).map(r =>
+    `<span style="display:inline-flex;align-items:center;gap:4px;background:#f1f5f9;border-radius:20px;padding:3px 9px;font-size:11px;font-weight:600;color:#334155;">
+      <span style="width:18px;height:18px;border-radius:50%;background:#162d56;color:#fff;font-size:8px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">${initials(r.name)}</span>
+      ${r.name}
+    </span>`
+  ).join('') + (recipients.length > 5 ? `<span style="font-size:12px;color:#94a3b8;padding:3px 6px;">+${recipients.length - 5} more</span>` : '');
+  modal.style.display = 'flex';
+}
+
+function closeEmailModal() {
+  const modal = document.getElementById('emailModal');
+  if (modal) modal.style.display = 'none';
+  const subj = document.getElementById('emailSubject');
+  const body = document.getElementById('emailBody');
+  if (subj) subj.value = '';
+  if (body) body.value = '';
+  const tag = document.getElementById('emailTemplateTag');
+  if (tag) { tag.style.display = 'none'; tag.textContent = ''; }
+}
+
+function sendEmailAction() {
+  const subj = document.getElementById('emailSubject').value.trim();
+  const body = document.getElementById('emailBody').value.trim();
+  if (!subj) { showToast('Please enter a subject', 'error'); return; }
+  if (!body)  { showToast('Please enter a message', 'error'); return; }
+  closeEmailModal();
+  showToast('Email queued — backend required for delivery', 'success');
+}
+
+function openCampaignModal() {
+  const recipients = _allCustomers.filter(c => c.status === 'active').map(c => ({ id: c.id, name: c.full_name || c.name || '', email: c.email || '' }));
+  openTemplatePicker(recipients, 'campaign');
+}
+
+// ── Template Picker ────────────────────────────────────────────────────────────
+let _templatePickerRecipients = [];
+let _templatePickerType = 'operational';
+
+const BULK_EMAIL_TEMPLATES = [
+  { id: 'invitation',     name: 'Invitation Email',              category: 'account',  subject: "You've been invited to Satellite Home Watch", body: 'Dear {{customer_name}},\n\nYou have been invited to create your Satellite Home Watch client portal account.\n\nWe have already prepared your account and linked your properties to your profile.' },
+  { id: 'welcome',        name: 'Welcome / Activation Complete', category: 'account',  subject: 'Welcome to Satellite Home Watch — Your account is ready!', body: 'Welcome, {{customer_name}}!\n\nYour Satellite Home Watch client portal account is now fully activated and ready to use.' },
+  { id: 'visit_completed',name: 'Visit Completed',               category: 'visit',    subject: 'Visit Completed — {{property_name}}', body: 'Dear {{customer_name}},\n\nYour property inspection has been completed. Your inspection report is being prepared.' },
+  { id: 'report_ready',   name: 'New Report Available',          category: 'report',   subject: 'New Inspection Report Available — {{property_name}}', body: 'Dear {{customer_name}},\n\nA new inspection report is now available in your Satellite Home Watch portal.' },
+  { id: 'new_alert',      name: 'New Alert Notification',        category: 'alert',    subject: '⚠️ Property Alert — {{property_name}}', body: 'Dear {{customer_name}},\n\nAn issue has been detected at your property that requires your attention.' },
+  { id: 'monthly_summary',name: 'Monthly Summary',               category: 'report',   subject: 'Your Monthly Property Monitoring Summary — {{month}}', body: 'Dear {{customer_name}},\n\nPlease find your monthly property monitoring summary for {{month}}.' },
+  { id: 'blank',          name: 'Blank / Custom Email',          category: 'custom',   subject: '', body: '' },
+];
+
+const TEMPLATE_CAT_COLORS = {
+  account: { bg: '#e8eef8', color: '#162d56' },
+  visit:   { bg: '#f0fdf4', color: '#166534' },
+  report:  { bg: '#ede9fe', color: '#6d28d9' },
+  alert:   { bg: '#fef2f2', color: '#dc2626' },
+  service: { bg: '#fff7ed', color: '#c2410c' },
+  custom:  { bg: '#f1f5f9', color: '#475569' },
+};
+
+function openTemplatePicker(recipients, type) {
+  _templatePickerRecipients = recipients;
+  _templatePickerType = type;
+  const modal = document.getElementById('templatePickerModal');
+  if (!modal) return;
+  document.getElementById('tplPickerRecipCount').textContent = `${recipients.length} recipient${recipients.length !== 1 ? 's' : ''}`;
+  document.getElementById('tplPickerTypeTag').textContent = type === 'campaign' ? '📣 Campaign / Announcement' : '🔔 Bulk Email';
+  document.getElementById('tplPickerTypeTag').style.background = type === 'campaign' ? '#f3e8ff' : '#e8eef8';
+  document.getElementById('tplPickerTypeTag').style.color = type === 'campaign' ? '#7c3aed' : '#162d56';
+  const list = document.getElementById('tplPickerList');
+  list.innerHTML = BULK_EMAIL_TEMPLATES.map(t => {
+    const catStyle = TEMPLATE_CAT_COLORS[t.category] || TEMPLATE_CAT_COLORS.custom;
+    return `<div class="tpl-picker-item" onclick="selectEmailTemplate('${t.id}')" data-tpl-id="${t.id}">
+      <div class="tpl-picker-item-left">
+        <span class="tpl-picker-cat" style="background:${catStyle.bg};color:${catStyle.color};">${t.category}</span>
+        <div class="tpl-picker-name">${t.name}</div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tpl-picker-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>`;
+  }).join('');
+  modal.style.display = 'flex';
+}
+
+function closeTemplatePicker() {
+  const modal = document.getElementById('templatePickerModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function selectEmailTemplate(tplId) {
+  closeTemplatePicker();
+  const tpl = BULK_EMAIL_TEMPLATES.find(t => t.id === tplId);
+  if (!tpl) return;
+  window.openEmailModal(_templatePickerRecipients, _templatePickerType);
+  setTimeout(() => {
+    const subj = document.getElementById('emailSubject');
+    const body = document.getElementById('emailBody');
+    if (subj && tpl.subject) subj.value = tpl.subject;
+    if (body && tpl.body)    body.value = tpl.body;
+    const tag = document.getElementById('emailTemplateTag');
+    if (tag) { tag.textContent = `Template: ${tpl.name}`; tag.style.display = 'inline-block'; }
+  }, 50);
+}
+
+let _emailMenuOpen = false;
+function toggleEmailMenu() {
+  const menu = document.getElementById('emailMenu');
+  _emailMenuOpen = !_emailMenuOpen;
+  menu.style.display = _emailMenuOpen ? 'block' : 'none';
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#emailCampaignBtn') && !e.target.closest('#emailMenu')) {
+    const menu = document.getElementById('emailMenu');
+    if (menu) { menu.style.display = 'none'; _emailMenuOpen = false; }
+  }
+});
+
+function initials(name) {
+  const parts = (name || '?').replace(/&/g, '').trim().split(/\s+/);
+  return ((parts[0]?.[0] || '') + (parts[parts.length - 1]?.[0] || '')).toUpperCase() || '??';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderAdminSidebar('crm-customers');
+  loadCustomers();
+  if (typeof SHWNav !== 'undefined') SHWNav.restoreScroll('crm-customers.html');
+});
+</script>
+
+<!-- ════ TEMPLATE PICKER MODAL ════ -->
+<div id="templatePickerModal" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1001;display:none;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeTemplatePicker()">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:calc(100vh - 40px);overflow-y:auto;">
+    <div style="padding:20px 24px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:17px;font-weight:700;color:#0f1e38;">Select Email Template</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:5px;">
+          <span id="tplPickerTypeTag" style="font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;">Bulk Email</span>
+          <span style="font-size:12px;color:#64748b;">→ <span id="tplPickerRecipCount" style="font-weight:600;color:#162d56;">—</span></span>
+        </div>
+      </div>
+      <button onclick="closeTemplatePicker()" style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div style="padding:14px 24px;">
+      <div style="font-size:12px;color:#64748b;margin-bottom:10px;">Choose a saved template to pre-fill your email, or start from scratch.</div>
+      <div id="tplPickerList" style="display:flex;flex-direction:column;gap:4px;"></div>
+    </div>
+    <div style="padding:10px 24px 16px;border-top:1px solid #f1f5f9;">
+      <button onclick="closeTemplatePicker()" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+<style>
+.tpl-picker-item {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px;border:1px solid #e2e8f0;border-radius:9px;
+  cursor:pointer;transition:all .15s;gap:10px;
+}
+.tpl-picker-item:hover { border-color:#162d56;background:#f0f5ff; }
+.tpl-picker-item-left { display:flex;align-items:center;gap:10px;min-width:0; }
+.tpl-picker-cat { font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;flex-shrink:0; }
+.tpl-picker-name { font-size:13px;font-weight:600;color:#0f1e38; }
+.tpl-picker-arrow { flex-shrink:0;color:#94a3b8; }
+</style>
+
+<!-- ════ EMAIL MODAL ════ -->
+<div id="emailModal" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeEmailModal()">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:560px;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:calc(100vh - 40px);overflow-y:auto;">
+    <div style="padding:22px 24px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:18px;font-weight:700;color:#0f1e38;" id="emailModalTitle">Send Email</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;">
+          <span id="emailTypeTag" style="display:inline-block;font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;">Operational Email</span>
+          <span id="emailTemplateTag" style="display:none;font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;background:#f0f5ff;color:#162d56;border:1px solid #c7d8f5;"></span>
+        </div>
+      </div>
+      <button onclick="closeEmailModal()" style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;display:flex;align-items:center;justify-content:color:#64748b;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div style="padding:24px;">
+      <!-- Recipients -->
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">To: <span id="emailRecipientCount" style="color:#162d56;font-weight:700;">—</span></div>
+        <div id="emailRecipientList" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      </div>
+      <!-- Subject -->
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">Subject *</label>
+        <input type="text" id="emailSubject" placeholder="Email subject line…" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;color:#334155;outline:none;box-sizing:border-box;" />
+      </div>
+      <!-- Body -->
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">Message *</label>
+        <textarea id="emailBody" rows="6" placeholder="Write your message here…" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;color:#334155;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      </div>
+      <!-- Notice -->
+      <div style="background:#f0f6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;font-size:12px;color:#1e40af;display:flex;align-items:flex-start;gap:8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>Email delivery requires backend integration. This queues the message for sending when the email system is connected.</span>
+      </div>
+    </div>
+    <div style="padding:16px 24px;border-top:1px solid #f1f5f9;display:flex;justify-content:flex-end;gap:10px;">
+      <button onclick="closeEmailModal()" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+      <button onclick="sendEmailAction()" style="background:#162d56;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Queue Email
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     ADD CUSTOMER (PROSPECT) MODAL
+     Creates a CRM record only — NO invitation sent automatically.
+     Invitation is a separate step via the "Send Invite" button.
+══════════════════════════════════════════════════════════════════ -->
+<div id="addCustomerModal"
+     style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1002;display:none;
+            align-items:center;justify-content:center;padding:20px;"
+     onclick="if(event.target===this)closeAddCustomerModal()">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:560px;
+              box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:calc(100vh - 40px);overflow-y:auto;">
+
+    <!-- Header -->
+    <div style="padding:22px 24px 18px;border-bottom:1px solid #f1f5f9;
+                display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:18px;font-weight:700;color:#0f1e38;display:flex;align-items:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2"
+               style="flex-shrink:0;">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <line x1="19" y1="8" x2="19" y2="14"/>
+            <line x1="22" y1="11" x2="16" y2="11"/>
+          </svg>
+          Add Customer / Prospect
+        </div>
+        <div style="margin-top:5px;display:flex;align-items:center;gap:6px;">
+          <span style="display:inline-block;font-size:11px;font-weight:600;padding:2px 10px;
+                       border-radius:20px;background:#f0f5ff;color:#162d56;">
+            🗂 CRM Record Only
+          </span>
+          <span style="font-size:11px;color:#64748b;">No invitation will be sent</span>
+        </div>
+      </div>
+      <button onclick="closeAddCustomerModal()"
+              style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;
+                     background:#f8fafc;cursor:pointer;display:flex;align-items:center;
+                     justify-content:center;color:#64748b;flex-shrink:0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Info banner -->
+    <div style="margin:18px 24px 0;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;
+                padding:11px 14px;display:flex;align-items:flex-start;gap:10px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"
+           style="flex-shrink:0;margin-top:1px;">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <p style="font-size:12px;color:#0369a1;margin:0;line-height:1.5;">
+        This creates a <strong>prospect / CRM record only</strong>. The customer will
+        <strong>not</strong> receive an invitation or gain portal access at this stage.
+        Use the <em>Send Invite</em> button on their row later when ready to onboard them.
+      </p>
+    </div>
+
+    <!-- Form body -->
+    <div style="padding:20px 24px 8px;">
+
+      <!-- Full Name -->
+      <div style="margin-bottom:15px;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;letter-spacing:.3px;">
+          Full Name <span style="color:#dc2626;">*</span>
+        </label>
+        <input type="text" id="acFullName" placeholder="e.g. Robert & Karen Walsh"
+               style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;
+                      font-size:13px;font-family:inherit;color:#334155;outline:none;
+                      box-sizing:border-box;transition:border-color .2s;"
+               onfocus="this.style.borderColor='#162d56'" onblur="this.style.borderColor='#e2e8f0'" />
+      </div>
+
+      <!-- Email + Phone row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px;">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;letter-spacing:.3px;">
+            Email <span style="color:#dc2626;">*</span>
+          </label>
+          <input type="email" id="acEmail" placeholder="email@example.com"
+                 style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;
+                        font-size:13px;font-family:inherit;color:#334155;outline:none;
+                        box-sizing:border-box;transition:border-color .2s;"
+                 onfocus="this.style.borderColor='#162d56'" onblur="this.style.borderColor='#e2e8f0'" />
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;letter-spacing:.3px;">
+            Phone
+          </label>
+          <input type="tel" id="acPhone" placeholder="(239) 000-0000"
+                 style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;
+                        font-size:13px;font-family:inherit;color:#334155;outline:none;
+                        box-sizing:border-box;transition:border-color .2s;"
+                 onfocus="this.style.borderColor='#162d56'" onblur="this.style.borderColor='#e2e8f0'" />
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div style="margin-bottom:15px;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;letter-spacing:.3px;">
+          Property / Address
+        </label>
+        <input type="text" id="acAddress" placeholder="123 Gulf Shore Blvd, Naples FL 34102"
+               style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;
+                      font-size:13px;font-family:inherit;color:#334155;outline:none;
+                      box-sizing:border-box;transition:border-color .2s;"
+               onfocus="this.style.borderColor='#162d56'" onblur="this.style.borderColor='#e2e8f0'" />
+      </div>
+
+      <!-- Status + Prospect Stage row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px;">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;letter-spacing:.3px;">
+            Status
+          </label>
+          <select id="acStatus"
+                  style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;
+                         font-size:13px;font-family:inherit;color:#334155;outline:none;
+                         box-sizing:border-box;background:#fff;cursor:pointer;transition:border-color .2s;"
+                  onfocus="this.style.borderColor='#162d56'" onblur="this.style.borderColor='#e2e8f0'">
+            <option value="prospect">Prospect</option>
+            <option value="active">Active</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;letter-spacing:.3px;">
+            Prospect Stage
+          </label>
+          <select id="acStage"
+                  style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;
+                         font-size:13px;font-family:inherit;color:#334155;outline:none;
+                         box-sizing:border-box;background:#fff;cursor:pointer;transition:border-color .2s;"
+                  onfocus="this.style.borderColor='#162d56'" onblur="this.style.borderColor='#e2e8f0'">
+            <option value="new">New</option>
+            <option value="contacted">Contacted</option>
+            <option value="qualified">Qualified</option>
+            <option value="proposal_sent">Proposal Sent</option>
+            <option value="onboarding">Onboarding</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div style="margin-bottom:8px;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;letter-spacing:.3px;">
+          Notes <span style="color:#94a3b8;font-weight:400;">(optional)</span>
+        </label>
+        <textarea id="acNotes" rows="3"
+                  placeholder="Add any relevant notes, how they were referred, property context…"
+                  style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;
+                         font-size:13px;font-family:inherit;color:#334155;outline:none;
+                         box-sizing:border-box;resize:vertical;transition:border-color .2s;"
+                  onfocus="this.style.borderColor='#162d56'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:16px 24px;border-top:1px solid #f1f5f9;display:flex;
+                justify-content:flex-end;gap:10px;flex-wrap:wrap;">
+      <button onclick="closeAddCustomerModal()"
+              style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;
+                     padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;">
+        Cancel
+      </button>
+      <button id="acSaveBtn" onclick="saveAddCustomer()"
+              style="background:#162d56;color:#fff;border:none;border-radius:8px;
+                     padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;
+                     display:flex;align-items:center;gap:7px;transition:background .2s;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <line x1="19" y1="8" x2="19" y2="14"/>
+          <line x1="22" y1="11" x2="16" y2="11"/>
+        </svg>
+        Save as Prospect
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ ADD CUSTOMER MODAL — JAVASCRIPT ══ -->
+<script>
+// ── Modal open / close ─────────────────────────────────────────────────────────
+function openAddCustomerModal() {
+  // Reset all fields
+  ['acFullName','acEmail','acPhone','acAddress','acNotes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('acStatus').value = 'prospect';
+  document.getElementById('acStage').value  = 'new';
+
+  const btn = document.getElementById('acSaveBtn');
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <line x1="19" y1="8" x2="19" y2="14"/>
+        <line x1="22" y1="11" x2="16" y2="11"/>
+      </svg>
+      Save as Prospect`;
+  }
+
+  document.getElementById('addCustomerModal').style.display = 'flex';
+  setTimeout(() => { const n = document.getElementById('acFullName'); if (n) n.focus(); }, 80);
+}
+
+function closeAddCustomerModal() {
+  document.getElementById('addCustomerModal').style.display = 'none';
+}
+
+// ── Save new prospect ──────────────────────────────────────────────────────────
+async function saveAddCustomer() {
+  const fullName = (document.getElementById('acFullName').value || '').trim();
+  const email    = (document.getElementById('acEmail').value    || '').trim();
+  const phone    = (document.getElementById('acPhone').value    || '').trim();
+  const address  = (document.getElementById('acAddress').value  || '').trim();
+  const status   = document.getElementById('acStatus').value  || 'prospect';
+  const stage    = document.getElementById('acStage').value   || 'new';
+  const notes    = (document.getElementById('acNotes').value   || '').trim();
+
+  // Validation
+  if (!fullName) { showToast('Please enter a full name.', 'error'); document.getElementById('acFullName').focus(); return; }
+  if (!email)    { showToast('Please enter an email address.', 'error'); document.getElementById('acEmail').focus(); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Please enter a valid email address.', 'error'); document.getElementById('acEmail').focus(); return; }
+
+  // Check for duplicate email in loaded customers
+  if (_allCustomers.find(c => (c.email || '').toLowerCase() === email.toLowerCase())) {
+    showToast('A customer with this email already exists.', 'error'); return;
+  }
+
+  const btn = document.getElementById('acSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    style="animation:acSpin 1s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path d="M3 12a9 9 0 019-9"/></svg> Saving…`;
+
+  const newId  = 'crm-' + Math.random().toString(36).slice(2, 10);
+  const nowISO = new Date().toISOString();
+
+  const record = {
+    id:              newId,
+    full_name:       fullName,
+    email,
+    phone:           phone   || null,
+    address:         address || null,
+    status,
+    prospect_stage:  stage,
+    invite_status:   'not_invited',
+    notes:           notes   || null,
+    account_manager: ADMIN_SESSION.name,
+    added_by:        ADMIN_SESSION.userId,
+    added_by_name:   ADMIN_SESSION.name,
+    invitation_id:   null,
+    created_at:      nowISO,
+    updated_at:      nowISO,
+  };
+
+  try {
+    // Persist to DB
+    await fetch('tables/crm_prospects', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(record),
+    });
+
+    // Add to in-memory array so the table updates immediately
+    _allCustomers.push({
+      id:                newId,
+      full_name:         fullName,
+      email,
+      phone:             phone   || null,
+      status,
+      invitation_status: 'not_invited',
+      created_at:        nowISO,
+      account_manager_name: ADMIN_SESSION.name,
+    });
+
+    closeAddCustomerModal();
+    renderTable(_allCustomers);
+    updateStatCards(_allCustomers);
+    showToast(`${fullName} added as a CRM prospect. Use "Send Invite" when ready to onboard.`, 'success');
+
+  } catch (err) {
+    showToast('Failed to save prospect. Please try again.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+      Save as Prospect`;
+  }
+}
+
+// Spin animation for save button loading state
+(function() {
+  const s = document.createElement('style');
+  s.textContent = '@keyframes acSpin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }';
+  document.head.appendChild(s);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Messages — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── Messages Layout ── */
+    .msg-page-wrap {
+      display: flex;
+      height: calc(100vh - 64px);
+      overflow: hidden;
+    }
+    /* Left pane: thread list */
+    .msg-sidebar {
+      width: 320px;
+      flex-shrink: 0;
+      border-right: 1px solid #e2e8f0;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .msg-sidebar-header {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .msg-sidebar-title {
+      font-size: 15px; font-weight: 700; color: #0f1e38;
+      margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .msg-unread-badge {
+      background: #162d56; color: #fff;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 12px;
+    }
+    .msg-search-wrap {
+      position: relative;
+    }
+    .msg-search-wrap svg {
+      position: absolute; left: 9px; top: 50%;
+      transform: translateY(-50%);
+      width: 14px; height: 14px; color: #94a3b8;
+    }
+    .msg-search-input {
+      width: 100%; box-sizing: border-box;
+      padding: 8px 12px 8px 30px;
+      border: 1px solid #e2e8f0; border-radius: 8px;
+      font-size: 13px; font-family: inherit;
+      background: #f8fafc; outline: none;
+      transition: border-color .2s;
+    }
+    .msg-search-input:focus { border-color: #162d56; background: #fff; }
+
+    .msg-filter-bar {
+      padding: 8px 18px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex; gap: 6px; overflow-x: auto;
+    }
+    .msg-filter-chip {
+      flex-shrink: 0;
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+      border: 1px solid #e2e8f0; background: #f8fafc;
+      color: #475569; cursor: pointer; transition: all .15s;
+    }
+    .msg-filter-chip:hover, .msg-filter-chip.active {
+      background: #162d56; border-color: #162d56; color: #fff;
+    }
+
+    .msg-thread-list {
+      flex: 1; overflow-y: auto;
+    }
+    .msg-thread-item {
+      padding: 14px 18px; border-bottom: 1px solid #f8f9fa;
+      cursor: pointer; transition: background .15s;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .msg-thread-item:hover { background: #f8faff; }
+    .msg-thread-item.active { background: #e8eef8; border-left: 3px solid #162d56; padding-left: 15px; }
+    .msg-thread-item.unread .msg-thread-name { font-weight: 700; }
+    .msg-thread-item.unread .msg-thread-preview { color: #334155; font-weight: 500; }
+
+    .msg-thread-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: #162d56; color: #fff;
+      font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .msg-thread-avatar.inspector { background: #0891b2; }
+    .msg-thread-avatar.system    { background: #7c3aed; }
+
+    .msg-thread-body { flex: 1; min-width: 0; }
+    .msg-thread-row1 {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 3px;
+    }
+    .msg-thread-name { font-size: 13px; color: #0f1e38; }
+    .msg-thread-time { font-size: 11px; color: #94a3b8; white-space: nowrap; flex-shrink: 0; }
+    .msg-thread-preview {
+      font-size: 12px; color: #94a3b8;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .msg-thread-tags {
+      margin-top: 5px; display: flex; gap: 5px; flex-wrap: wrap;
+    }
+    .msg-tag {
+      font-size: 10px; font-weight: 600;
+      padding: 2px 7px; border-radius: 10px;
+    }
+    .msg-tag.general_support { background: #f1f5f9; color: #475569; }
+    .msg-tag.alert_related   { background: #fee2e2; color: #dc2626; }
+    .msg-tag.property_update { background: #dbeafe; color: #1d4ed8; }
+    .msg-tag.service_request { background: #fef3c7; color: #b45309; }
+    .msg-tag.billing         { background: #dcfce7; color: #15803d; }
+    .msg-tag.system          { background: #ede9fe; color: #7c3aed; }
+    .msg-tag.inspector       { background: #cffafe; color: #0e7490; }
+    .msg-unread-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #162d56; flex-shrink: 0; margin-top: 6px;
+    }
+
+    /* Right pane: conversation view */
+    .msg-main {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+      background: #f8f9fa;
+    }
+    .msg-main-header {
+      background: #fff; border-bottom: 1px solid #e2e8f0;
+      padding: 14px 22px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .msg-main-header-info { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .msg-main-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: #162d56; color: #fff;
+      font-size: 14px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .msg-main-name { font-size: 15px; font-weight: 700; color: #0f1e38; }
+    .msg-main-sub  { font-size: 12px; color: #64748b; margin-top: 2px; }
+    .msg-main-actions { display: flex; gap: 8px; }
+
+    .msg-messages-area {
+      flex: 1; overflow-y: auto;
+      padding: 20px 24px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .msg-bubble-wrap {
+      display: flex; gap: 10px; align-items: flex-end;
+      max-width: 72%;
+    }
+    .msg-bubble-wrap.outgoing {
+      align-self: flex-end; flex-direction: row-reverse;
+    }
+    .msg-bubble-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #e2e8f0; color: #475569;
+      font-size: 10px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .msg-bubble-avatar.outgoing-av { background: #162d56; color: #fff; }
+    .msg-bubble {
+      background: #fff; border: 1px solid #e2e8f0;
+      border-radius: 12px 12px 12px 2px;
+      padding: 10px 14px;
+      font-size: 13px; line-height: 1.55; color: #334155;
+      box-shadow: 0 1px 4px rgba(22,45,86,.05);
+    }
+    .msg-bubble.outgoing {
+      background: #162d56; color: #fff; border-color: #162d56;
+      border-radius: 12px 12px 2px 12px;
+    }
+    .msg-bubble-meta {
+      font-size: 11px; color: #94a3b8; margin-top: 4px;
+      text-align: right;
+    }
+    .msg-bubble-wrap.outgoing .msg-bubble-meta { color: rgba(255,255,255,.6); }
+
+    .msg-date-divider {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; color: #94a3b8; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .msg-date-divider::before, .msg-date-divider::after {
+      content: ''; flex: 1; height: 1px; background: #e2e8f0;
+    }
+
+    .msg-compose-area {
+      background: #fff; border-top: 1px solid #e2e8f0;
+      padding: 14px 22px;
+      display: flex; gap: 10px; align-items: flex-end;
+    }
+    .msg-compose-input {
+      flex: 1; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 10px 14px; font-size: 13px; font-family: inherit;
+      resize: none; outline: none; min-height: 42px; max-height: 140px;
+      transition: border-color .2s; color: #334155;
+      background: #f8fafc; line-height: 1.5;
+    }
+    .msg-compose-input:focus { border-color: #162d56; background: #fff; }
+    .msg-send-btn {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: #162d56; color: #fff; border: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background .2s;
+    }
+    .msg-send-btn:hover { background: #1e3d73; }
+    .msg-send-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+    .msg-send-btn svg { width: 18px; height: 18px; }
+
+    .msg-empty-state {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: #94a3b8; gap: 12px;
+    }
+    .msg-empty-icon { width: 60px; height: 60px; background: #f1f5f9; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .msg-empty-icon svg { width: 26px; height: 26px; }
+
+    /* Thread detail sidebar (right info panel) */
+    .msg-info-panel {
+      width: 260px; flex-shrink: 0;
+      border-left: 1px solid #e2e8f0;
+      background: #fff;
+      overflow-y: auto;
+      display: none; /* shown when thread selected */
+    }
+    .msg-info-panel.visible { display: block; }
+    .msg-info-section {
+      padding: 16px 18px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .msg-info-label {
+      font-size: 10px; font-weight: 700; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: .8px;
+      margin-bottom: 10px;
+    }
+    .msg-info-row { font-size: 12px; color: #334155; margin-bottom: 6px; }
+    .msg-info-key { color: #94a3b8; font-size: 11px; }
+
+    /* Compose new message modal */
+    .new-msg-participant-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #e8eef8; border-radius: 20px;
+      padding: 3px 10px; font-size: 12px; font-weight: 600; color: #162d56;
+      margin: 3px;
+    }
+    .new-msg-participant-pill button {
+      background: none; border: none; cursor: pointer;
+      color: #94a3b8; font-size: 14px; line-height: 1; padding: 0;
+    }
+
+    /* ── Tablet responsive ── */
+    @media (max-width: 900px) {
+      .msg-sidebar { width: 280px; }
+      .msg-info-panel { display: none !important; }
+    }
+
+    /* ── Mobile: single-pane layout ── */
+    @media (max-width: 640px) {
+      /* The wrap becomes a full-height container */
+      .msg-page-wrap {
+        position: relative;
+        overflow: hidden;
+        height: calc(100vh - 56px);
+      }
+
+      /* Sidebar = list pane: full width, always positioned */
+      .msg-sidebar {
+        width: 100%;
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        height: 100%;
+        border-right: none;
+        z-index: 2;
+        transform: translateX(0);
+        transition: transform .28s cubic-bezier(.4,0,.2,1);
+        flex-shrink: unset;
+      }
+
+      /* When conversation is open: slide list off to the left */
+      .msg-sidebar.mobile-conv-open {
+        transform: translateX(-100%);
+        pointer-events: none;
+      }
+
+      /* Main pane: full width, slides in from right */
+      .msg-main {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%;
+        z-index: 3;
+        transform: translateX(100%);
+        transition: transform .28s cubic-bezier(.4,0,.2,1);
+        background: #f8f9fa;
+      }
+
+      /* When conversation is open: slide main into view */
+      .msg-main.mobile-conv-open {
+        transform: translateX(0);
+      }
+
+      /* Back button: only visible on mobile */
+      .msg-mobile-back-btn {
+        display: flex !important;
+      }
+
+      /* Adjust header padding on mobile */
+      .msg-main-header {
+        padding: 12px 14px;
+      }
+
+      /* Hide empty state on mobile entirely — never show it */
+      .msg-empty-state {
+        display: none !important;
+      }
+
+      /* Message area: needs bottom padding to avoid composer overlap */
+      .msg-messages-area {
+        padding: 14px 14px;
+      }
+
+      /* Compose area: fixed to bottom, prevent overlap */
+      .msg-compose-area {
+        padding: 10px 12px;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      /* Bubble max width: more breathing room on small screens */
+      .msg-bubble-wrap {
+        max-width: 88%;
+      }
+
+      /* Actions in header: hide Details on very small screens */
+      .msg-main-actions .tbl-action-btn:first-child {
+        display: none;
+      }
+
+      /* Sidebar header: tighten up */
+      .msg-sidebar-header {
+        padding: 12px 14px 10px;
+      }
+
+      /* Filter bar: tighten */
+      .msg-filter-bar {
+        padding: 8px 14px;
+      }
+
+      /* Thread items */
+      .msg-thread-item {
+        padding: 13px 14px;
+      }
+      .msg-thread-item.active {
+        padding-left: 11px;
+      }
+    }
+
+    /* Back button: hidden on desktop, shown on mobile */
+    .msg-mobile-back-btn {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #162d56;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 8px 4px 2px;
+      border-radius: 6px;
+      margin-right: 6px;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .msg-mobile-back-btn:hover {
+      background: #f1f5f9;
+    }
+    .msg-mobile-back-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content" style="display:flex;flex-direction:column;overflow:hidden;">
+
+    <!-- Topbar -->
+    <header class="topbar" style="flex-shrink:0;">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Messages</span>
+          <span class="topbar-welcome" id="topbarSub">Client &amp; inspector communications</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-msg-trigger="admin"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          title="Messages"
+          type="button"
+          onclick="SHWMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="admin"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <button class="admin-add-btn" onclick="openNewMessageModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          New Message
+        </button>
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <!-- ── Messages Layout ── -->
+    <div class="msg-page-wrap">
+
+      <!-- Thread List Pane -->
+      <div class="msg-sidebar" id="msgSidebar">
+        <div class="msg-sidebar-header">
+          <div class="msg-sidebar-title">
+            Conversations
+            <span class="msg-unread-badge" id="unreadCount">0</span>
+          </div>
+          <div class="msg-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" class="msg-search-input" id="threadSearch"
+              placeholder="Search conversations…" oninput="filterThreads()" />
+          </div>
+        </div>
+
+        <div class="msg-filter-bar">
+          <div class="msg-filter-chip active" data-filter="all" onclick="setFilter(this,'all')">All</div>
+          <div class="msg-filter-chip" data-filter="pending_accept" onclick="setFilter(this,'pending_accept')" id="filterPendingChip">
+            🔔 Needs Supervisor
+            <span id="pendingAcceptCount" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;border-radius:8px;padding:1px 5px;margin-left:3px;"></span>
+          </div>
+          <div class="msg-filter-chip" data-filter="unread" onclick="setFilter(this,'unread')">Unread</div>
+          <div class="msg-filter-chip" data-filter="client" onclick="setFilter(this,'client')">Clients</div>
+          <div class="msg-filter-chip" data-filter="inspector" onclick="setFilter(this,'inspector')">Inspectors</div>
+          <div class="msg-filter-chip" data-filter="alert_related" onclick="setFilter(this,'alert_related')">Alerts</div>
+          <div class="msg-filter-chip" data-filter="service_request" onclick="setFilter(this,'service_request')">Requests</div>
+          <div class="msg-filter-chip" data-filter="archived" onclick="setFilter(this,'archived')">Archived</div>
+        </div>
+
+        <div class="msg-thread-list" id="threadList">
+          <div style="padding:30px 18px;text-align:center;color:#94a3b8;font-size:13px;">Loading conversations…</div>
+        </div>
+      </div>
+
+      <!-- Main Conversation Pane -->
+      <div class="msg-main" id="msgMain">
+
+        <!-- Empty state -->
+        <div class="msg-empty-state" id="msgEmptyState">
+          <div class="msg-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+            </svg>
+          </div>
+          <div style="font-size:15px;font-weight:600;color:#475569;">Select a conversation</div>
+          <div style="font-size:13px;color:#94a3b8;">Choose a thread from the left to read and reply.</div>
+        </div>
+
+        <!-- Conversation header (hidden until thread selected) -->
+        <div class="msg-main-header" id="msgConvHeader" style="display:none;">
+          <div class="msg-main-header-info">
+            <!-- Back button: mobile only -->
+            <button class="msg-mobile-back-btn" id="msgBackBtn" onclick="mobileBackToList()" aria-label="Back to conversations">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <div class="msg-main-avatar" id="convAvatar">??</div>
+            <div>
+              <div class="msg-main-name" id="convName">—</div>
+              <div class="msg-main-sub" id="convSub">—</div>
+            </div>
+          </div>
+          <div class="msg-main-actions">
+            <!-- Accept button: shown for live visit_customer threads not yet assigned to a supervisor.
+                 Clicking this assigns you as supervisor — the employee-customer chat is already live. -->
+            <div id="acceptThreadWrap" style="display:none;">
+              <button class="tbl-action-btn" id="acceptThreadBtn" onclick="acceptThread()"
+                style="background:#f0fdf4;color:#166534;border-color:#bbf7d0;font-weight:700;">
+                🛡 Take Supervision
+              </button>
+            </div>
+            <button class="tbl-action-btn" onclick="toggleInfoPanel()" title="Thread details">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              Details
+            </button>
+            <button class="tbl-action-btn" id="archiveThreadBtn" onclick="archiveThread()">Archive</button>
+            <button class="tbl-action-btn" id="deleteThreadBtn" onclick="deleteThread()" style="color:#dc2626;border-color:#fca5a5;" title="Delete conversation">Delete</button>
+          </div>
+        </div>
+
+        <!-- Messages area (hidden until thread selected) -->
+        <div class="msg-messages-area" id="msgMessagesArea" style="display:none;"></div>
+
+        <!-- Compose (hidden until thread selected) -->
+        <div class="msg-compose-area" id="msgComposeArea" style="display:none;">
+          <!-- Attachment preview strip -->
+          <div id="attachmentPreview" style="display:none;width:100%;margin-bottom:8px;"></div>
+          <div style="display:flex;gap:10px;align-items:flex-end;width:100%;">
+            <!-- Attachment button -->
+            <label class="msg-attach-btn" title="Attach file" style="width:42px;height:42px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;">
+              <input type="file" id="msgAttachInput" multiple style="display:none;" onchange="handleAttachmentSelect(this)" />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+            </label>
+            <textarea class="msg-compose-input" id="msgComposeInput"
+              placeholder="Type your message…" rows="1"
+              onkeydown="handleComposeSend(event)"
+              oninput="autoResizeTextarea(this)"></textarea>
+            <button class="msg-send-btn" onclick="sendMessage()" title="Send (Enter)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Info Panel -->
+      <div class="msg-info-panel" id="msgInfoPanel">
+        <div class="msg-info-section">
+          <div class="msg-info-label">Thread Info</div>
+          <div id="infoPanelContent">—</div>
+        </div>
+      </div>
+
+    </div><!-- end msg-page-wrap -->
+  </div><!-- end main-content -->
+</div><!-- end app-wrapper -->
+
+<!-- ── New Message Modal ── -->
+<div id="newMsgModal" class="admin-modal-overlay" style="display:none;">
+  <div class="admin-modal">
+    <div class="admin-modal-header">
+      <div class="admin-modal-title">New Message</div>
+      <button class="admin-modal-close" onclick="closeNewMessageModal()">✕</button>
+    </div>
+    <div class="admin-modal-body">
+      <div class="admin-form-grid">
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Recipient *</label>
+          <select class="admin-form-select" id="newMsgRecipient">
+            <option value="">Select recipient…</option>
+            <optgroup label="Clients" id="newMsgClientOptions"></optgroup>
+            <optgroup label="Inspectors" id="newMsgInspectorOptions"></optgroup>
+          </select>
+        </div>
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Subject / Topic</label>
+          <input type="text" class="admin-form-input" id="newMsgSubject" placeholder="e.g. Visit follow-up for 4528 Palm Drive…" />
+        </div>
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Thread Type</label>
+          <select class="admin-form-select" id="newMsgType">
+            <option value="general_support">General Support</option>
+            <option value="property_update">Property Update</option>
+            <option value="alert_related">Alert Related</option>
+            <option value="service_request">Service Request</option>
+            <option value="billing">Billing</option>
+          </select>
+        </div>
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Message *</label>
+          <textarea class="admin-form-textarea" id="newMsgBody" placeholder="Write your message…" rows="4"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="admin-modal-footer">
+      <button class="btn-secondary-outline" onclick="closeNewMessageModal()">Cancel</button>
+      <button class="btn-primary" onclick="sendNewMessage()">Send Message</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+// ─── SESSION ─────────────────────────────────────────────────────────────────
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let _threads      = [];
+let _messages     = [];
+let _users        = [];
+let _employees    = [];
+let _customers    = [];
+let _activeThread = null;
+let _activeFilter = 'all';
+let _pendingAttachments = [];
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  renderAdminSidebar('admin-messages');
+  document.getElementById('topbarAvatar').textContent = ADMIN_SESSION.initials;
+
+  await loadData();
+
+  // ── Baseline history state ──────────────────────────────
+  history.replaceState({ thread: null }, '', window.location.href);
+
+  // Listen for browser Back / Forward
+  window.addEventListener('popstate', function(e) {
+    const state = e.state;
+    if (!state) return;
+    if (!state.thread) {
+      // Back to list
+      _adminBackToList();
+    } else {
+      openThread(state.thread);
+    }
+  });
+
+  // Auto-open thread from URL
+  const params = new URLSearchParams(window.location.search);
+  const tid = params.get('threadId');
+  const filterParam = params.get('filter');
+  if (tid) {
+    openThread(tid);
+  } else if (filterParam) {
+    // Auto-apply a filter from URL (e.g. ?filter=pending_accept from notification)
+    const chip = document.querySelector(`[data-filter="${filterParam}"]`);
+    if (chip) {
+      setFilter(chip, filterParam);
+    }
+    if (!isMobile()) {
+      document.getElementById('msgEmptyState').style.display = 'none';
+    }
+  } else if (isMobile()) {
+    // On mobile, ensure we start at the list view (no empty state)
+    document.getElementById('msgEmptyState').style.display = 'none';
+  }
+});
+
+// ─── DATA LOADING ─────────────────────────────────────────────────────────────
+async function loadData() {
+  const [tRes, mRes, uRes, eRes, cRes] = await Promise.all([
+    empApiGetAll('message_threads'),
+    empApiGetAll('messages'),
+    empApiGetAll('users'),
+    empApiGetAll('employees'),
+    empApiGetAll('customers'),
+  ]);
+
+  _threads   = tRes.data || [];
+  _messages  = mRes.data || [];
+  _users     = uRes.data || [];
+  _employees = eRes.data || [];
+  _customers = cRes.data || [];
+
+  // Mark threads with unread counts
+  _threads = _threads.map(t => {
+    const msgs = _messages.filter(m => m.thread_id === t.id);
+    const unread = msgs.filter(m => m.read_status === 'unread' && m.sender_id !== ADMIN_SESSION.userId).length;
+    return { ...t, _unreadCount: unread, _lastMsg: msgs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at))[0] };
+  });
+
+  _threads.sort((a, b) => {
+    const ta = a._lastMsg ? new Date(a._lastMsg.created_at) : new Date(a.created_at || 0);
+    const tb = b._lastMsg ? new Date(b._lastMsg.created_at) : new Date(b.created_at || 0);
+    return tb - ta;
+  });
+
+  const totalUnread = _threads.reduce((s, t) => s + (t._unreadCount || 0), 0);
+  document.getElementById('unreadCount').textContent = totalUnread;
+
+  renderThreadList();
+  populateNewMsgDropdowns();
+}
+
+// ─── THREAD LIST ──────────────────────────────────────────────────────────────
+function renderThreadList() {
+  const search = (document.getElementById('threadSearch').value || '').toLowerCase();
+  let list = _threads;
+
+  if (_activeFilter === 'archived') {
+    list = list.filter(t => t.status === 'archived');
+  } else if (_activeFilter === 'pending_accept') {
+    // Show threads pending acceptance by any admin (visit_customer, acceptance_status=pending, not yet assigned)
+    list = list.filter(t =>
+      t.status !== 'archived' &&
+      t.acceptance_status === 'pending' &&
+      !t.assigned_admin_id
+    );
+  } else {
+    list = list.filter(t => t.status !== 'archived');
+    if (_activeFilter === 'unread') {
+      list = list.filter(t => t._unreadCount > 0);
+    } else if (_activeFilter === 'client') {
+      list = list.filter(t => t.participant_role === 'client');
+    } else if (_activeFilter === 'inspector') {
+      list = list.filter(t => t.participant_role === 'inspector' || t.thread_direction === 'employee_to_admin' || t.thread_direction === 'employee_visit_customer');
+    } else if (_activeFilter !== 'all') {
+      list = list.filter(t => t.thread_type === _activeFilter);
+    }
+  }
+
+  if (search) {
+    list = list.filter(t => {
+      const subject = (t.subject || '').toLowerCase();
+      const name = getThreadParticipantName(t).toLowerCase();
+      return subject.includes(search) || name.includes(search);
+    });
+  }
+
+  // Update pending count badge
+  const pendingCount = _threads.filter(t =>
+    t.status !== 'archived' &&
+    t.acceptance_status === 'pending' &&
+    !t.assigned_admin_id
+  ).length;
+  const pendingBadge = document.getElementById('pendingAcceptCount');
+  if (pendingBadge) {
+    if (pendingCount > 0) {
+      pendingBadge.textContent = pendingCount;
+      pendingBadge.style.display = '';
+    } else {
+      pendingBadge.style.display = 'none';
+    }
+  }
+
+  const el = document.getElementById('threadList');
+  if (!list.length) {
+    const emptyMsg = _activeFilter === 'archived'
+      ? '<div>No archived conversations.</div>'
+      : _activeFilter === 'pending_accept'
+      ? '<div>No conversations awaiting a supervisor.</div>'
+      : '<div>Try a different filter or send a new message.</div>';
+    el.innerHTML = `
+      <div style="padding:32px 18px;text-align:center;color:#94a3b8;font-size:13px;">
+        <div style="font-size:32px;margin-bottom:10px;">💬</div>
+        <div style="font-weight:600;color:#475569;margin-bottom:4px;">No conversations found</div>
+        ${emptyMsg}
+      </div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(t => buildThreadItem(t)).join('');
+}
+
+function buildThreadItem(t) {
+  const isActive  = _activeThread && _activeThread.id === t.id;
+  const isUnread  = t._unreadCount > 0;
+  const name      = getThreadParticipantName(t);
+  const initials  = FMT.initials(name);
+  const preview   = t._lastMsg ? (t._lastMsg.body || '').slice(0, 60) + ((t._lastMsg.body || '').length > 60 ? '…' : '') : t.subject || 'No messages yet';
+  const timeLabel = t._lastMsg ? FMT.relTime(t._lastMsg.created_at) : FMT.relTime(t.created_at);
+  const role      = t.participant_role || 'client';
+
+  const tagHtml = t.thread_type
+    ? `<span class="msg-tag ${t.thread_type}">${FMT.snakeToTitle(t.thread_type)}</span>`
+    : '';
+  const unreadDot = isUnread ? `<span class="msg-unread-dot"></span>` : `<span style="width:8px;flex-shrink:0;"></span>`;
+
+  // Pending acceptance badge for visit_customer threads
+  const isPendingAccept = t.acceptance_status === 'pending' && !t.assigned_admin_id && t.thread_type === 'visit_customer';
+  const pendingBadgeHtml = isPendingAccept
+    ? `<span style="display:inline-block;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;font-size:10px;font-weight:700;border-radius:8px;padding:1px 7px;margin-left:4px;">Live · Needs Supervisor</span>`
+    : '';
+
+  // Assigned admin label
+  let assignedLabel = '';
+  if (t.assigned_admin_id) {
+    const adminUser = _users.find(u => u.id === t.assigned_admin_id);
+    const adminName = adminUser ? (adminUser.full_name || 'Admin') : 'Admin';
+    const isMine = t.assigned_admin_id === ADMIN_SESSION.userId;
+    assignedLabel = `<div style="font-size:11px;color:${isMine ? '#166534' : '#162d56'};font-weight:600;margin-top:2px;">
+      ${isMine ? '✓ Assigned to: You' : `Assigned to: ${adminName}`}
+    </div>`;
+  } else if (isPendingAccept) {
+    assignedLabel = `<div style="font-size:11px;color:#64748b;margin-top:2px;">📋 No supervisor yet — messages live with customer</div>`;
+  } else if (t.thread_direction === 'employee_to_admin') {
+    assignedLabel = `<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Awaiting admin assignment</div>`;
+  }
+
+  return `
+    <div class="msg-thread-item${isActive ? ' active' : ''}${isUnread ? ' unread' : ''}${isPendingAccept ? '' : ''}"
+         onclick="openThread('${t.id}')"
+         style="${isPendingAccept ? 'border-left:3px solid #f59e0b;' : ''}">
+      <div class="msg-thread-avatar ${role === 'inspector' ? 'inspector' : ''}">${initials}</div>
+      <div class="msg-thread-body">
+        <div class="msg-thread-row1">
+          <span class="msg-thread-name">${escHtml(name)}${pendingBadgeHtml}</span>
+          <span class="msg-thread-time">${timeLabel}</span>
+        </div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:3px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          ${escHtml(t.subject || '—')}
+        </div>
+        <div class="msg-thread-preview">${escHtml(preview)}</div>
+        <div class="msg-thread-tags">${tagHtml}</div>
+        ${assignedLabel}
+      </div>
+      ${unreadDot}
+    </div>`;
+}
+
+function getThreadParticipantName(thread) {
+  if (thread.participant_name) return thread.participant_name;
+  // Try users
+  const u = _users.find(u => u.id === thread.client_user_id || u.id === thread.participant_id);
+  if (u) return (u.first_name || '') + ' ' + (u.last_name || '');
+  // Try employees
+  const e = _employees.find(e => e.id === thread.inspector_employee_id || e.id === thread.participant_id);
+  if (e) return e.full_name || e.name || '—';
+  // Try customers
+  const c = _customers.find(c => c.id === thread.customer_id);
+  if (c) return c.full_name || c.company_name || '—';
+  return thread.participant_name || 'Unknown';
+}
+
+function filterThreads() { renderThreadList(); }
+
+function setFilter(el, filter) {
+  document.querySelectorAll('.msg-filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  _activeFilter = filter;
+  renderThreadList();
+}
+function isMobile() {
+  return window.innerWidth <= 640;
+}
+
+function mobileOpenConversation() {
+  if (!isMobile()) return;
+  document.getElementById('msgSidebar').classList.add('mobile-conv-open');
+  document.getElementById('msgMain').classList.add('mobile-conv-open');
+}
+
+function mobileBackToList() {
+  // On mobile, use history.back() so browser back/swipe also works
+  if (isMobile() && history.length > 1) {
+    history.back();
+  } else {
+    _adminBackToList();
+  }
+}
+
+function _adminBackToList() {
+  document.getElementById('msgSidebar').classList.remove('mobile-conv-open');
+  document.getElementById('msgMain').classList.remove('mobile-conv-open');
+  _activeThread = null;
+  renderThreadList();
+  document.getElementById('msgConvHeader').style.display  = 'none';
+  document.getElementById('msgMessagesArea').style.display = 'none';
+  document.getElementById('msgComposeArea').style.display  = 'none';
+  if (!isMobile()) {
+    document.getElementById('msgEmptyState').style.display = 'flex';
+  }
+}
+
+// ─── OPEN THREAD ──────────────────────────────────────────────────────────────
+async function openThread(threadId) {
+  const thread = _threads.find(t => t.id === threadId);
+  if (!thread) return;
+  _activeThread = thread;
+
+  // Re-render list to update active state
+  renderThreadList();
+
+  // Show conversation header
+  const name = getThreadParticipantName(thread);
+  const initials = FMT.initials(name);
+  const role = thread.participant_role || 'client';
+  const roleLabel = role === 'inspector' ? 'Inspector' : 'Client';
+
+  document.getElementById('convAvatar').textContent = initials;
+  document.getElementById('convAvatar').style.background = role === 'inspector' ? '#0891b2' : '#162d56';
+  document.getElementById('convName').textContent = name;
+  // Show assigned admin status if set
+  let assignedInfo = '';
+  if (thread.assigned_admin_id) {
+    const adminUser = _users ? _users.find(u => u.id === thread.assigned_admin_id) : null;
+    const adminName = adminUser ? ((adminUser.full_name || (adminUser.first_name + ' ' + (adminUser.last_name||'')).trim()) || 'Admin') : 'Admin';
+    const isMine = thread.assigned_admin_id === ADMIN_SESSION.userId;
+    assignedInfo = isMine ? ` · Assigned to: You` : ` · Assigned to: ${adminName}`;
+  } else if (thread.acceptance_status === 'pending') {
+    assignedInfo = ' · No supervisor assigned yet (customer is receiving messages normally)';
+  } else if (thread.thread_direction === 'employee_to_admin') {
+    assignedInfo = ' · Awaiting admin assignment';
+  }
+  document.getElementById('convSub').textContent = `${roleLabel} · ${FMT.snakeToTitle(thread.thread_type || 'general_support')} · ${thread.subject || '—'}${assignedInfo}`;
+
+  // Show/hide Accept (Take Supervision) button based on pending status
+  const acceptWrap = document.getElementById('acceptThreadWrap');
+  const acceptBtn  = document.getElementById('acceptThreadBtn');
+  if (acceptWrap) {
+    const isPendingAccept = thread.acceptance_status === 'pending' && !thread.assigned_admin_id;
+    acceptWrap.style.display = isPendingAccept ? '' : 'none';
+  }
+
+  // Archive/unarchive button label
+  const archBtn = document.getElementById('archiveThreadBtn');
+  const isArchived = thread.status === 'archived';
+  archBtn.textContent = isArchived ? 'Unarchive' : 'Archive';
+  archBtn.style.color = isArchived ? '#15803d' : '';
+  archBtn.style.borderColor = isArchived ? '#bbf7d0' : '';
+
+  document.getElementById('msgEmptyState').style.display  = 'none';
+  document.getElementById('msgConvHeader').style.display  = 'flex';
+  document.getElementById('msgMessagesArea').style.display = 'flex';
+  document.getElementById('msgComposeArea').style.display  = 'flex';
+
+  // On mobile: slide conversation pane into view and push history
+  mobileOpenConversation();
+  if (isMobile() && typeof SHWNav !== 'undefined') {
+    SHWNav.pushThread(threadId);
+  }
+
+  // Load messages
+  await loadMessages(thread);
+
+  // Mark as read
+  thread._unreadCount = 0;
+  const totalUnread = _threads.reduce((s, t) => s + (t._unreadCount || 0), 0);
+  document.getElementById('unreadCount').textContent = totalUnread;
+
+  // Populate info panel
+  renderInfoPanel(thread);
+}
+
+// ─── ACCEPT THREAD (Employee/Visit conversations) ─────────────────────────────
+async function acceptThread() {
+  if (!_activeThread) return;
+  const thread = _activeThread;
+
+  // Only unassigned pending threads can be accepted
+  if (thread.assigned_admin_id) {
+    showToast('This conversation is already being supervised by another admin.', 'error');
+    return;
+  }
+
+  try {
+    const now = new Date().toISOString();
+    await empApiPatch('message_threads', thread.id, {
+      assigned_admin_id: ADMIN_SESSION.userId,
+      acceptance_status: 'accepted',
+      accepted_at:       now,
+      updated_at:        now,
+    });
+
+    // Update local state
+    thread.assigned_admin_id = ADMIN_SESSION.userId;
+    thread.acceptance_status = 'accepted';
+
+    // Hide Accept/Take Supervision button
+    const acceptWrap = document.getElementById('acceptThreadWrap');
+    if (acceptWrap) acceptWrap.style.display = 'none';
+
+    // Update conv sub-heading to show assigned to me
+    const subEl = document.getElementById('convSub');
+    if (subEl) {
+      subEl.textContent = subEl.textContent
+        .replace('Awaiting admin assignment', '')
+        .replace('Awaiting supervisor acceptance', '')
+        .replace('No supervisor assigned yet (customer is receiving messages normally)', '')
+        .trim();
+      if (!subEl.textContent.includes('Assigned to')) {
+        subEl.textContent += ` · Assigned to: You`;
+      }
+    }
+
+    // Re-render the thread list so it disappears from other admins' Pending queue
+    renderThreadList();
+
+    showToast(`You are now supervising this conversation. The employee–customer chat was already live before your acceptance.`, 'success');
+
+    // Post a system message to the thread confirming acceptance
+    await empApiPost('messages', {
+      thread_id:   thread.id,
+      sender_id:   ADMIN_SESSION.userId,
+      sender_role: ADMIN_SESSION.role,
+      body:        `[System] ${ADMIN_SESSION.name} is now supervising this conversation. Note: this conversation was active and messages were being delivered before supervision was accepted.`,
+      read_status: 'read',
+      created_at:  now,
+      is_system:   true,
+    });
+
+    // Reload messages to show the system note
+    await loadMessages(thread);
+
+  } catch(e) {
+    showToast('Could not accept conversation. Please try again.', 'error');
+  }
+}
+
+// ─── LOAD MESSAGES ────────────────────────────────────────────────────────────
+async function loadMessages(thread) {
+  const area = document.getElementById('msgMessagesArea');
+  area.innerHTML = `<div style="text-align:center;color:#94a3b8;padding:20px;font-size:13px;">Loading…</div>`;
+
+  // Filter messages for this thread
+  let msgs = _messages.filter(m => m.thread_id === thread.id);
+  if (!msgs.length) {
+    // Try fetching fresh
+    const res = await empApiGetAll('messages');
+    _messages = res.data || [];
+    msgs = _messages.filter(m => m.thread_id === thread.id);
+  }
+  msgs.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+
+  if (!msgs.length) {
+    // For pending visit_customer threads, show a live banner even when no messages yet
+    let emptyInner = `
+      <div style="text-align:center;color:#94a3b8;padding:40px 20px;font-size:13px;">
+        <div style="font-size:28px;margin-bottom:10px;">💬</div>
+        No messages yet — start the conversation below.
+      </div>`;
+    if (thread.thread_type === 'visit_customer' && thread.acceptance_status === 'pending' && !thread.assigned_admin_id) {
+      emptyInner = `
+        <div style="margin:8px 16px 4px;padding:9px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;display:flex;align-items:center;gap:10px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div style="font-size:12px;color:#166534;line-height:1.5;">
+            <strong>Live conversation — customer receives messages in real time.</strong>
+            Click <strong>🛡 Take Supervision</strong> above to supervise this thread.
+          </div>
+        </div>
+        <div style="text-align:center;color:#94a3b8;padding:30px 20px;font-size:13px;">
+          <div style="font-size:28px;margin-bottom:10px;">💬</div>
+          No messages yet in this thread.
+        </div>`;
+    }
+    area.innerHTML = emptyInner;
+    return;
+  }
+
+  let html = '';
+  let lastDate = '';
+
+  msgs.forEach(m => {
+    const msgDate = FMT.date(m.created_at);
+    if (msgDate !== lastDate) {
+      html += `<div class="msg-date-divider">${msgDate}</div>`;
+      lastDate = msgDate;
+    }
+
+    const isOutgoing = m.sender_id === ADMIN_SESSION.userId || m.sender_role === 'manager' || m.sender_role === 'executive';
+    const senderName = isOutgoing ? ADMIN_SESSION.name : getThreadParticipantName(thread);
+    const initials = FMT.initials(senderName);
+
+    // Render attachment thumbnails if any
+    let attachHtml = '';
+    if (m.attachments && m.attachments.length) {
+      attachHtml = `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">` +
+        m.attachments.map(a => `
+          <a href="${escHtml(a.url || '#')}" target="_blank" rel="noopener"
+             style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;
+                    background:${isOutgoing ? 'rgba(255,255,255,.15)' : '#f1f5f9'};
+                    color:${isOutgoing ? '#fff' : '#162d56'};border-radius:6px;padding:4px 9px;
+                    text-decoration:none;border:1px solid ${isOutgoing ? 'rgba(255,255,255,.25)' : '#e2e8f0'};">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+            ${escHtml(a.name || 'Attachment')}
+          </a>`).join('') + `</div>`;
+    }
+
+    html += `
+      <div class="msg-bubble-wrap${isOutgoing ? ' outgoing' : ''}" id="msgwrap-${m.id}">
+        <div class="msg-bubble-avatar${isOutgoing ? ' outgoing-av' : ''}">${initials}</div>
+        <div>
+          <div class="msg-bubble${isOutgoing ? ' outgoing' : ''}">${escHtml(m.body || '')}${attachHtml}</div>
+          <div class="msg-bubble-meta" style="display:flex;align-items:center;gap:8px;justify-content:${isOutgoing?'flex-end':'flex-start'};">
+            <span>${FMT.time(m.created_at)} · ${isOutgoing ? 'You' : escHtml(senderName)}</span>
+            <button onclick="deleteMessage('${m.id}')" title="Delete message"
+              style="background:none;border:none;cursor:pointer;padding:0 2px;opacity:.5;transition:opacity .15s;line-height:1;"
+              onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${isOutgoing?'rgba(255,255,255,.8)':'#94a3b8'}" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  // ── Prepend supervision status banner for live visit_customer threads ──────────
+  // Purely informational — does NOT gate message delivery to the customer.
+  if (thread.thread_type === 'visit_customer') {
+    const isPending = thread.acceptance_status === 'pending' && !thread.assigned_admin_id;
+    if (isPending) {
+      const bannerHtml = `
+        <div style="margin:8px 16px 4px;padding:9px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;display:flex;align-items:center;gap:10px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div style="font-size:12px;color:#166534;line-height:1.5;">
+            <strong>Live conversation — customer is receiving messages in real time.</strong>
+            Admin acceptance is for supervision only and does not block delivery.
+            Click <strong>🛡 Take Supervision</strong> above to assign yourself as the supervisor for this thread.
+          </div>
+        </div>`;
+      html = bannerHtml + html;
+    } else if (thread.assigned_admin_id) {
+      const adminUser = _users ? _users.find(u => u.id === thread.assigned_admin_id) : null;
+      const adminName = adminUser
+        ? (adminUser.full_name || ((adminUser.first_name || '') + ' ' + (adminUser.last_name || '')).trim() || 'Admin')
+        : 'Admin';
+      const isMine = thread.assigned_admin_id === ADMIN_SESSION.userId;
+      const bannerHtml = `
+        <div style="margin:8px 16px 4px;padding:9px 14px;background:#e8eef8;border:1px solid #c7d8f5;border-radius:8px;display:flex;align-items:center;gap:10px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div style="font-size:12px;color:#162d56;line-height:1.5;">
+            <strong>Supervised by: ${isMine ? 'You' : escHtml(adminName)}.</strong>
+            You are viewing this live employee–customer conversation.
+          </div>
+        </div>`;
+      html = bannerHtml + html;
+    }
+  }
+
+  area.innerHTML = html;
+  area.scrollTop = area.scrollHeight;
+}
+
+// ─── SEND MESSAGE ─────────────────────────────────────────────────────────────
+async function sendMessage() {
+  if (!_activeThread) return;
+  const input = document.getElementById('msgComposeInput');
+  const body = input.value.trim();
+  if (!body && !_pendingAttachments.length) return;
+
+  // Build attachment metadata (no actual upload — store file names as metadata)
+  const attachmentMeta = _pendingAttachments.map(f => ({
+    name: f.name,
+    size: f.size,
+    type: f.type,
+    url: '#',
+  }));
+
+  // Optimistic UI
+  const tempId = 'temp-' + Date.now();
+  const area = document.getElementById('msgMessagesArea');
+  let attachPreviewHtml = '';
+  if (attachmentMeta.length) {
+    attachPreviewHtml = `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;">` +
+      attachmentMeta.map(a => `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;background:rgba(255,255,255,.15);border-radius:5px;padding:3px 8px;border:1px solid rgba(255,255,255,.25);">📎 ${escHtml(a.name)}</span>`).join('') + `</div>`;
+  }
+  const msgHtml = `
+    <div class="msg-bubble-wrap outgoing" id="${tempId}">
+      <div class="msg-bubble-avatar outgoing-av">${ADMIN_SESSION.initials}</div>
+      <div>
+        <div class="msg-bubble outgoing">${body ? escHtml(body) : ''}${attachPreviewHtml}</div>
+        <div class="msg-bubble-meta" style="color:rgba(255,255,255,.5);">Sending…</div>
+      </div>
+    </div>`;
+  area.insertAdjacentHTML('beforeend', msgHtml);
+  area.scrollTop = area.scrollHeight;
+  input.value = '';
+  input.style.height = '';
+  _pendingAttachments = [];
+  renderAttachmentPreview();
+
+  try {
+    const created = await empApiPost('messages', {
+      thread_id:   _activeThread.id,
+      sender_id:   ADMIN_SESSION.userId,
+      sender_role: ADMIN_SESSION.role,
+      body: body || '',
+      attachments: attachmentMeta.length ? attachmentMeta : null,
+      read_status: 'read',
+    });
+
+    if (created.data) {
+      _messages.push(created.data);
+      // ── Auto-assign this admin to the thread if not yet assigned ──
+      if (_activeThread.thread_direction === 'employee_to_admin' && !_activeThread.assigned_admin_id) {
+        try {
+          await empApiPatch('message_threads', _activeThread.id, {
+            assigned_admin_id: ADMIN_SESSION.userId,
+            updated_at: new Date().toISOString(),
+          });
+          _activeThread.assigned_admin_id = ADMIN_SESSION.userId;
+          // Update the thread header to show assigned admin
+            const subEl = document.getElementById('convSub');
+          if (subEl && !subEl.textContent.includes('Assigned to')) {
+            subEl.textContent += ` · Assigned to: ${ADMIN_SESSION.name}`;
+          }
+        } catch(e) { /* non-fatal */ }
+      }
+      // Update last message preview in thread
+      _activeThread._lastMsg = created.data;
+      const el = document.getElementById(tempId);
+      if (el) {
+        el.id = 'msgwrap-' + created.data.id;
+        el.querySelector('.msg-bubble-meta').innerHTML =
+          `<span>${FMT.time(created.data.created_at)} · You</span>
+           <button onclick="deleteMessage('${created.data.id}')" title="Delete message"
+             style="background:none;border:none;cursor:pointer;padding:0 2px;opacity:.5;transition:opacity .15s;line-height:1;"
+             onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">
+             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+           </button>`;
+        el.querySelector('.msg-bubble-meta').style.display = 'flex';
+        el.querySelector('.msg-bubble-meta').style.alignItems = 'center';
+        el.querySelector('.msg-bubble-meta').style.gap = '8px';
+        el.querySelector('.msg-bubble-meta').style.justifyContent = 'flex-end';
+      }
+      renderThreadList();
+    }
+  } catch (err) {
+    const el = document.getElementById(tempId);
+    if (el) el.querySelector('.msg-bubble-meta').textContent = '⚠ Failed to send';
+    showToast('Failed to send message.', 'error');
+  }
+}
+
+function handleComposeSend(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResizeTextarea(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+}
+
+// ─── ARCHIVE THREAD ───────────────────────────────────────────────────────────
+async function archiveThread() {
+  if (!_activeThread) return;
+  const isArchived = _activeThread.status === 'archived';
+  const action = isArchived ? 'unarchive' : 'archive';
+  if (!confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} this conversation?`)) return;
+  try {
+    const newStatus = isArchived ? 'active' : 'archived';
+    await empApiPatch('message_threads', _activeThread.id, { status: newStatus });
+    // Update local state
+    const idx = _threads.findIndex(t => t.id === _activeThread.id);
+    if (idx !== -1) _threads[idx].status = newStatus;
+    _activeThread.status = newStatus;
+    // Update button label
+    const archBtn = document.getElementById('archiveThreadBtn');
+    archBtn.textContent = newStatus === 'archived' ? 'Unarchive' : 'Archive';
+    archBtn.style.color = newStatus === 'archived' ? '#15803d' : '';
+    archBtn.style.borderColor = newStatus === 'archived' ? '#bbf7d0' : '';
+    renderThreadList();
+    showToast(isArchived ? 'Conversation unarchived.' : 'Conversation archived.', 'success');
+  } catch (err) {
+    showToast('Could not update thread.', 'error');
+  }
+}
+
+// ─── DELETE THREAD ────────────────────────────────────────────────────────────
+async function deleteThread() {
+  if (!_activeThread) return;
+  if (!confirm('Permanently delete this entire conversation? This cannot be undone.')) return;
+  try {
+    await fetch(`tables/message_threads/${_activeThread.id}`, { method: 'DELETE' });
+    _threads = _threads.filter(t => t.id !== _activeThread.id);
+    _activeThread = null;
+    document.getElementById('msgConvHeader').style.display  = 'none';
+    document.getElementById('msgMessagesArea').style.display = 'none';
+    document.getElementById('msgComposeArea').style.display  = 'none';
+    if (isMobile()) {
+      document.getElementById('msgSidebar').classList.remove('mobile-conv-open');
+      document.getElementById('msgMain').classList.remove('mobile-conv-open');
+    } else {
+      document.getElementById('msgEmptyState').style.display = 'flex';
+    }
+    renderThreadList();
+    showToast('Conversation deleted.', 'success');
+  } catch (err) {
+    showToast('Could not delete conversation.', 'error');
+  }
+}
+
+// ─── DELETE MESSAGE ───────────────────────────────────────────────────────────
+async function deleteMessage(msgId) {
+  if (!confirm('Delete this message?')) return;
+  try {
+    await fetch(`tables/messages/${msgId}`, { method: 'DELETE' });
+    _messages = _messages.filter(m => m.id !== msgId);
+    const el = document.getElementById(`msgwrap-${msgId}`);
+    if (el) el.remove();
+    showToast('Message deleted.', 'success');
+  } catch (err) {
+    showToast('Could not delete message.', 'error');
+  }
+}
+
+// ─── ATTACHMENT HANDLING ─────────────────────────────────────────────────────
+// _pendingAttachments is declared in the STATE section above
+
+function handleAttachmentSelect(input) {
+  const files = Array.from(input.files || []);
+  _pendingAttachments = [..._pendingAttachments, ...files];
+  renderAttachmentPreview();
+  input.value = ''; // reset so same file can be re-selected
+}
+
+function renderAttachmentPreview() {
+  const preview = document.getElementById('attachmentPreview');
+  if (!_pendingAttachments.length) { preview.style.display = 'none'; preview.innerHTML = ''; return; }
+  preview.style.display = 'flex';
+  preview.style.flexWrap = 'wrap';
+  preview.style.gap = '6px';
+  preview.style.padding = '4px 0';
+  preview.innerHTML = _pendingAttachments.map((f, i) => `
+    <span style="display:inline-flex;align-items:center;gap:5px;background:#f0f5ff;border:1px solid #c7d8f5;
+                 border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;color:#162d56;">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+      ${escHtml(f.name)}
+      <button onclick="removeAttachment(${i})" style="background:none;border:none;cursor:pointer;color:#94a3b8;padding:0;font-size:13px;line-height:1;" title="Remove">×</button>
+    </span>`).join('');
+}
+
+function removeAttachment(idx) {
+  _pendingAttachments.splice(idx, 1);
+  renderAttachmentPreview();
+}
+
+// ─── INFO PANEL ───────────────────────────────────────────────────────────────
+function toggleInfoPanel() {
+  const panel = document.getElementById('msgInfoPanel');
+  panel.classList.toggle('visible');
+}
+
+function renderInfoPanel(thread) {
+  const name = getThreadParticipantName(thread);
+  const msgCount = _messages.filter(m => m.thread_id === thread.id).length;
+
+  // Resolve assigned admin name
+  let assignmentHtml = '';
+  if (thread.assigned_admin_id) {
+    const adminUser = _users ? _users.find(u => u.id === thread.assigned_admin_id) : null;
+    const adminName = adminUser
+      ? (adminUser.full_name || ((adminUser.first_name||'') + ' ' + (adminUser.last_name||'')).trim() || 'Admin')
+      : 'Admin';
+    const isMine = thread.assigned_admin_id === ADMIN_SESSION.userId;
+    assignmentHtml = `<div class="msg-info-row"><span class="msg-info-key">Assigned To:</span><br/>
+      <span style="font-weight:700;color:${isMine?'#166534':'#162d56'};">
+        ${isMine ? '✓ You (' + ADMIN_SESSION.name + ')' : escHtml(adminName)}
+      </span></div>`;
+  } else if (thread.acceptance_status === 'pending') {
+    assignmentHtml = `<div class="msg-info-row"><span class="msg-info-key">Assigned To:</span><br/>
+      <span style="color:#b45309;font-weight:600;">⏳ Awaiting acceptance</span></div>`;
+  } else {
+    assignmentHtml = `<div class="msg-info-row"><span class="msg-info-key">Assigned To:</span><br/>
+      <span style="color:#94a3b8;">Unassigned</span></div>`;
+  }
+
+  document.getElementById('infoPanelContent').innerHTML = `
+    <div class="msg-info-row"><span class="msg-info-key">Participant:</span><br/>${escHtml(name)}</div>
+    <div class="msg-info-row"><span class="msg-info-key">Role:</span><br/>${FMT.snakeToTitle(thread.participant_role || 'client')}</div>
+    <div class="msg-info-row"><span class="msg-info-key">Type:</span><br/>${FMT.snakeToTitle(thread.thread_type || '—')}</div>
+    <div class="msg-info-row"><span class="msg-info-key">Subject:</span><br/>${escHtml(thread.subject || '—')}</div>
+    ${assignmentHtml}
+    <div class="msg-info-row"><span class="msg-info-key">Messages:</span><br/>${msgCount}</div>
+    <div class="msg-info-row"><span class="msg-info-key">Created:</span><br/>${FMT.date(thread.created_at)}</div>
+    <div class="msg-info-row"><span class="msg-info-key">Status:</span><br/>${FMT.snakeToTitle(thread.status || 'active')}</div>
+  `;
+}
+
+// ─── NEW MESSAGE MODAL ────────────────────────────────────────────────────────
+function populateNewMsgDropdowns() {
+  const clientOpts = document.getElementById('newMsgClientOptions');
+  const inspOpts   = document.getElementById('newMsgInspectorOptions');
+
+  const clients = _users.filter(u => u.role === 'client' && u.account_status !== 'terminated');
+  const inspectors = _employees.filter(e => !e.terminated);
+
+  clientOpts.innerHTML = clients.map(u =>
+    `<option value="client:${u.id}">${escHtml((u.first_name||'') + ' ' + (u.last_name||''))}</option>`
+  ).join('') || '<option disabled>No clients found</option>';
+
+  inspOpts.innerHTML = inspectors.map(e =>
+    `<option value="inspector:${e.id}">${escHtml(e.full_name || e.name || '—')}</option>`
+  ).join('') || '<option disabled>No inspectors found</option>';
+}
+
+function openNewMessageModal() {
+  document.getElementById('newMsgModal').style.display = 'flex';
+  document.getElementById('newMsgSubject').value = '';
+  document.getElementById('newMsgBody').value = '';
+}
+function closeNewMessageModal() {
+  document.getElementById('newMsgModal').style.display = 'none';
+}
+
+async function sendNewMessage() {
+  const recipientVal = document.getElementById('newMsgRecipient').value;
+  const subject      = document.getElementById('newMsgSubject').value.trim();
+  const body         = document.getElementById('newMsgBody').value.trim();
+  const type         = document.getElementById('newMsgType').value;
+
+  if (!recipientVal) { showToast('Please select a recipient.', 'error'); return; }
+  if (!body) { showToast('Please write a message.', 'error'); return; }
+
+  const [role, id] = recipientVal.split(':');
+  const participantName = role === 'client'
+    ? (() => { const u = _users.find(u => u.id === id); return u ? (u.first_name||'') + ' ' + (u.last_name||'') : '—'; })()
+    : (() => { const e = _employees.find(e => e.id === id); return e ? (e.full_name || e.name || '—') : '—'; })();
+
+  try {
+    const threadRes = await empApiPost('message_threads', {
+      subject: subject || 'New message',
+      thread_type: type,
+      participant_role: role,
+      participant_id: id,
+      participant_name: participantName,
+      client_user_id: role === 'client' ? id : null,
+      inspector_employee_id: role === 'inspector' ? id : null,
+      status: 'active',
+      created_by_id: ADMIN_SESSION.userId,
+      created_by_name: ADMIN_SESSION.name,
+    });
+
+    if (threadRes.data) {
+      await empApiPost('messages', {
+        thread_id: threadRes.data.id,
+        sender_id: ADMIN_SESSION.userId,
+        sender_role: ADMIN_SESSION.role,
+        sender_name: ADMIN_SESSION.name,
+        body,
+        read_status: 'unread',
+      });
+
+      showToast('Message sent!', 'success');
+      closeNewMessageModal();
+      await loadData();
+      openThread(threadRes.data.id);
+    }
+  } catch (err) {
+    showToast('Failed to send message.', 'error');
+  }
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function empApiPatch(table, id, body) {
+  try {
+    const res = await fetch(`tables/${table}/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json();
+    return { data: json, error: null };
+  } catch (e) {
+    return { data: null, error: e.message };
+  }
+}
+</script>
+</body>
+</html>

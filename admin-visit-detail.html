@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visit Details — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── Hero Banner ── */
+    .avd-hero {
+      background: linear-gradient(135deg, #0f1e38 0%, #162d56 100%);
+      border-radius: 16px;
+      padding: 26px 28px;
+      margin-bottom: 22px;
+      color: #fff;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .avd-hero-left { display: flex; align-items: flex-start; gap: 16px; flex: 1; min-width: 0; }
+    .avd-hero-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: rgba(255,255,255,.13);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .avd-hero-icon svg { width: 24px; height: 24px; }
+    .avd-hero-name {
+      font-size: 21px; font-weight: 800; color: #fff;
+      line-height: 1.2; word-break: break-word;
+    }
+    .avd-hero-addr {
+      font-size: 13px; color: rgba(255,255,255,.7); margin-top: 4px;
+    }
+    .avd-hero-badges {
+      display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;
+    }
+    .avd-hero-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 700;
+      background: rgba(255,255,255,.15); color: #fff;
+    }
+    .avd-hero-badge.completed {
+      background: rgba(34,197,94,.25); color: #86efac;
+    }
+    .avd-hero-actions {
+      display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0; align-items: flex-start;
+    }
+    .avd-hero-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 16px; border-radius: 9px;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all .15s; border: none; text-decoration: none;
+    }
+    .avd-hero-btn-solid {
+      background: #fff; color: #162d56;
+    }
+    .avd-hero-btn-solid:hover { background: #f0f5ff; }
+    .avd-hero-btn-outline {
+      background: rgba(255,255,255,.12); color: #fff;
+      border: 1px solid rgba(255,255,255,.3);
+    }
+    .avd-hero-btn-outline:hover { background: rgba(255,255,255,.22); }
+    .avd-hero-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── Info grid ── */
+    .avd-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 768px) { .avd-grid-2 { grid-template-columns: 1fr; } }
+
+    /* ── Section card ── */
+    .avd-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin-bottom: 18px;
+    }
+    .avd-card-title {
+      font-size: 11px; font-weight: 700; color: #64748b;
+      text-transform: uppercase; letter-spacing: .7px;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .avd-card-title svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── Field rows ── */
+    .avd-field-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px 22px;
+    }
+    @media (max-width: 900px) { .avd-field-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .avd-field-grid { grid-template-columns: 1fr; } }
+
+    .avd-field-label {
+      font-size: 10px; font-weight: 600; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: .5px;
+      margin-bottom: 3px;
+    }
+    .avd-field-val {
+      font-size: 14px; font-weight: 600; color: #0f1e38;
+    }
+    .avd-field-val.muted { color: #64748b; font-weight: 400; font-style: italic; }
+
+    /* ── Status pill ── */
+    .avd-status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 700;
+    }
+    .avd-status-pill.completed { background: #dcfce7; color: #15803d; }
+    .avd-status-pill.scheduled { background: #dbeafe; color: #1d4ed8; }
+    .avd-status-pill.cancelled { background: #fee2e2; color: #b91c1c; }
+    .avd-status-pill.in_progress { background: #fef3c7; color: #b45309; }
+    .avd-status-pill svg { width: 12px; height: 12px; }
+
+    /* ── Notes block ── */
+    .avd-notes-block {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .avd-notes-empty {
+      font-size: 13px; color: #94a3b8; font-style: italic;
+    }
+
+    /* ── Checklist ── */
+    .avd-checklist { list-style: none; padding: 0; margin: 0; }
+    .avd-checklist li {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 9px 0; border-bottom: 1px solid #f1f5f9;
+      font-size: 13px; color: #334155;
+    }
+    .avd-checklist li:last-child { border-bottom: none; }
+    .avd-checklist-icon {
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .avd-checklist-icon.pass { background: #dcfce7; }
+    .avd-checklist-icon.fail { background: #fee2e2; }
+    .avd-checklist-icon.na   { background: #f1f5f9; }
+    .avd-checklist-icon svg  { width: 11px; height: 11px; }
+
+    /* ── Alerts/Issues ── */
+    .avd-issue-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 0; border-bottom: 1px solid #f1f5f9;
+    }
+    .avd-issue-item:last-child { border-bottom: none; }
+    .avd-issue-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      flex-shrink: 0; margin-top: 4px;
+    }
+    .avd-issue-dot.critical { background: #ef4444; }
+    .avd-issue-dot.high     { background: #f97316; }
+    .avd-issue-dot.medium   { background: #eab308; }
+    .avd-issue-dot.low      { background: #22c55e; }
+    .avd-issue-title {
+      font-size: 13px; font-weight: 600; color: #0f1e38;
+    }
+    .avd-issue-meta {
+      font-size: 11px; color: #64748b; margin-top: 2px;
+    }
+    .avd-issue-badge {
+      display: inline-flex; align-items: center;
+      padding: 2px 8px; border-radius: 10px;
+      font-size: 10px; font-weight: 700; margin-left: 6px;
+    }
+    .avd-issue-badge.critical { background: #fee2e2; color: #b91c1c; }
+    .avd-issue-badge.high     { background: #ffedd5; color: #c2410c; }
+    .avd-issue-badge.medium   { background: #fef9c3; color: #854d0e; }
+    .avd-issue-badge.low      { background: #dcfce7; color: #15803d; }
+
+    /* ── Report action card ── */
+    .avd-report-card {
+      background: linear-gradient(135deg, #f0f5ff 0%, #e8f0ff 100%);
+      border: 1px solid #c7d7f5;
+      border-radius: 14px;
+      padding: 20px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .avd-report-card-left { display: flex; align-items: center; gap: 14px; }
+    .avd-report-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(22,45,86,.12);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .avd-report-icon svg { width: 20px; height: 20px; color: #162d56; }
+    .avd-report-title { font-size: 15px; font-weight: 700; color: #0f1e38; }
+    .avd-report-sub   { font-size: 12px; color: #475569; margin-top: 2px; }
+    .avd-report-btns  { display: flex; gap: 10px; flex-wrap: wrap; }
+    .avd-report-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 16px; border-radius: 9px;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all .15s; border: none; text-decoration: none;
+    }
+    .avd-report-btn-primary {
+      background: #162d56; color: #fff;
+    }
+    .avd-report-btn-primary:hover { background: #0f1e38; }
+    .avd-report-btn-secondary {
+      background: #fff; color: #162d56;
+      border: 1px solid #c7d7f5;
+    }
+    .avd-report-btn-secondary:hover { background: #f0f5ff; }
+    .avd-report-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    .avd-no-report {
+      background: #f8fafc; border: 1px dashed #cbd5e1;
+      border-radius: 14px; padding: 22px;
+      text-align: center; color: #94a3b8;
+    }
+    .avd-no-report-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .avd-no-report-sub   { font-size: 12px; }
+
+    /* ── Loading / Error states ── */
+    #avdLoading { text-align: center; padding: 80px 20px; }
+    #avdError   { display: none; }
+
+    /* ── Breadcrumb ── */
+    .avd-breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: #64748b; margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .avd-breadcrumb a {
+      color: #64748b; text-decoration: none; font-weight: 500;
+    }
+    .avd-breadcrumb a:hover { color: #162d56; text-decoration: underline; }
+    .avd-breadcrumb-sep { color: #cbd5e1; }
+    .avd-breadcrumb-current { color: #0f1e38; font-weight: 600; }
+
+    /* ── Inspector chip ── */
+    .avd-inspector-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .avd-inspector-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #e0e7ff; color: #3730a3;
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <button onclick="goBackToAllVisits()" style="background:none;border:none;padding:0;font-size:12px;color:#64748b;cursor:pointer;display:flex;align-items:center;gap:4px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to All Visits
+          </button>
+          <span class="topbar-title-text" id="avdPageTitle">Visit Details</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-msg-trigger="admin"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          title="Messages"
+          type="button"
+          onclick="SHWMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="admin"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;" id="avdMain">
+
+      <!-- Loading -->
+      <div id="avdLoading">
+        <div style="font-size:15px;color:#94a3b8;">Loading visit details…</div>
+      </div>
+
+      <!-- Error -->
+      <div id="avdError" style="display:none;">
+        <div class="admin-empty-state">
+          <div class="admin-empty-title">Visit Not Found</div>
+          <div class="admin-empty-text">This visit could not be loaded.</div>
+          <button class="admin-btn-solid" style="margin-top:16px;" onclick="goBackToAllVisits()">
+            ← Back to All Visits
+          </button>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div id="avdContent" style="display:none;">
+
+        <!-- Breadcrumb -->
+        <nav class="avd-breadcrumb" id="avdBreadcrumb">
+          <a href="admin-all-visits.html">All Visits</a>
+          <span class="avd-breadcrumb-sep">›</span>
+          <span class="avd-breadcrumb-current" id="avdBreadProp">Visit Details</span>
+        </nav>
+
+        <!-- Hero -->
+        <div class="avd-hero" id="avdHero">
+          <div class="avd-hero-left">
+            <div class="avd-hero-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+                <polyline points="9 16 11 18 15 14"/>
+              </svg>
+            </div>
+            <div>
+              <div class="avd-hero-name" id="avdHeroPropName">—</div>
+              <div class="avd-hero-addr" id="avdHeroAddr">—</div>
+              <div class="avd-hero-badges" id="avdHeroBadges"></div>
+            </div>
+          </div>
+          <div class="avd-hero-actions" id="avdHeroActions"></div>
+        </div>
+
+        <!-- Two-column info grid -->
+        <div class="avd-grid-2">
+
+          <!-- Visit Details card -->
+          <div class="avd-card">
+            <div class="avd-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              Visit Information
+            </div>
+            <div class="avd-field-grid" style="grid-template-columns:1fr 1fr;">
+              <div>
+                <div class="avd-field-label">Visit Date</div>
+                <div class="avd-field-val" id="avdFieldDate">—</div>
+              </div>
+              <div>
+                <div class="avd-field-label">Scheduled Time</div>
+                <div class="avd-field-val" id="avdFieldTime">—</div>
+              </div>
+              <div>
+                <div class="avd-field-label">Visit Type</div>
+                <div class="avd-field-val" id="avdFieldType">—</div>
+              </div>
+              <div>
+                <div class="avd-field-label">Status</div>
+                <div id="avdFieldStatus">—</div>
+              </div>
+              <div>
+                <div class="avd-field-label">Duration</div>
+                <div class="avd-field-val" id="avdFieldDuration">—</div>
+              </div>
+              <div>
+                <div class="avd-field-label">Completed At</div>
+                <div class="avd-field-val" id="avdFieldCompletedAt">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inspector card -->
+          <div class="avd-card">
+            <div class="avd-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              Assigned Inspector
+            </div>
+            <div id="avdInspectorBlock">
+              <div class="avd-field-grid" style="grid-template-columns:1fr 1fr;">
+                <div>
+                  <div class="avd-field-label">Inspector Name</div>
+                  <div class="avd-inspector-chip">
+                    <div class="avd-inspector-avatar" id="avdInspInitials">—</div>
+                    <div class="avd-field-val" id="avdInspName">—</div>
+                  </div>
+                </div>
+                <div>
+                  <div class="avd-field-label">Role</div>
+                  <div class="avd-field-val" id="avdInspRole">—</div>
+                </div>
+                <div style="grid-column:1/-1;">
+                  <div class="avd-field-label">Email</div>
+                  <div class="avd-field-val" id="avdInspEmail">—</div>
+                </div>
+                <div>
+                  <div class="avd-field-label">Phone</div>
+                  <div class="avd-field-val" id="avdInspPhone">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Property Details card -->
+        <div class="avd-card" id="avdPropertyCard">
+          <div class="avd-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            Property Details
+          </div>
+          <div class="avd-field-grid">
+            <div>
+              <div class="avd-field-label">Property Name</div>
+              <div class="avd-field-val" id="avdPropName">—</div>
+            </div>
+            <div>
+              <div class="avd-field-label">Address</div>
+              <div class="avd-field-val" id="avdPropAddress">—</div>
+            </div>
+            <div>
+              <div class="avd-field-label">City / State</div>
+              <div class="avd-field-val" id="avdPropCity">—</div>
+            </div>
+            <div>
+              <div class="avd-field-label">Property Type</div>
+              <div class="avd-field-val" id="avdPropType">—</div>
+            </div>
+            <div>
+              <div class="avd-field-label">Client</div>
+              <div class="avd-field-val" id="avdPropClient">—</div>
+            </div>
+            <div>
+              <div class="avd-field-label">View Property</div>
+              <div><a id="avdPropLink" href="#" style="font-size:13px;font-weight:600;color:#162d56;text-decoration:none;">Open Property →</a></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report card -->
+        <div id="avdReportSection" style="margin-bottom:18px;"></div>
+
+        <!-- Visit Notes / Summary -->
+        <div class="avd-card">
+          <div class="avd-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Visit Notes &amp; Summary
+          </div>
+          <div id="avdNotesContent">
+            <div class="avd-notes-empty">No notes recorded for this visit.</div>
+          </div>
+        </div>
+
+        <!-- Checklist Summary -->
+        <div class="avd-card" id="avdChecklistCard" style="display:none;">
+          <div class="avd-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 11l3 3L22 4"/>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+            </svg>
+            Checklist Summary
+          </div>
+          <div id="avdChecklistStats" style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px;"></div>
+          <ul class="avd-checklist" id="avdChecklistItems"></ul>
+        </div>
+
+        <!-- Alerts / Issues Found -->
+        <div class="avd-card" id="avdIssuesCard" style="display:none;">
+          <div class="avd-card-title" style="color:#b91c1c;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            Alerts &amp; Issues Found
+          </div>
+          <div id="avdIssuesList"></div>
+        </div>
+
+      </div><!-- /avdContent -->
+    </main>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN VISIT DETAIL — admin-visit-detail.html
+   Admin / Executive completed visit details experience.
+   Uses the admin shell (renderAdminSidebar). Never shows the
+   employee portal shell. Entry point: ?visitId=<id>
+   ═══════════════════════════════════════════════════════════════ */
+
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderAdminSidebar('admin-all-visits');
+  document.getElementById('topbarAvatar').textContent = ADMIN_SESSION.initials;
+  await loadVisitDetail();
+});
+
+function goBackToAllVisits() {
+  if (history.length > 1 && document.referrer &&
+      new URL(document.referrer, window.location.href).origin === window.location.origin) {
+    history.back();
+  } else {
+    window.location.href = 'admin-all-visits.html';
+  }
+}
+
+// ── Parse query params ────────────────────────────────────────
+function getParam(name) {
+  return new URLSearchParams(window.location.search).get(name);
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ── Load all data ─────────────────────────────────────────────
+async function loadVisitDetail() {
+  const visitId = getParam('visitId');
+  if (!visitId) { showError(); return; }
+
+  try {
+    const [visitsRes, propsRes, empsRes, usersRes, reportsRes, alertsRes] = await Promise.all([
+      empApiGetAll('visits'),
+      empApiGetAll('properties'),
+      empApiGetAll('employees'),
+      empApiGetAll('users'),
+      empApiGetAll('reports'),
+      empApiGetAll('alerts'),
+    ]);
+
+    const visits  = visitsRes.data  || [];
+    const props   = propsRes.data   || [];
+    const emps    = empsRes.data    || [];
+    const users   = usersRes.data   || [];
+    const reports = reportsRes.data || [];
+    const alerts  = alertsRes.data  || [];
+
+    const visit = visits.find(v => v.id === visitId);
+    if (!visit) { showError(); return; }
+
+    const propMap = {};
+    props.forEach(p => { propMap[p.id] = p; });
+
+    const empMap = {};
+    emps.forEach(e => { empMap[e.id] = e; });
+
+    const userMap = {};
+    users.forEach(u => { userMap[u.id] = u; });
+
+    const prop = propMap[visit.property_id] || {};
+    const emp  = empMap[visit.assigned_employee_id] || {};
+    const user = userMap[emp.user_id] || {};
+
+    // Find related report (matched by visit_id or property+date proximity)
+    const report = reports.find(r =>
+      r.visit_id === visitId ||
+      (r.property_id === visit.property_id &&
+       r.visit_date && visit.scheduled_start &&
+       r.visit_date.slice(0,10) === visit.scheduled_start.slice(0,10))
+    ) || null;
+
+    // Find related alerts for this visit
+    const visitAlerts = alerts.filter(a =>
+      a.visit_id === visitId ||
+      (a.property_id === visit.property_id &&
+       a.created_at && visit.scheduled_start &&
+       Math.abs(new Date(a.created_at) - new Date(visit.scheduled_start)) < 86400000 * 2)
+    );
+
+    renderVisitDetail(visit, prop, emp, user, report, visitAlerts);
+
+  } catch (err) {
+    // Visit detail load error
+    showError();
+  }
+}
+
+function showError() {
+  document.getElementById('avdLoading').style.display = 'none';
+  document.getElementById('avdError').style.display   = 'block';
+  document.getElementById('avdContent').style.display = 'none';
+}
+
+// ── Render ────────────────────────────────────────────────────
+function renderVisitDetail(visit, prop, emp, user, report, visitAlerts) {
+  document.getElementById('avdLoading').style.display = 'none';
+  document.getElementById('avdContent').style.display = 'block';
+
+  const propName   = prop.property_name || 'Unknown Property';
+  const addr1      = prop.address_line1 || '';
+  const addr2      = [prop.city, prop.state].filter(Boolean).join(', ');
+  const fullAddr   = [addr1, addr2].filter(Boolean).join(' · ');
+  const visitDate  = visit.scheduled_start ? FMT.date(visit.scheduled_start) : '—';
+  const visitTime  = visit.scheduled_start ? FMT.time(visit.scheduled_start) : '—';
+  const visitType  = FMT.snakeToTitle(visit.visit_type || '—');
+  const statusText = FMT.snakeToTitle(visit.status || '—');
+
+  // ── Page title ──
+  document.getElementById('avdPageTitle').textContent = propName;
+  document.getElementById('avdBreadProp').textContent = propName;
+  document.title = `Visit — ${propName} — Satellite Home Watch Admin`;
+
+  // ── Hero ──
+  document.getElementById('avdHeroPropName').textContent = propName;
+  document.getElementById('avdHeroAddr').textContent     = fullAddr || '—';
+
+  const badges = [
+    `<span class="avd-hero-badge completed">
+       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+       Completed
+     </span>`,
+    `<span class="avd-hero-badge">${visitDate}</span>`,
+    `<span class="avd-hero-badge">${escHtml(visitType)}</span>`,
+  ];
+  if (user.full_name) {
+    badges.push(`<span class="avd-hero-badge">Inspector: ${escHtml(user.full_name)}</span>`);
+  }
+  document.getElementById('avdHeroBadges').innerHTML = badges.join('');
+
+  // Hero actions
+  const heroActions = [];
+  if (report && report.id) {
+    heroActions.push(`
+      <button class="avd-hero-btn avd-hero-btn-solid" onclick="viewReport('${escHtml(report.id)}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        View Report
+      </button>`);
+    if (report.document_url || report.pdf_url) {
+      heroActions.push(`
+        <button class="avd-hero-btn avd-hero-btn-outline" onclick="downloadReport('${escHtml(report.id)}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download PDF
+        </button>`);
+    }
+  }
+  heroActions.push(`
+    <button class="avd-hero-btn avd-hero-btn-outline" onclick="window.location.href='admin-property-detail.html?propId=${escHtml(visit.property_id || '')}'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+      </svg>
+      View Property
+    </button>`);
+  document.getElementById('avdHeroActions').innerHTML = heroActions.join('');
+
+  // ── Visit Info fields ──
+  document.getElementById('avdFieldDate').textContent     = visitDate;
+  document.getElementById('avdFieldTime').textContent     = visitTime;
+  document.getElementById('avdFieldType').textContent     = visitType;
+
+  // Duration
+  let durationText = '—';
+  if (visit.actual_duration_mins) {
+    durationText = `${visit.actual_duration_mins} min`;
+  } else if (visit.estimated_duration_mins) {
+    durationText = `~${visit.estimated_duration_mins} min (est.)`;
+  }
+  document.getElementById('avdFieldDuration').textContent = durationText;
+
+  // Completed At
+  const completedAt = visit.completed_at || visit.actual_end || visit.updated_at;
+  document.getElementById('avdFieldCompletedAt').textContent =
+    completedAt ? FMT.dateTime(completedAt) : '—';
+
+  // Status pill
+  const statusKey = (visit.status || 'completed').toLowerCase();
+  document.getElementById('avdFieldStatus').innerHTML = `
+    <span class="avd-status-pill ${statusKey}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      ${escHtml(statusText)}
+    </span>`;
+
+  // ── Inspector ──
+  if (user.full_name) {
+    const initials = FMT.initials(user.full_name);
+    document.getElementById('avdInspInitials').textContent = initials;
+    document.getElementById('avdInspName').textContent     = user.full_name;
+    document.getElementById('avdInspRole').textContent     = FMT.snakeToTitle(emp.role || user.role || 'Inspector');
+    document.getElementById('avdInspEmail').textContent    = user.email || '—';
+    document.getElementById('avdInspPhone').textContent    = user.phone || emp.phone || '—';
+  } else {
+    document.getElementById('avdInspInitials').textContent = '?';
+    document.getElementById('avdInspName').textContent     = 'Unassigned';
+    document.getElementById('avdInspRole').textContent     = '—';
+    document.getElementById('avdInspEmail').textContent    = '—';
+    document.getElementById('avdInspPhone').textContent    = '—';
+  }
+
+  // ── Property ──
+  document.getElementById('avdPropName').textContent    = escHtml(propName);
+  document.getElementById('avdPropAddress').textContent = escHtml(addr1 || '—');
+  document.getElementById('avdPropCity').textContent    = escHtml(addr2 || '—');
+  document.getElementById('avdPropType').textContent    = FMT.snakeToTitle(prop.property_type || prop.type || '—');
+  document.getElementById('avdPropClient').textContent  = escHtml(prop.client_name || prop.owner_name || '—');
+  const propLink = document.getElementById('avdPropLink');
+  if (visit.property_id) {
+    propLink.href = `admin-property-detail.html?propId=${encodeURIComponent(visit.property_id)}`;
+  }
+
+  // ── Report card ──
+  const reportSection = document.getElementById('avdReportSection');
+  if (report && report.id) {
+    const rptTitle  = report.title || report.report_title || `Inspection Report — ${visitDate}`;
+    const rptStatus = FMT.snakeToTitle(report.status || 'submitted');
+    const hasDoc    = !!(report.document_url || report.pdf_url || report.file_url);
+    reportSection.innerHTML = `
+      <div class="avd-report-card">
+        <div class="avd-report-card-left">
+          <div class="avd-report-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div>
+            <div class="avd-report-title">${escHtml(rptTitle)}</div>
+            <div class="avd-report-sub">Status: <strong>${escHtml(rptStatus)}</strong>
+              ${report.overall_result ? ` · Overall: <strong>${escHtml(FMT.snakeToTitle(report.overall_result))}</strong>` : ''}
+              ${report.created_at ? ` · Submitted ${escHtml(FMT.relTime(report.created_at))}` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="avd-report-btns">
+          <button class="avd-report-btn avd-report-btn-primary" onclick="viewReport('${escHtml(report.id)}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            View Report
+          </button>
+          ${hasDoc ? `
+          <button class="avd-report-btn avd-report-btn-secondary" onclick="downloadReport('${escHtml(report.id)}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download PDF
+          </button>` : ''}
+        </div>
+      </div>`;
+  } else {
+    reportSection.innerHTML = `
+      <div class="avd-no-report">
+        <div class="avd-no-report-title">No report linked to this visit</div>
+        <div class="avd-no-report-sub">The inspector has not yet submitted a report, or the report has not been matched to this visit.</div>
+      </div>`;
+  }
+
+  // ── Notes ──
+  const notes = visit.notes || visit.summary || visit.visit_notes || report?.notes || '';
+  const notesEl = document.getElementById('avdNotesContent');
+  if (notes && notes.trim()) {
+    notesEl.innerHTML = `<div class="avd-notes-block">${escHtml(notes.trim())}</div>`;
+  } else {
+    notesEl.innerHTML = `<div class="avd-notes-empty">No notes recorded for this visit.</div>`;
+  }
+
+  // ── Checklist ──
+  const checklist = visit.checklist_items || visit.checklist || report?.checklist_items || null;
+  if (checklist && Array.isArray(checklist) && checklist.length > 0) {
+    document.getElementById('avdChecklistCard').style.display = 'block';
+    const passed = checklist.filter(i => (i.result || i.status) === 'pass').length;
+    const failed = checklist.filter(i => (i.result || i.status) === 'fail').length;
+    const naItems = checklist.filter(i => (i.result || i.status) === 'na' || !(i.result || i.status)).length;
+
+    document.getElementById('avdChecklistStats').innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+        <span style="font-size:13px;font-weight:600;color:#15803d;">${passed} Passed</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block;"></span>
+        <span style="font-size:13px;font-weight:600;color:#b91c1c;">${failed} Failed</span>
+      </div>
+      ${naItems > 0 ? `
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="width:10px;height:10px;border-radius:50%;background:#cbd5e1;display:inline-block;"></span>
+        <span style="font-size:13px;font-weight:600;color:#64748b;">${naItems} N/A</span>
+      </div>` : ''}`;
+
+    document.getElementById('avdChecklistItems').innerHTML = checklist.map(item => {
+      const result  = (item.result || item.status || 'na').toLowerCase();
+      const iconMap = {
+        pass: `<svg viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,
+        fail: `<svg viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+        na:   `<svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+      };
+      const icon    = iconMap[result] || iconMap.na;
+      const clsMap  = { pass: 'pass', fail: 'fail', na: 'na' };
+      const cls     = clsMap[result] || 'na';
+      const label   = item.label || item.name || item.item || '';
+      const note    = item.note || item.notes || '';
+      return `
+        <li>
+          <div class="avd-checklist-icon ${cls}">${icon}</div>
+          <div style="flex:1;">
+            <div style="font-weight:600;color:#0f1e38;">${escHtml(label)}</div>
+            ${note ? `<div style="font-size:11px;color:#64748b;margin-top:2px;">${escHtml(note)}</div>` : ''}
+          </div>
+          <div style="font-size:11px;font-weight:700;color:${result==='pass'?'#15803d':result==='fail'?'#b91c1c':'#94a3b8'};text-transform:uppercase;letter-spacing:.4px;">${result === 'na' ? 'N/A' : result}</div>
+        </li>`;
+    }).join('');
+  }
+
+  // ── Alerts / Issues ──
+  const reportFindings = report?.findings || report?.issues || [];
+  const allIssues = [
+    ...visitAlerts.map(a => ({
+      title:    a.alert_title || a.title || 'Alert',
+      severity: (a.severity || a.priority || 'medium').toLowerCase(),
+      note:     a.description || a.notes || '',
+      source:   'alert',
+    })),
+    ...reportFindings.map(f => ({
+      title:    f.title || f.finding || 'Finding',
+      severity: (f.severity || f.priority || 'medium').toLowerCase(),
+      note:     f.description || f.notes || '',
+      source:   'report',
+    })),
+  ];
+
+  if (allIssues.length > 0) {
+    document.getElementById('avdIssuesCard').style.display = 'block';
+    document.getElementById('avdIssuesList').innerHTML = allIssues.map(issue => {
+      const sev = ['critical','high','medium','low'].includes(issue.severity) ? issue.severity : 'medium';
+      return `
+        <div class="avd-issue-item">
+          <div class="avd-issue-dot ${sev}"></div>
+          <div style="flex:1;">
+            <div class="avd-issue-title">
+              ${escHtml(issue.title)}
+              <span class="avd-issue-badge ${sev}">${escHtml(sev.toUpperCase())}</span>
+              ${issue.source === 'report' ? `<span style="font-size:10px;color:#94a3b8;margin-left:4px;">from report</span>` : ''}
+            </div>
+            ${issue.note ? `<div class="avd-issue-meta">${escHtml(issue.note)}</div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+}
+
+// ── Report actions ────────────────────────────────────────────
+function viewReport(reportId) {
+  window.location.href = `admin-reports.html?reportId=${encodeURIComponent(reportId)}`;
+}
+
+function downloadReport(reportId) {
+  // Navigate to reports page with reportId; the reports page will handle download/view
+  window.location.href = `admin-reports.html?reportId=${encodeURIComponent(reportId)}&action=download`;
+}
+</script>
+</body>
+</html>

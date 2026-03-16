@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Management — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── User-management specific styles ─────────────────────────────── */
+    .acct-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .acct-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+    .acct-status.invited    { background: #fff7ed; color: #c2410c; }
+    .acct-status.invited::before    { background: #fb923c; }
+    .acct-status.active     { background: #dcfce7; color: #166534; }
+    .acct-status.active::before     { background: #22c55e; }
+    .acct-status.suspended  { background: #fef9c3; color: #854d0e; }
+    .acct-status.suspended::before  { background: #eab308; }
+    .acct-status.archived   { background: #f1f5f9; color: #475569; }
+    .acct-status.archived::before   { background: #94a3b8; }
+    .acct-status.terminated { background: #fee2e2; color: #dc2626; }
+    .acct-status.terminated::before { background: #ef4444; }
+
+    .role-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .role-pill.executive { background: #fce7f3; color: #9d174d; }
+    .role-pill.manager   { background: #dcfce7; color: #166534; }
+    .role-pill.inspector { background: #ede9fe; color: #6d28d9; }
+    .role-pill.client    { background: #e8eef8; color: #162d56; }
+
+    /* Stats */
+    .um-stats-row {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 14px; margin-bottom: 24px;
+    }
+    @media (max-width: 1100px) { .um-stats-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px)  { .um-stats-row { grid-template-columns: repeat(2, 1fr); } }
+
+    /* Executive-only banner */
+    .exec-only-banner {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+      border-radius: 10px; padding: 12px 18px;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .exec-only-banner svg { width: 18px; height: 18px; color: #a5b4fc; flex-shrink: 0; }
+    .exec-only-banner p { font-size: 12px; color: #c7d2fe; margin: 0; line-height: 1.5; }
+    .exec-only-banner strong { color: #e0e7ff; }
+
+    /* Modal */
+    .um-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 1000; display: none; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .um-modal-overlay.open { display: flex; }
+    .um-modal {
+      background: #fff; border-radius: 16px; width: 100%; max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2); max-height: calc(100vh - 40px); overflow-y: auto;
+    }
+    .um-modal-header {
+      padding: 22px 24px 18px; border-bottom: 1px solid #f1f5f9;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .um-modal-title { font-size: 17px; font-weight: 700; color: #0f1e38; }
+    .um-modal-close {
+      width: 32px; height: 32px; border-radius: 8px; border: 1px solid #e2e8f0;
+      background: #f8fafc; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; color: #64748b; transition: all .15s;
+    }
+    .um-modal-close:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
+    .um-modal-body { padding: 24px; }
+    .um-modal-footer {
+      padding: 16px 24px; border-top: 1px solid #f1f5f9;
+      display: flex; justify-content: flex-end; gap: 10px;
+    }
+
+    .um-form-label {
+      display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 6px;
+    }
+    .um-form-input {
+      width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0;
+      border-radius: 8px; font-size: 13px; font-family: inherit;
+      color: #334155; background: #fff; outline: none;
+      transition: border-color .2s; box-sizing: border-box;
+    }
+    .um-form-input:focus { border-color: #162d56; }
+
+    .um-cancel-btn {
+      background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
+      border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all .15s;
+    }
+    .um-cancel-btn:hover { background: #e2e8f0; }
+    .um-confirm-btn {
+      border: none; border-radius: 8px; padding: 10px 24px; font-size: 13px;
+      font-weight: 700; cursor: pointer; transition: background .2s;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .um-confirm-btn.primary   { background: #162d56; color: #fff; }
+    .um-confirm-btn.primary:hover   { background: #1e3d73; }
+    .um-confirm-btn.warning   { background: #d97706; color: #fff; }
+    .um-confirm-btn.warning:hover   { background: #b45309; }
+    .um-confirm-btn.danger    { background: #dc2626; color: #fff; }
+    .um-confirm-btn.danger:hover    { background: #b91c1c; }
+    .um-confirm-btn.archive   { background: #64748b; color: #fff; }
+    .um-confirm-btn.archive:hover   { background: #475569; }
+
+    /* User row avatar */
+    .user-row-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: #162d56; color: #fff; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .user-row-cell { display: flex; align-items: center; gap: 10px; }
+
+    /* Table filter row */
+    .um-filter-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+    /* Empty */
+    .table-empty { padding: 48px 24px; text-align: center; }
+    .table-empty-icon { width: 56px; height: 56px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: #94a3b8; }
+    .table-empty-icon svg { width: 24px; height: 24px; }
+    .table-empty-title { font-size: 16px; font-weight: 700; color: #0f1e38; margin-bottom: 6px; }
+    .table-empty-desc  { font-size: 13px; color: #64748b; }
+
+    /* Destructive action separator */
+    .actions-sep { width: 1px; height: 18px; background: #e2e8f0; display: inline-block; margin: 0 2px; vertical-align: middle; }
+
+    /* ── MOBILE USER CARDS (≤768px only) ──────────────────────────────── */
+    #usersMobileCards {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .um-user-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 1px 4px rgba(15,30,56,0.06);
+    }
+
+    /* Card top row: avatar + name/email */
+    .um-user-card-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .um-user-card-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #162d56;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .um-user-card-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f1e38;
+      line-height: 1.3;
+    }
+
+    .um-user-card-email {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 2px;
+      word-break: break-all;
+    }
+
+    /* Card meta rows */
+    .um-user-card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .um-user-card-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .um-user-card-label {
+      color: #94a3b8;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+
+    .um-user-card-value {
+      color: #475569;
+      text-align: right;
+    }
+
+    /* Card badges row */
+    .um-user-card-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    /* Card actions */
+    .um-user-card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      padding-top: 12px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .um-user-card-actions .tbl-action-btn {
+      flex: 1 1 auto;
+      min-width: 0;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    /* Show/hide based on screen size */
+    @media (max-width: 768px) {
+      #usersTableContainer > div { display: none !important; }
+      #usersMobileCards { display: flex !important; }
+
+      /* Tighten the filter row on mobile */
+      .um-filter-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .um-filter-row .admin-search-wrap,
+      .um-filter-row .admin-filter-select {
+        width: 100%;
+      }
+
+      /* Admin table card header stacks on mobile */
+      .admin-table-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+      }
+
+      .admin-table-actions {
+        width: 100% !important;
+      }
+
+      /* Pagination text compact */
+      #usersPagination {
+        flex-direction: column !important;
+        gap: 10px !important;
+        align-items: center !important;
+      }
+    }
+  
+
+    /* Warning card in modal */
+    .um-warning-card {
+      background: #fff7ed; border: 1px solid #fed7aa;
+      border-radius: 10px; padding: 14px 16px;
+      display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px;
+    }
+    .um-warning-card svg { width: 18px; height: 18px; color: #d97706; flex-shrink: 0; }
+    .um-warning-card p { font-size: 13px; color: #92400e; margin: 0; line-height: 1.5; }
+    .um-danger-card {
+      background: #fef2f2; border: 1px solid #fca5a5;
+      border-radius: 10px; padding: 14px 16px;
+      display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px;
+    }
+    .um-danger-card svg { width: 18px; height: 18px; color: #dc2626; flex-shrink: 0; }
+    .um-danger-card p { font-size: 13px; color: #991b1b; margin: 0; line-height: 1.5; }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">User Management</span>
+          <span class="topbar-welcome">Platform-wide user accounts &amp; access control</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-msg-trigger="admin"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          title="Messages"
+          type="button"
+          onclick="SHWMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="admin"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="admin-badge corporate" id="topbarRoleBadge">Executive</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Header Banner -->
+      <div class="admin-header-banner">
+        <div>
+          <div class="admin-header-title">User Management — Executive Control Panel</div>
+          <div class="admin-header-sub">Manage all user accounts, roles, and access status across the platform</div>
+        </div>
+        <div class="admin-header-actions">
+          <button class="admin-btn-primary" onclick="window.location.href='admin-invitations.html'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Invite User
+          </button>
+          <button class="admin-btn-solid" onclick="loadUsers()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Executive-only notice -->
+      <div class="exec-only-banner" id="execOnlyBanner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <p><strong>Executive Access Only:</strong> This panel provides full user management including suspend, archive, and terminate actions. Managers and Admins do not have access to destructive controls on other admin or executive accounts.</p>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="um-stats-row">
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+          <div class="admin-stat-value" id="statActive">—</div>
+          <div class="admin-stat-label">Active Users</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div class="admin-stat-value" id="statInvited">—</div>
+          <div class="admin-stat-label">Invited (Pending)</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div class="admin-stat-value" id="statSuspended">—</div>
+          <div class="admin-stat-label">Suspended</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+          <div class="admin-stat-value" id="statClients">—</div>
+          <div class="admin-stat-label">Client Accounts</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+          <div class="admin-stat-value" id="statTotal">—</div>
+          <div class="admin-stat-label">Total Users</div>
+        </div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="admin-table-card">
+        <div class="admin-table-header">
+          <div class="admin-table-title">All Platform Users</div>
+          <div class="admin-table-actions">
+            <div class="um-filter-row">
+              <div class="admin-search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="admin-search-input" id="searchInput" placeholder="Name, email…" oninput="filterUsers()" />
+              </div>
+              <select class="admin-filter-select" id="roleFilter" onchange="filterUsers()">
+                <option value="">All Roles</option>
+                <option value="executive">Executive</option>
+                <option value="manager">Manager</option>
+                <option value="inspector">Inspector</option>
+                <option value="client">Client</option>
+              </select>
+              <select class="admin-filter-select" id="statusFilter" onchange="filterUsers()">
+                <option value="">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="invited">Invited</option>
+                <option value="suspended">Suspended</option>
+                <option value="archived">Archived</option>
+                <option value="terminated">Terminated</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="usersTableContainer">
+          <div style="padding:40px;text-align:center;color:#94a3b8;font-size:13px;">Loading users…</div>
+        </div>
+
+        <!-- Mobile card list — shown only on ≤768px via CSS -->
+        <div id="usersMobileCards"></div>
+
+        <div id="usersPagination" style="padding:14px 20px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#64748b;"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ════ SUSPEND MODAL ════ -->
+<div class="um-modal-overlay" id="suspendModal">
+  <div class="um-modal">
+    <div class="um-modal-header">
+      <div class="um-modal-title" style="color:#d97706;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Suspend Account
+      </div>
+      <button class="um-modal-close" onclick="closeActionModal('suspendModal')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="um-modal-body">
+      <div class="um-warning-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <p>Suspending this account will <strong>prevent the user from signing in</strong>. Their data and history are preserved. You can reactivate at any time.</p>
+      </div>
+      <div style="font-size:14px;color:#0f1e38;margin-bottom:4px;">Suspending account for: <strong id="suspendUserLabel">—</strong></div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:16px;" id="suspendRoleLabel">—</div>
+      <div>
+        <label class="um-form-label">Reason for suspension <span style="color:#94a3b8;font-weight:400;">(optional)</span></label>
+        <textarea class="um-form-input" id="suspendReason" rows="2" placeholder="Add an internal reason…" style="resize:vertical;"></textarea>
+      </div>
+    </div>
+    <div class="um-modal-footer">
+      <button class="um-cancel-btn" onclick="closeActionModal('suspendModal')">Cancel</button>
+      <button class="um-confirm-btn warning" id="suspendConfirmBtn" onclick="confirmAction('suspend')">
+        Suspend Account
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ARCHIVE MODAL ════ -->
+<div class="um-modal-overlay" id="archiveModal">
+  <div class="um-modal">
+    <div class="um-modal-header">
+      <div class="um-modal-title" style="color:#64748b;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+        Archive Account
+      </div>
+      <button class="um-modal-close" onclick="closeActionModal('archiveModal')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="um-modal-body">
+      <div class="um-warning-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+        <p>Archiving moves this account to an <strong>inactive archived state</strong>. The user cannot sign in. All records are retained. This can be reversed by an executive.</p>
+      </div>
+      <div style="font-size:14px;color:#0f1e38;">Archiving account for: <strong id="archiveUserLabel">—</strong></div>
+    </div>
+    <div class="um-modal-footer">
+      <button class="um-cancel-btn" onclick="closeActionModal('archiveModal')">Cancel</button>
+      <button class="um-confirm-btn archive" id="archiveConfirmBtn" onclick="confirmAction('archive')">
+        Archive Account
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TERMINATE MODAL ════ -->
+<div class="um-modal-overlay" id="terminateModal">
+  <div class="um-modal">
+    <div class="um-modal-header">
+      <div class="um-modal-title" style="color:#dc2626;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        Terminate Account
+      </div>
+      <button class="um-modal-close" onclick="closeActionModal('terminateModal')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="um-modal-body">
+      <div class="um-danger-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <p><strong>This action terminates the account permanently.</strong> The user will lose all access. Historical records (visits, alerts, reports, documents) are preserved in the system for compliance. This cannot be easily undone.</p>
+      </div>
+      <div style="font-size:14px;color:#0f1e38;margin-bottom:4px;">Terminating account for: <strong id="terminateUserLabel">—</strong></div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:16px;" id="terminateRoleLabel">—</div>
+      <div>
+        <label class="um-form-label">Reason for termination <span style="color:#dc2626;">*</span></label>
+        <textarea class="um-form-input" id="terminateReason" rows="3" placeholder="Provide a reason (required for audit trail)…" style="resize:vertical;"></textarea>
+      </div>
+      <div style="margin-top:14px;">
+        <label class="um-form-label">Type "<span style="font-family:monospace;color:#dc2626;" id="terminateConfirmWord">TERMINATE</span>" to confirm</label>
+        <input type="text" class="um-form-input" id="terminateConfirmInput" placeholder="Type TERMINATE to confirm" />
+      </div>
+    </div>
+    <div class="um-modal-footer">
+      <button class="um-cancel-btn" onclick="closeActionModal('terminateModal')">Cancel</button>
+      <button class="um-confirm-btn danger" id="terminateConfirmBtn" onclick="confirmAction('terminate')">
+        Terminate Account
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ EDIT ROLE MODAL ════ -->
+<div class="um-modal-overlay" id="editRoleModal">
+  <div class="um-modal">
+    <div class="um-modal-header">
+      <div class="um-modal-title">Edit User Role</div>
+      <button class="um-modal-close" onclick="closeActionModal('editRoleModal')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="um-modal-body">
+      <div style="font-size:14px;color:#0f1e38;margin-bottom:16px;">Editing role for: <strong id="editRoleUserLabel">—</strong></div>
+      <div>
+        <label class="um-form-label">New Role</label>
+        <select class="um-form-input" id="editRoleSelect">
+          <option value="executive">Executive</option>
+          <option value="manager">Manager / Admin</option>
+          <option value="inspector">Inspector</option>
+          <option value="client">Client</option>
+        </select>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:#64748b;line-height:1.5;">
+        Changing a user's role will update their portal access immediately on next login.
+      </div>
+    </div>
+    <div class="um-modal-footer">
+      <button class="um-cancel-btn" onclick="closeActionModal('editRoleModal')">Cancel</button>
+      <button class="um-confirm-btn primary" id="editRoleConfirmBtn" onclick="confirmAction('editRole')">
+        Save Role
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ REACTIVATE MODAL ════ -->
+<div class="um-modal-overlay" id="reactivateModal">
+  <div class="um-modal">
+    <div class="um-modal-header">
+      <div class="um-modal-title" style="color:#166534;">Reactivate Account</div>
+      <button class="um-modal-close" onclick="closeActionModal('reactivateModal')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="um-modal-body">
+      <div style="text-align:center;padding:8px 0;">
+        <div style="width:56px;height:56px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#16a34a;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#0f1e38;margin-bottom:8px;">Reactivate <span id="reactivateUserLabel">this account</span>?</div>
+        <p style="font-size:13px;color:#64748b;line-height:1.6;margin:0;">The user's account will be restored to <strong>Active</strong> status and they will be able to sign in again.</p>
+      </div>
+    </div>
+    <div class="um-modal-footer">
+      <button class="um-cancel-btn" onclick="closeActionModal('reactivateModal')">Cancel</button>
+      <button class="um-confirm-btn primary" id="reactivateConfirmBtn" onclick="confirmAction('reactivate')">
+        Reactivate Account
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TOAST ════ -->
+<div id="toastContainer" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;"></div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+// ── Session ───────────────────────────────────────────────────────────────────
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'executive', name: '', initials: '' };
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let allUsers       = [];
+let filteredUsers  = [];
+let currentPage    = 1;
+const PAGE_SIZE    = 10;
+let actionTarget   = null; // { id, email, name, role, currentStatus }
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('topbarAvatar').textContent = ADMIN_SESSION.initials;
+  // Check for URL search param
+  const params = new URLSearchParams(window.location.search);
+  const search = params.get('search');
+  if (search) {
+    document.getElementById('searchInput').value = search;
+  }
+  renderAdminSidebar('admin-user-management');
+  loadUsers();
+});
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+async function loadUsers() {
+  try {
+    const res  = await fetch('tables/users?limit=200');
+    const data = await res.json();
+    allUsers = (data.data || []).sort((a,b) => {
+      const order = { executive:0, manager:1, inspector:2, client:3 };
+      return (order[a.role] ?? 9) - (order[b.role] ?? 9) ||
+             ((a.first_name||'') + ' ' + (a.last_name||'')).localeCompare((b.first_name||'') + ' ' + (b.last_name||''));
+    });
+    renderStats();
+    filterUsers();
+  } catch {
+    document.getElementById('usersTableContainer').innerHTML =
+      `<div style="padding:40px;text-align:center;color:#dc2626;font-size:13px;">Failed to load users.</div>`;
+  }
+}
+
+function renderStats() {
+  document.getElementById('statActive').textContent    = allUsers.filter(u => u.account_status === 'active').length;
+  document.getElementById('statInvited').textContent   = allUsers.filter(u => u.account_status === 'invited').length;
+  document.getElementById('statSuspended').textContent = allUsers.filter(u => u.account_status === 'suspended' || u.account_status === 'archived').length;
+  document.getElementById('statClients').textContent   = allUsers.filter(u => u.role === 'client').length;
+  document.getElementById('statTotal').textContent     = allUsers.length;
+}
+
+// ── Filtering ─────────────────────────────────────────────────────────────────
+function filterUsers() {
+  const search = (document.getElementById('searchInput').value || '').toLowerCase();
+  const role   = document.getElementById('roleFilter').value;
+  const status = document.getElementById('statusFilter').value;
+
+  filteredUsers = allUsers.filter(u => {
+    const name = ((u.first_name||'') + ' ' + (u.last_name||'')).toLowerCase();
+    const matchSearch = !search || name.includes(search) || (u.email||'').toLowerCase().includes(search);
+    const matchRole   = !role   || u.role === role;
+    const matchStatus = !status || u.account_status === status;
+    return matchSearch && matchRole && matchStatus;
+  });
+
+  currentPage = 1;
+  renderTable();
+}
+
+// ── Table render ──────────────────────────────────────────────────────────────
+function renderTable() {
+  const container       = document.getElementById('usersTableContainer');
+  const mobileContainer = document.getElementById('usersMobileCards');
+
+  if (!filteredUsers.length) {
+    container.innerHTML = `
+      <div class="table-empty">
+        <div class="table-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+        <div class="table-empty-title">No users found</div>
+        <div class="table-empty-desc">Adjust your filters or invite a new user.</div>
+      </div>`;
+    mobileContainer.innerHTML = '';
+    document.getElementById('usersPagination').innerHTML = '';
+    return;
+  }
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page  = filteredUsers.slice(start, start + PAGE_SIZE);
+  const isExec = ADMIN_SESSION.role === 'executive';
+
+  // ── Build desktop table rows ───────────────────────────────────────────────
+  let rows = '';
+  // ── Build mobile cards ────────────────────────────────────────────────────
+  let mobileCards = '';
+
+  page.forEach(u => {
+    const name         = [u.first_name, u.last_name].filter(Boolean).join(' ') || '—';
+    const initials     = ((u.first_name||'?')[0] + (u.last_name||'?')[0]).toUpperCase();
+    const statusChip   = `<span class="acct-status ${u.account_status||'active'}">${capitalize(u.account_status||'active')}</span>`;
+    const rolePill     = `<span class="role-pill ${u.role||''}">${roleName(u.role)}</span>`;
+    const createdDate  = formatDate(u.invited_at);
+    const lastLogin    = u.last_login ? formatDate(u.last_login) : '<span style="color:#94a3b8;">Never</span>';
+    const customer     = u.related_customer_id
+      ? `<span style="font-size:12px;color:#475569;">${escHtml(u.related_customer_id)}</span>`
+      : '<span style="color:#cbd5e1;font-size:12px;">—</span>';
+
+    // Determine allowed actions
+    const isProtected = (u.role === 'executive' || u.role === 'manager') && ADMIN_SESSION.role !== 'executive';
+    const canDestruct  = isExec && u.id !== ADMIN_SESSION.userId;
+
+    let actions = buildActions(u, name, isProtected, canDestruct, isExec);
+
+    // ── Desktop row ──────────────────────────────────────────────────────────
+    rows += `
+      <tr>
+        <td>
+          <div class="user-row-cell">
+            <div class="user-row-avatar">${initials}</div>
+            <div>
+              <div class="cell-primary">${escHtml(name)}</div>
+              <div class="cell-secondary">${escHtml(u.email)}</div>
+            </div>
+          </div>
+        </td>
+        <td>${rolePill}</td>
+        <td>${statusChip}</td>
+        <td>${customer}</td>
+        <td><span style="font-size:12px;color:#64748b;">${createdDate}</span></td>
+        <td><span style="font-size:12px;color:#64748b;">${lastLogin}</span></td>
+        <td>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;">
+            ${actions || '<span style="font-size:11px;color:#94a3b8;">—</span>'}
+          </div>
+        </td>
+      </tr>`;
+
+    // ── Mobile card ──────────────────────────────────────────────────────────
+    const customerLabel = u.related_customer_id ? escHtml(u.related_customer_id) : '—';
+    mobileCards += `
+      <div class="um-user-card">
+        <div class="um-user-card-top">
+          <div class="um-user-card-avatar">${initials}</div>
+          <div>
+            <div class="um-user-card-name">${escHtml(name)}</div>
+            <div class="um-user-card-email">${escHtml(u.email)}</div>
+          </div>
+        </div>
+        <div class="um-user-card-badges">
+          ${rolePill}
+          ${statusChip}
+        </div>
+        <div class="um-user-card-meta">
+          ${u.related_customer_id ? `
+          <div class="um-user-card-row">
+            <span class="um-user-card-label">Customer</span>
+            <span class="um-user-card-value">${customerLabel}</span>
+          </div>` : ''}
+          <div class="um-user-card-row">
+            <span class="um-user-card-label">Invited</span>
+            <span class="um-user-card-value">${createdDate}</span>
+          </div>
+          <div class="um-user-card-row">
+            <span class="um-user-card-label">Last Login</span>
+            <span class="um-user-card-value">${u.last_login ? formatDate(u.last_login) : 'Never'}</span>
+          </div>
+        </div>
+        ${actions ? `<div class="um-user-card-actions">${actions}</div>` : ''}
+      </div>`;
+  });
+
+  // ── Desktop table HTML ─────────────────────────────────────────────────────
+  container.innerHTML = `
+    <div style="overflow-x:auto;">
+      <table class="admin-data-table" style="min-width:1000px;">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Account Status</th>
+            <th>Related Customer</th>
+            <th>Invited Date</th>
+            <th>Last Login</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+
+  // ── Mobile cards HTML ──────────────────────────────────────────────────────
+  mobileContainer.innerHTML = mobileCards;
+
+  // ── Pagination ─────────────────────────────────────────────────────────────
+  const totalPages = Math.ceil(filteredUsers.length / PAGE_SIZE);
+  const pag = document.getElementById('usersPagination');
+  pag.innerHTML = `
+    <span>Showing ${start + 1}–${Math.min(start + PAGE_SIZE, filteredUsers.length)} of ${filteredUsers.length} users</span>
+    <div style="display:flex;gap:6px;">
+      <button style="padding:4px 12px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;font-size:12px;color:#475569;" onclick="changePage(${currentPage-1})" ${currentPage===1?'disabled':''}>← Prev</button>
+      <span style="padding:4px 8px;font-size:12px;font-weight:600;color:#0f1e38;">${currentPage} / ${totalPages}</span>
+      <button style="padding:4px 12px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;font-size:12px;color:#475569;" onclick="changePage(${currentPage+1})" ${currentPage>=totalPages?'disabled':''}>Next →</button>
+    </div>`;
+}
+
+// ── Shared action button builder ──────────────────────────────────────────────
+function buildActions(u, name, isProtected, canDestruct, isExec) {
+  let actions = '';
+
+  // Resend invitation
+  if (u.account_status === 'invited') {
+    actions += `<button class="tbl-action-btn" onclick="resendForUser('${u.id}','${escHtml(u.email)}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Resend Invite</button>`;
+  }
+
+  // View profile link
+  if (u.role === 'client' && u.related_customer_id) {
+    actions += `<button class="tbl-action-btn" onclick="window.location.href='crm-customer-profile.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> View Profile</button>`;
+  }
+
+  // Reactivate
+  if ((u.account_status === 'suspended' || u.account_status === 'archived') && canDestruct) {
+    actions += `<button class="tbl-action-btn" onclick="openActionModal('reactivate','${u.id}','${escHtml(u.email)}','${escHtml(name)}','${u.role}','${u.account_status}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Reactivate</button>`;
+  }
+
+  if (!isProtected) {
+    // Edit role
+    if (isExec) {
+      actions += `<button class="tbl-action-btn" onclick="openActionModal('editRole','${u.id}','${escHtml(u.email)}','${escHtml(name)}','${u.role}','${u.account_status}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Role</button>`;
+    }
+    // Suspend
+    if (canDestruct && u.account_status === 'active') {
+      actions += `<button class="tbl-action-btn danger" onclick="openActionModal('suspend','${u.id}','${escHtml(u.email)}','${escHtml(name)}','${u.role}','${u.account_status}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg> Suspend</button>`;
+    }
+    // Archive
+    if (canDestruct && (u.account_status === 'active' || u.account_status === 'suspended')) {
+      actions += `<button class="tbl-action-btn danger" onclick="openActionModal('archive','${u.id}','${escHtml(u.email)}','${escHtml(name)}','${u.role}','${u.account_status}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/></svg> Archive</button>`;
+    }
+    // Terminate
+    if (canDestruct && u.account_status !== 'terminated') {
+      actions += `<button class="tbl-action-btn danger" onclick="openActionModal('terminate','${u.id}','${escHtml(u.email)}','${escHtml(name)}','${u.role}','${u.account_status}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg> Terminate</button>`;
+    }
+  } else if (!canDestruct && u.id === ADMIN_SESSION.userId) {
+    actions += `<span style="font-size:11px;color:#94a3b8;padding:0 4px;">Your account</span>`;
+  } else if (isProtected) {
+    actions += `<span style="font-size:11px;color:#94a3b8;padding:0 4px;">Protected</span>`;
+  }
+
+  return actions;
+}
+
+function changePage(p) {
+  const total = Math.ceil(filteredUsers.length / PAGE_SIZE);
+  if (p < 1 || p > total) return;
+  currentPage = p;
+  renderTable();
+}
+
+// ── Action Modals ─────────────────────────────────────────────────────────────
+function openActionModal(action, id, email, name, role, currentStatus) {
+  actionTarget = { id, email, name, role, currentStatus };
+  const modals = {
+    suspend:    'suspendModal',
+    archive:    'archiveModal',
+    terminate:  'terminateModal',
+    editRole:   'editRoleModal',
+    reactivate: 'reactivateModal',
+  };
+  const modal = modals[action];
+  if (!modal) return;
+
+  // Pre-fill labels
+  if (action === 'suspend') {
+    document.getElementById('suspendUserLabel').textContent = name;
+    document.getElementById('suspendRoleLabel').textContent = `${roleName(role)} · ${email}`;
+    document.getElementById('suspendReason').value = '';
+  } else if (action === 'archive') {
+    document.getElementById('archiveUserLabel').textContent = name;
+  } else if (action === 'terminate') {
+    document.getElementById('terminateUserLabel').textContent = name;
+    document.getElementById('terminateRoleLabel').textContent = `${roleName(role)} · ${email}`;
+    document.getElementById('terminateReason').value = '';
+    document.getElementById('terminateConfirmInput').value = '';
+  } else if (action === 'editRole') {
+    document.getElementById('editRoleUserLabel').textContent = name;
+    document.getElementById('editRoleSelect').value = role;
+  } else if (action === 'reactivate') {
+    document.getElementById('reactivateUserLabel').textContent = name;
+  }
+
+  document.getElementById(modal).classList.add('open');
+  // Store current action
+  document.getElementById(modal).dataset.action = action;
+}
+
+function closeActionModal(modalId) {
+  document.getElementById(modalId).classList.remove('open');
+  actionTarget = null;
+}
+
+async function confirmAction(action) {
+  if (!actionTarget) return;
+  const { id, email, name, role } = actionTarget;
+
+  if (action === 'terminate') {
+    const confirmWord = document.getElementById('terminateConfirmInput').value.trim();
+    if (confirmWord !== 'TERMINATE') {
+      showToast('Please type TERMINATE to confirm.', 'error'); return;
+    }
+    const reason = document.getElementById('terminateReason').value.trim();
+    if (!reason) { showToast('Please provide a reason for termination.', 'error'); return; }
+  }
+
+  const statusMap = {
+    suspend:    'suspended',
+    archive:    'archived',
+    terminate:  'terminated',
+    reactivate: 'active',
+  };
+
+  const newStatus = statusMap[action];
+  const modalMap  = { suspend: 'suspendModal', archive: 'archiveModal', terminate: 'terminateModal', editRole: 'editRoleModal', reactivate: 'reactivateModal' };
+  const btnId     = { suspend: 'suspendConfirmBtn', archive: 'archiveConfirmBtn', terminate: 'terminateConfirmBtn', editRole: 'editRoleConfirmBtn', reactivate: 'reactivateConfirmBtn' };
+
+  const btn = document.getElementById(btnId[action]);
+  if (btn) { btn.disabled = true; btn.textContent = 'Processing…'; }
+
+  try {
+    let payload = {};
+    if (action === 'editRole') {
+      payload = { role: document.getElementById('editRoleSelect').value };
+    } else {
+      payload = { account_status: newStatus };
+    }
+
+    await fetch(`tables/users/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const messages = {
+      suspend:    `${name}'s account has been suspended.`,
+      archive:    `${name}'s account has been archived.`,
+      terminate:  `${name}'s account has been terminated. Records preserved.`,
+      editRole:   `${name}'s role has been updated.`,
+      reactivate: `${name}'s account has been reactivated.`,
+    };
+    showToast(messages[action] || 'Done.', 'success');
+    closeActionModal(modalMap[action]);
+    loadUsers();
+  } catch {
+    showToast('Action failed. Please try again.', 'error');
+  }
+
+  if (btn) { btn.disabled = false; }
+}
+
+async function resendForUser(userId, email) {
+  showToast(`Resending invitation to ${email}…`, 'info');
+  // In production, this would trigger the invitation system
+  setTimeout(() => showToast(`Invitation resent to ${email}`, 'success'), 1200);
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function roleName(r) {
+  const m = { executive: 'Executive', manager: 'Manager', inspector: 'Inspector', client: 'Client' };
+  return m[r] || r || '—';
+}
+function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : '—'; }
+function escHtml(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+function showToast(msg, type = 'success') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  const cfg = {
+    success: { bg: '#f0fdf4', color: '#166534', border: '#bbf7d0' },
+    error:   { bg: '#fef2f2', color: '#dc2626', border: '#fca5a5' },
+    info:    { bg: '#f0f6ff', color: '#1e40af', border: '#bfdbfe' },
+  }[type] || {};
+  t.style.cssText = `background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border};padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.1);max-width:320px;`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+const styleEl = document.createElement('style');
+styleEl.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+document.head.appendChild(styleEl);
+</script>
+</body>
+</html>

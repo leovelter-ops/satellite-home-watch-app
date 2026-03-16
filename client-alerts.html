@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Alerts — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/alerts.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+<div class="app-wrapper">
+
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar (rendered by JS) -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Client navigation"></aside>
+
+  <!-- ════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════ -->
+  <div class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">All Alerts</span>
+          <span class="topbar-welcome">Property alerts &amp; issue tracking</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-client-msg-trigger="client"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Messages"
+          type="button"
+          onclick="SHWClientMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span data-client-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="client"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <div class="topbar-avatar" onclick="window.location.href='client-account.html'" role="button" aria-label="My account" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <!-- ════════════════════════════════════════
+         PAGE BODY
+    ════════════════════════════════════════ -->
+    <main class="dashboard-content">
+      <div class="alerts-page">
+
+        <!-- ══════════════════════════════
+             SEVERITY SUMMARY BAR (counts filled by alerts-data.js)
+        ══════════════════════════════ -->
+        <div class="alerts-summary-bar" role="region" aria-label="Alert severity summary">
+          <div class="alerts-summary-item urgent">
+            <div class="alerts-summary-top">
+              <span class="alerts-summary-emoji" aria-hidden="true">🔴</span>
+              <span class="alerts-summary-count" id="summaryUrgent">—</span>
+            </div>
+            <span class="alerts-summary-label">Urgent</span>
+          </div>
+          <div class="alerts-summary-item high">
+            <div class="alerts-summary-top">
+              <span class="alerts-summary-emoji" aria-hidden="true">🟠</span>
+              <span class="alerts-summary-count" id="summaryHigh">—</span>
+            </div>
+            <span class="alerts-summary-label">High</span>
+          </div>
+          <div class="alerts-summary-item medium">
+            <div class="alerts-summary-top">
+              <span class="alerts-summary-emoji" aria-hidden="true">🟡</span>
+              <span class="alerts-summary-count" id="summaryMedium">—</span>
+            </div>
+            <span class="alerts-summary-label">Medium</span>
+          </div>
+          <div class="alerts-summary-item resolved">
+            <div class="alerts-summary-top">
+              <span class="alerts-summary-emoji" aria-hidden="true">🟢</span>
+              <span class="alerts-summary-count" id="summaryResolved">—</span>
+            </div>
+            <span class="alerts-summary-label">Resolved</span>
+          </div>
+        </div>
+        <div class="alerts-summary-caption">
+          <span>Past 90 days across all properties</span>
+        </div>
+
+        <!-- ══════════════════════════════
+             FILTER / SEARCH BAR
+        ══════════════════════════════ -->
+        <div class="alerts-filter-bar" role="search" aria-label="Filter alerts">
+          <div class="alerts-filter-row">
+
+            <!-- Search -->
+            <div class="alerts-search-wrap">
+              <svg class="alerts-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                class="alerts-search-input"
+                type="text"
+                id="alertsSearch"
+                placeholder="Search alerts..."
+                aria-label="Search alerts"
+                autocomplete="off"
+              />
+            </div>
+
+            <!-- Property (populated dynamically by alerts-data.js) -->
+            <select class="alerts-filter-select" id="filterProperty" aria-label="Filter by property">
+              <option value="">All Properties</option>
+            </select>
+
+            <!-- Severity -->
+            <select class="alerts-filter-select" id="filterSeverity" aria-label="Filter by severity">
+              <option value="">All Severities</option>
+              <option value="urgent">Urgent</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+
+            <!-- Status -->
+            <select class="alerts-filter-select" id="filterStatus" aria-label="Filter by status">
+              <option value="">All Statuses</option>
+              <option value="open">Open</option>
+              <option value="inprogress">In Progress</option>
+              <option value="resolved">Resolved</option>
+            </select>
+
+            <div class="alerts-filter-divider" aria-hidden="true"></div>
+
+            <!-- Date Range -->
+            <select class="alerts-filter-select" id="filterDate" aria-label="Filter by date range">
+              <option value="3m" selected>Last 3 Months</option>
+              <option value="1m">Last Month</option>
+              <option value="6m">Last 6 Months</option>
+              <option value="1y">Last Year</option>
+              <option value="all">All Time</option>
+            </select>
+
+            <!-- Reset -->
+            <div class="alerts-filter-actions">
+              <button class="alerts-filter-reset-btn" onclick="resetFilters()" aria-label="Clear all filters">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                Clear filters
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════
+             LIST HEADER
+        ══════════════════════════════ -->
+        <div class="alerts-list-header">
+          <span class="alerts-list-title">
+            Showing <span id="visibleCount">—</span> active alerts
+          </span>
+        </div>
+
+        <!-- ══════════════════════════════
+             ACTIVE ALERTS LIST (populated by alerts-data.js)
+        ══════════════════════════════ -->
+        <div class="alerts-list" id="alertsList" role="list" aria-label="Active property alerts">
+          <!-- NO PLACEHOLDER DATA — alert cards are rendered dynamically by alerts-data.js -->
+          <div id="alertsLoading" aria-live="polite" style="padding:40px;text-align:center;color:#94a3b8;font-size:14px;">Loading alerts…</div>
+        </div><!-- /alerts-list -->
+
+        <!-- ══════════════════════════════
+             EMPTY STATE (hidden by default)
+        ══════════════════════════════ -->
+        <div class="alerts-empty-state" id="alertsEmptyState" style="display:none;" role="status" aria-live="polite">
+          <div class="alerts-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <h3 class="alerts-empty-title">Good news — no active alerts detected.</h3>
+          <p class="alerts-empty-desc">Your properties are currently secure. Any new issues will appear here as soon as they are detected during inspections.</p>
+        </div>
+
+        <!-- ══════════════════════════════
+             RESOLVED ALERTS SECTION (populated by alerts-data.js)
+        ══════════════════════════════ -->
+        <div class="alerts-section-header" role="region" aria-label="Resolved alerts">
+          <div>
+            <h2 class="alerts-section-title">Resolved Alerts</h2>
+            <p class="alerts-section-subtitle">Last 90 days — all issues closed</p>
+          </div>
+          <span class="alerts-section-badge" id="resolvedBadge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            — Resolved
+          </span>
+        </div>
+
+        <div class="alerts-list" id="resolvedAlertsList" role="list" aria-label="Resolved property alerts">
+          <!-- NO PLACEHOLDER DATA — resolved alerts are rendered dynamically by alerts-data.js -->
+          <div id="resolvedLoading" aria-live="polite" style="padding:24px;text-align:center;color:#94a3b8;font-size:13px;">Loading resolved alerts…</div>
+        </div><!-- /resolvedAlertsList -->
+
+      </div><!-- /alerts-page -->
+    </main>
+  </div><!-- /main-content -->
+</div><!-- /app-wrapper -->
+
+<script src="js/nav.js"></script>
+<script src="js/app.js"></script>
+<script src="js/sidebar.js"></script>
+<script>
+  renderSidebar('alerts');
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof SHWNav !== 'undefined') SHWNav.restoreScroll('client-alerts.html');
+  });
+
+  /* ── Alert Detail Navigation ── */
+  function openAlertDetail(alertId) {
+    if (typeof SHWNav !== 'undefined') SHWNav.saveScroll('client-alerts.html');
+    window.location.href = 'client-alert-detail.html?id=' + alertId;
+  }
+
+  /* ── Clear Filters ── */
+  function resetFilters() {
+    const search = document.getElementById('alertsSearch');
+    const prop   = document.getElementById('filterProperty');
+    const sev    = document.getElementById('filterSeverity');
+    const stat   = document.getElementById('filterStatus');
+    const date   = document.getElementById('filterDate');
+    if (search) search.value = '';
+    if (prop)   prop.value   = '';
+    if (sev)    sev.value    = '';
+    if (stat)   stat.value   = '';
+    if (date)   date.value   = '3m';
+    if (typeof applyFilters === 'function') applyFilters();
+  }
+</script>
+
+<!-- ═══════════════════════════════════════════
+     BACKEND DATA LAYER
+════════════════════════════════════════════ -->
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/alerts-data.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/client-msg-panel.js"></script>
+
+</body>
+</html>

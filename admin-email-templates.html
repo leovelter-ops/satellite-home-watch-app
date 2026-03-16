@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Templates — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── Email Templates Page Styles ──────────────────────────────────── */
+    .et-page { max-width: 1300px; }
+
+    /* Category nav */
+    .et-category-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .et-cat-btn {
+      padding: 7px 16px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      transition: all .18s;
+      white-space: nowrap;
+    }
+    .et-cat-btn:hover  { border-color: #162d56; color: #162d56; background: #f0f5ff; }
+    .et-cat-btn.active { background: #162d56; color: #fff; border-color: #162d56; }
+
+    /* Template grid */
+    .et-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1100px) { .et-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px)  { .et-grid { grid-template-columns: 1fr; } }
+
+    /* Template card */
+    .et-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: box-shadow .2s, border-color .2s;
+      cursor: pointer;
+    }
+    .et-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); border-color: #c7d8f5; }
+    .et-card.active-edit { border-color: #162d56; box-shadow: 0 0 0 2px rgba(22,45,86,.12); }
+    .et-card-header {
+      padding: 14px 16px 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .et-card-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .et-card-icon svg { width: 16px; height: 16px; }
+    .et-card-name { font-size: 14px; font-weight: 700; color: #0f1e38; }
+    .et-card-desc { font-size: 11px; color: #94a3b8; margin-top: 2px; line-height: 1.4; }
+    .et-card-body { padding: 14px 16px; }
+    .et-trigger-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      margin-bottom: 6px;
+    }
+    .et-trigger-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #f0f5ff;
+      color: #162d56;
+      border-radius: 20px;
+      padding: 3px 9px;
+    }
+    .et-variable-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    .et-var-tag {
+      font-size: 10px;
+      font-weight: 600;
+      background: #f8fafc;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      padding: 2px 7px;
+      font-family: monospace;
+    }
+    .et-card-footer {
+      padding: 10px 16px;
+      border-top: 1px solid #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .et-status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 5px;
+    }
+    .et-status-label { font-size: 11px; font-weight: 600; }
+    .et-edit-btn {
+      font-size: 11px;
+      font-weight: 600;
+      color: #162d56;
+      background: none;
+      border: 1px solid #e2e8f0;
+      border-radius: 7px;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .et-edit-btn:hover { background: #f0f5ff; border-color: #c7d8f5; }
+
+    /* Editor panel */
+    .et-editor {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      display: none;
+    }
+    .et-editor.open { display: block; }
+    .et-editor-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fafbfc;
+    }
+    .et-editor-title { font-size: 15px; font-weight: 700; color: #0f1e38; }
+    .et-editor-subtitle { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .et-editor-close {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #64748b;
+    }
+    .et-editor-close:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+    .et-editor-body { padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 900px) { .et-editor-body { grid-template-columns: 1fr; } }
+    .et-form-group { margin-bottom: 14px; }
+    .et-form-label { display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 6px; letter-spacing: .3px; }
+    .et-form-input, .et-form-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #334155;
+      background: #fff;
+      outline: none;
+      transition: border-color .2s;
+      box-sizing: border-box;
+    }
+    .et-form-input:focus, .et-form-textarea:focus { border-color: #162d56; }
+    .et-form-textarea { resize: vertical; }
+
+    /* Preview panel */
+    .et-preview-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 18px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #334155;
+      min-height: 300px;
+    }
+    .et-preview-from {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .et-preview-subject { font-size: 15px; font-weight: 700; color: #0f1e38; margin-bottom: 12px; }
+
+    /* Variables reference */
+    .et-vars-reference {
+      background: #f0f5ff;
+      border: 1px solid #c7d8f5;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .et-vars-ref-title { font-size: 11px; font-weight: 700; color: #162d56; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
+    .et-vars-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .et-var-copy {
+      font-size: 10px;
+      font-weight: 600;
+      background: #fff;
+      color: #162d56;
+      border: 1px solid #c7d8f5;
+      border-radius: 5px;
+      padding: 3px 8px;
+      font-family: monospace;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .et-var-copy:hover { background: #162d56; color: #fff; }
+
+    /* Info banner */
+    .et-info-banner {
+      background: #f0f6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .et-info-banner svg { width: 16px; height: 16px; color: #2563eb; flex-shrink: 0; margin-top: 1px; }
+    .et-info-banner p { font-size: 12px; color: #1e40af; margin: 0; line-height: 1.6; }
+
+    /* Flow diagram */
+    .et-flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin: 18px 0;
+    }
+    .et-flow-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f0f5ff;
+      border: 1px solid #c7d8f5;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #162d56;
+    }
+    .et-flow-step svg { width: 13px; height: 13px; }
+    .et-flow-arrow {
+      padding: 0 4px;
+      color: #94a3b8;
+      font-size: 16px;
+      font-weight: 300;
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Email Templates</span>
+          <span class="topbar-welcome">System email structures &amp; activation flow templates</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-msg-trigger="admin"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          title="Messages"
+          type="button"
+          onclick="SHWMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button class="topbar-icon-btn np-bell-btn" data-notif-trigger="admin" aria-label="Notifications" onclick="SHWNotifPanel.toggle(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+      <div class="et-page">
+
+        <!-- Info Banner -->
+        <div class="et-info-banner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <p>These are <strong>system-ready email template structures</strong>. Each template defines the trigger event, variables, subject, and body. Full email delivery requires backend SMTP integration. Templates can be previewed and edited here before backend connection.</p>
+        </div>
+
+        <!-- Invitation + Activation Flow Diagram -->
+        <div class="admin-table-card" style="margin-bottom:22px;padding:18px 20px;">
+          <div style="font-size:14px;font-weight:700;color:#0f1e38;margin-bottom:14px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Invitation &amp; Activation Email Flow
+          </div>
+          <div class="et-flow">
+            <div class="et-flow-step">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              Admin Creates Customer
+            </div>
+            <div class="et-flow-arrow">→</div>
+            <div class="et-flow-step">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+              Assigns Properties
+            </div>
+            <div class="et-flow-arrow">→</div>
+            <div class="et-flow-step" style="background:#fff7ed;border-color:#fed7aa;color:#c2410c;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              🔔 Invitation Email Sent
+            </div>
+            <div class="et-flow-arrow">→</div>
+            <div class="et-flow-step">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              Customer Clicks Link
+            </div>
+            <div class="et-flow-arrow">→</div>
+            <div class="et-flow-step">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Creates Password
+            </div>
+            <div class="et-flow-arrow">→</div>
+            <div class="et-flow-step" style="background:#dcfce7;border-color:#bbf7d0;color:#166534;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              🎉 Welcome Email Sent
+            </div>
+          </div>
+          <div style="font-size:12px;color:#94a3b8;margin-top:8px;">Properties are pre-assigned by admin before invitation is sent. Customers cannot create or manage their own properties.</div>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="et-category-nav">
+          <button class="et-cat-btn active" onclick="filterTemplates('all',this)">All Templates</button>
+          <button class="et-cat-btn" onclick="filterTemplates('account',this)">Account &amp; Invitation</button>
+          <button class="et-cat-btn" onclick="filterTemplates('visit',this)">Visit &amp; Inspection</button>
+          <button class="et-cat-btn" onclick="filterTemplates('report',this)">Reports</button>
+          <button class="et-cat-btn" onclick="filterTemplates('alert',this)">Alerts</button>
+          <button class="et-cat-btn" onclick="filterTemplates('service',this)">Service Requests</button>
+          <button class="et-cat-btn" onclick="filterTemplates('promotion',this)">Promotions</button>
+          <button onclick="openCreateTemplateModal()"
+            style="margin-left:auto;padding:7px 16px;border-radius:8px;border:none;background:#162d56;color:#fff;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Template
+          </button>
+        </div>
+
+        <!-- Template Editor (hidden by default) -->
+        <div class="et-editor" id="templateEditor">
+          <div class="et-editor-header">
+            <div>
+              <div class="et-editor-title" id="editorTitle">Edit Template</div>
+              <div class="et-editor-subtitle" id="editorSubtitle">Modify subject and body</div>
+            </div>
+            <button class="et-editor-close" onclick="closeEditor()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="et-editor-body">
+            <!-- Left: Edit form -->
+            <div>
+              <div class="et-vars-reference">
+                <div class="et-vars-ref-title">Available Variables (click to copy)</div>
+                <div class="et-vars-list" id="editorVarsList"></div>
+              </div>
+              <div class="et-form-group">
+                <label class="et-form-label">From Name</label>
+                <input type="text" class="et-form-input" id="editorFrom" value="Satellite Home Watch" />
+              </div>
+              <div class="et-form-group">
+                <label class="et-form-label">Subject Line *</label>
+                <input type="text" class="et-form-input" id="editorSubject" oninput="updatePreview()" />
+              </div>
+              <div class="et-form-group">
+                <label class="et-form-label">Email Body *</label>
+                <textarea class="et-form-textarea" id="editorBody" rows="10" oninput="updatePreview()"></textarea>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:6px;">
+                <button onclick="saveTemplate()" style="background:#162d56;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  Save Template
+                </button>
+                <button onclick="sendTestEmail()" style="background:#f8fafc;color:#162d56;border:1px solid #e2e8f0;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;">
+                  Send Test Email
+                </button>
+                <button onclick="closeEditor()" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+              </div>
+            </div>
+            <!-- Right: Preview -->
+            <div>
+              <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px;">Live Preview</div>
+              <div class="et-preview-box">
+                <div class="et-preview-from">
+                  <strong>From:</strong> Satellite Home Watch &lt;noreply@satellitehomewatch.com&gt;<br/>
+                  <strong>To:</strong> {{ customer_name }} &lt;{{ customer_email }}&gt;
+                </div>
+                <div class="et-preview-subject" id="previewSubject">—</div>
+                <div id="previewBody" style="white-space:pre-wrap;"></div>
+              </div>
+              <div style="font-size:11px;color:#94a3b8;margin-top:8px;text-align:center;">
+                Preview shows template with variable placeholders. Actual email will substitute real values.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Template Grid -->
+        <div class="et-grid" id="templateGrid">
+          <!-- Populated by JS -->
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Create New Template Modal -->
+<div id="createTemplateModal" class="admin-modal-overlay" style="display:none;">
+  <div class="admin-modal" style="max-width:580px;width:95%;">
+    <div class="admin-modal-header">
+      <div class="admin-modal-title">Create New Email Template</div>
+      <button class="admin-modal-close" onclick="closeCreateTemplateModal()">✕</button>
+    </div>
+    <div class="admin-modal-body">
+      <div class="admin-form-grid">
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Template Name *</label>
+          <input type="text" class="admin-form-input" id="newTplName" placeholder="e.g. Summer Promotion 2025" />
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Category *</label>
+          <select class="admin-form-select" id="newTplCategory">
+            <option value="">— Select Category —</option>
+            <option value="account">Account &amp; Invitation</option>
+            <option value="visit">Visit &amp; Inspection</option>
+            <option value="report">Reports</option>
+            <option value="alert">Alerts</option>
+            <option value="service">Service Requests</option>
+            <option value="promotion">Promotions</option>
+          </select>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Trigger Event <span style="color:#94a3b8;font-weight:400;">(optional)</span></label>
+          <input type="text" class="admin-form-input" id="newTplTrigger" placeholder="e.g. promotion.sent" />
+        </div>
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Description <span style="color:#94a3b8;font-weight:400;">(optional)</span></label>
+          <input type="text" class="admin-form-input" id="newTplDesc" placeholder="Brief description of when this email is used" />
+        </div>
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Subject Line *</label>
+          <input type="text" class="admin-form-input" id="newTplSubject" placeholder="Email subject line — use {{variable_name}} for dynamic values" />
+        </div>
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Email Body *</label>
+          <textarea class="admin-form-textarea admin-form-input" id="newTplBody" rows="7" style="resize:vertical;"
+            placeholder="Write your email body here. Use {{variable_name}} for dynamic content, e.g. {{customer_name}}."></textarea>
+        </div>
+      </div>
+      <div style="background:#f0f5ff;border:1px solid #c7d8f5;border-radius:8px;padding:10px 14px;margin-top:6px;font-size:12px;color:#1e3a6e;">
+        <strong>Tip:</strong> Variables like <code style="background:#fff;border:1px solid #c7d8f5;border-radius:4px;padding:1px 5px;">{{customer_name}}</code> are automatically detected from your subject and body and will appear as clickable copy buttons in the editor.
+      </div>
+    </div>
+    <div class="admin-modal-footer">
+      <button class="btn-secondary-outline" onclick="closeCreateTemplateModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitCreateTemplate()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:5px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Create Template
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+const EMAIL_TEMPLATES = [
+  {
+    id: 'invitation',
+    category: 'account',
+    name: 'Invitation Email',
+    description: 'Sent when admin invites a new customer to the platform.',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
+    iconBg: '#fff7ed', iconColor: '#c2410c',
+    trigger: 'customer.invited',
+    status: 'ready',
+    variables: ['{{customer_name}}', '{{invitation_link}}', '{{expiry_date}}', '{{property_count}}', '{{company_name}}'],
+    subject: 'You\'ve been invited to Satellite Home Watch — {{customer_name}}',
+    body: `Dear {{customer_name}},
+
+You have been invited to create your Satellite Home Watch client portal account.
+
+We have already prepared your account and linked your {{property_count}} property(ies) to your profile. Once you activate your account, you will have immediate access to your property monitoring dashboard, visit reports, and alerts.
+
+To activate your account, please click the link below:
+
+  {{invitation_link}}
+
+This invitation link will expire on {{expiry_date}}.
+
+What you'll find in your portal:
+• Real-time property monitoring updates
+• Visit reports and inspection records
+• Property alerts and notifications
+• Service request management
+
+If you have any questions, please contact our team at support@satellitehomewatch.com.
+
+Welcome to the Satellite Home Watch family,
+
+The Satellite Home Watch Team
+{{company_name}}`
+  },
+  {
+    id: 'welcome',
+    category: 'account',
+    name: 'Welcome / Activation Complete',
+    description: 'Sent when a customer successfully activates their account.',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`,
+    iconBg: '#dcfce7', iconColor: '#166534',
+    trigger: 'account.activated',
+    status: 'ready',
+    variables: ['{{customer_name}}', '{{portal_url}}', '{{property_count}}', '{{account_manager}}'],
+    subject: 'Welcome to Satellite Home Watch — Your account is ready!',
+    body: `Welcome, {{customer_name}}!
+
+Your Satellite Home Watch client portal account is now fully activated and ready to use.
+
+Your {{property_count}} property(ies) have been pre-configured and are already being monitored by our team.
+
+Sign in to your portal here:
+  {{portal_url}}
+
+Your dedicated account manager is {{account_manager}}, and they are available to answer any questions.
+
+Here's what happens next:
+✓ Your properties are enrolled in our monitoring program
+✓ You'll receive notifications for upcoming visits
+✓ Inspection reports will be published to your portal after each visit
+✓ Alerts will be sent immediately if any issues are detected
+
+Thank you for choosing Satellite Home Watch.
+
+Warm regards,
+The Satellite Home Watch Team`
+  },
+  {
+    id: 'visit_completed',
+    category: 'visit',
+    name: 'Visit Completed',
+    description: 'Sent when an inspector marks a visit as completed.',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>`,
+    iconBg: '#f0fdf4', iconColor: '#166534',
+    trigger: 'visit.completed',
+    status: 'ready',
+    variables: ['{{customer_name}}', '{{property_name}}', '{{visit_date}}', '{{inspector_name}}', '{{visit_result}}', '{{report_url}}'],
+    subject: 'Visit Completed — {{property_name}} on {{visit_date}}',
+    body: `Dear {{customer_name}},
+
+Your property inspection has been completed.
+
+Property: {{property_name}}
+Visit Date: {{visit_date}}
+Inspector: {{inspector_name}}
+Result: {{visit_result}}
+
+Your inspection report is being prepared and will be available in your portal shortly.
+
+View your portal: {{report_url}}
+
+If you have any questions about this visit, please don't hesitate to contact us.
+
+Best regards,
+The Satellite Home Watch Team`
+  },
+  {
+    id: 'report_ready',
+    category: 'report',
+    name: 'New Report Available',
+    description: 'Sent when a visit report PDF is published to the client portal.',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
+    iconBg: '#ede9fe', iconColor: '#6d28d9',
+    trigger: 'report.published',
+    status: 'ready',
+    variables: ['{{customer_name}}', '{{property_name}}', '{{report_date}}', '{{report_title}}', '{{report_url}}', '{{inspector_name}}'],
+    subject: 'New Inspection Report Available — {{property_name}}',
+    body: `Dear {{customer_name}},
+
+A new inspection report is now available in your Satellite Home Watch portal.
+
+Report: {{report_title}}
+Property: {{property_name}}
+Date: {{report_date}}
+Prepared by: {{inspector_name}}
+
+View and download your report:
+  {{report_url}}
+
+This report includes:
+• Full inspection checklist results
+• Inspector notes and observations
+• Photos taken during the visit
+• Any alerts or recommendations
+
+Log in to your portal to review the complete report.
+
+Best regards,
+The Satellite Home Watch Team`
+  },
+  {
+    id: 'new_alert',
+    category: 'alert',
+    name: 'New Alert Notification',
+    description: 'Sent immediately when a new alert is created for a customer\'s property.',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    iconBg: '#fef2f2', iconColor: '#dc2626',
+    trigger: 'alert.created',
+    status: 'ready',
+    variables: ['{{customer_name}}', '{{property_name}}', '{{alert_title}}', '{{alert_severity}}', '{{alert_description}}', '{{recommended_action}}', '{{portal_url}}'],
+    subject: '⚠️ Property Alert: {{alert_title}} — {{property_name}}',
+    body: `Dear {{customer_name}},
+
+An issue has been detected at your property that requires your attention.
+
+Property: {{property_name}}
+Alert: {{alert_title}}
+Severity: {{alert_severity}}
+
+Details:
+{{alert_description}}
+
+Recommended Action:
+{{recommended_action}}
+
+Please log in to your portal to review this alert and take action:
+  {{portal_url}}
+
+If this is an urgent matter, please contact us immediately via your client portal.
+
+Best regards,
+The Satellite Home Watch Team`
+  },
+  {
+    id: 'service_request_received',
+    category: 'service',
+    name: 'Service Request Received',
+    description: 'Sent when a customer submits a service request.',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
+    iconBg: '#e8eef8', iconColor: '#162d56',
+    trigger: 'service_request.submitted',
+    status: 'ready',
+    variables: ['{{customer_name}}', '{{request_type}}', '{{property_name}}', '{{request_id}}', '{{submitted_date}}', '{{portal_url}}'],
+    subject: 'Service Request Received — {{request_type}}',
+    body: `Dear {{customer_name}},
+
+We have received your service request and our team will be in touch shortly.
+
+Request Type: {{request_type}}
+Property: {{property_name}}
+Request ID: {{request_id}}
+Submitted: {{submitted_date}}
+Status: Under Review
+
+We typically respond within 1 business day. You can track the status of your request in your portal:
+  {{portal_url}}
+
+If you need immediate assistance, please contact us via your client portal.
+
+Best regards,
+The Satellite Home Watch Team`
+  },
+  {
+    id: 'service_request_scheduled',
+    category: 'service',
+    name: 'Service Request Scheduled',
+    description: 'Sent when a service request has been scheduled with a date and time.',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+    iconBg: '#f0fdf4', iconColor: '#166534',
+    trigger: 'service_request.scheduled',
+    status: 'ready',
+    variables: ['{{customer_name}}', '{{request_type}}', '{{property_name}}', '{{scheduled_date}}', '{{scheduled_time}}', '{{vendor_name}}', '{{portal_url}}'],
+    subject: 'Service Scheduled — {{request_type}} on {{scheduled_date}}',
+    body: `Dear {{customer_name}},
+
+Your service request has been scheduled. Here are the details:
+
+Service: {{request_type}}
+Property: {{property_name}}
+Scheduled Date: {{scheduled_date}}
+Scheduled Time: {{scheduled_time}}
+Service Provider: {{vendor_name}}
+
+Please ensure someone is available to provide access on the scheduled date, or confirm your access arrangements with our team.
+
+View full details in your portal:
+  {{portal_url}}
+
+Best regards,
+The Satellite Home Watch Team`
+  },
+  {
+    id: 'promo_seasonal',
+    category: 'promotion',
+    name: 'Seasonal Check-In',
+    description: 'Promotional email for seasonal property checks and upsell opportunities.',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>`,
+    iconBg: '#fdf4ff', iconColor: '#9333ea',
+    trigger: 'promotion.sent',
+    status: 'ready',
+    variables: ['{{customer_name}}', '{{property_name}}', '{{season}}', '{{offer_details}}', '{{portal_url}}', '{{company_name}}'],
+    subject: '{{season}} Property Care Check — Exclusive Offer for {{customer_name}}',
+    body: `Dear {{customer_name}},
+
+As {{season}} approaches, we want to make sure your property at {{property_name}} is fully prepared and protected.
+
+{{offer_details}}
+
+Our team of professionals is ready to ensure your property is in top condition. Log in to your portal to schedule a visit or learn more:
+
+  {{portal_url}}
+
+Thank you for trusting Satellite Home Watch with the care of your property.
+
+Warm regards,
+The Satellite Home Watch Team
+{{company_name}}`
+  },
+  {
+    id: 'promo_renewal',
+    category: 'promotion',
+    name: 'Service Plan Renewal',
+    description: 'Sent to encourage clients to renew or upgrade their service plan.',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>`,
+    iconBg: '#f0fdf4', iconColor: '#15803d',
+    trigger: 'promotion.renewal',
+    status: 'ready',
+    variables: ['{{customer_name}}', '{{plan_name}}', '{{renewal_date}}', '{{upgrade_offer}}', '{{portal_url}}'],
+    subject: 'Your Satellite Home Watch Plan Renewal — {{customer_name}}',
+    body: `Dear {{customer_name}},
+
+Your current service plan ({{plan_name}}) is coming up for renewal on {{renewal_date}}.
+
+{{upgrade_offer}}
+
+Renewing ensures your property continues to receive our premium monitoring and inspection services without interruption.
+
+Log in to manage your plan:
+  {{portal_url}}
+
+If you have any questions, please contact us at support@satellitehomewatch.com.
+
+Best regards,
+The Satellite Home Watch Team`
+  },
+];
+
+// ── Custom templates added at runtime ─────────────────────────────────────────
+let _customTemplates = [];
+
+function getAllTemplates() {
+  return [...EMAIL_TEMPLATES, ..._customTemplates];
+}
+
+let _activeTemplate = null;
+
+// ── Render ─────────────────────────────────────────────────────────────────────
+function renderTemplates(filter = 'all') {
+  const allTpls  = getAllTemplates();
+  const filtered = filter === 'all' ? allTpls : allTpls.filter(t => t.category === filter);
+  const grid     = document.getElementById('templateGrid');
+  if (!filtered.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:40px;text-align:center;color:#94a3b8;font-size:13px;"><div style="font-size:28px;margin-bottom:10px;">📭</div>No templates in this category yet.<br><button onclick="openCreateTemplateModal()" style="margin-top:12px;padding:8px 18px;background:#162d56;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">+ Create Template</button></div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(t => `
+    <div class="et-card" id="card-${t.id}" onclick="openEditor('${t.id}')">
+      <div class="et-card-header">
+        <div class="et-card-icon" style="background:${t.iconBg};color:${t.iconColor};">
+          ${t.icon}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div class="et-card-name">${t.name}${t._custom ? ' <span style="font-size:9px;background:#f0fdf4;color:#166634;border:1px solid #bbf7d0;border-radius:4px;padding:1px 5px;font-weight:700;vertical-align:middle;">Custom</span>' : ''}</div>
+          <div class="et-card-desc">${t.description}</div>
+        </div>
+      </div>
+      <div class="et-card-body">
+        <div class="et-trigger-label">${t.trigger ? 'Auto-Trigger Event' : 'Manual / Bulk Send'}</div>
+        <span class="et-trigger-chip">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          ${t.trigger || 'manual'}
+        </span>
+        <div class="et-variable-tags">
+          ${(t.variables || []).slice(0, 4).map(v => `<span class="et-var-tag">${v}</span>`).join('')}
+          ${(t.variables || []).length > 4 ? `<span class="et-var-tag">+${t.variables.length - 4}</span>` : ''}
+        </div>
+      </div>
+      <div class="et-card-footer">
+        <div>
+          <span class="et-status-dot" style="background:#22c55e;"></span>
+          <span class="et-status-label" style="color:#166534;">Template Ready</span>
+        </div>
+        <button class="et-edit-btn">Edit Template →</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Filter ────────────────────────────────────────────────────────────────────
+let _currentFilter = 'all';
+function filterTemplates(cat, btn) {
+  document.querySelectorAll('.et-cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _currentFilter = cat;
+  closeEditor();
+  renderTemplates(cat);
+}
+
+// ── Create Template Modal ──────────────────────────────────────────────────────
+function openCreateTemplateModal() {
+  ['newTplName','newTplTrigger','newTplDesc','newTplSubject','newTplBody'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('newTplCategory').value = '';
+  document.getElementById('createTemplateModal').style.display = 'flex';
+}
+function closeCreateTemplateModal() {
+  document.getElementById('createTemplateModal').style.display = 'none';
+}
+function submitCreateTemplate() {
+  const name     = (document.getElementById('newTplName').value     || '').trim();
+  const category = document.getElementById('newTplCategory').value;
+  const subject  = (document.getElementById('newTplSubject').value  || '').trim();
+  const body     = (document.getElementById('newTplBody').value     || '').trim();
+  if (!name)     { showToast('Template name is required', 'error'); return; }
+  if (!category) { showToast('Please select a category', 'error'); return; }
+  if (!subject)  { showToast('Subject line is required', 'error'); return; }
+  if (!body)     { showToast('Email body is required', 'error'); return; }
+
+  const catIconMap = {
+    account:   { iconBg:'#e8eef8', iconColor:'#162d56' },
+    visit:     { iconBg:'#f0fdf4', iconColor:'#166534' },
+    report:    { iconBg:'#ede9fe', iconColor:'#6d28d9' },
+    alert:     { iconBg:'#fef2f2', iconColor:'#dc2626' },
+    service:   { iconBg:'#f0f9ff', iconColor:'#0369a1' },
+    promotion: { iconBg:'#fdf4ff', iconColor:'#9333ea' },
+  };
+  const colors = catIconMap[category] || { iconBg:'#f1f5f9', iconColor:'#475569' };
+
+  const newTpl = {
+    id: 'custom_' + Date.now(),
+    category,
+    name,
+    description: (document.getElementById('newTplDesc').value || '').trim() || 'Custom template',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
+    iconBg: colors.iconBg,
+    iconColor: colors.iconColor,
+    trigger: (document.getElementById('newTplTrigger').value || '').trim() || '',
+    status: 'ready',
+    variables: [...new Set((subject + ' ' + body).match(/\{\{[^}]+\}\}/g) || [])],
+    subject,
+    body,
+    _custom: true,
+  };
+
+  _customTemplates.push(newTpl);
+  closeCreateTemplateModal();
+
+  // Switch to the new template's category filter
+  const catBtns = document.querySelectorAll('.et-cat-btn');
+  catBtns.forEach(b => b.classList.remove('active'));
+  const matchBtn = [...catBtns].find(b => (b.getAttribute('onclick') || '').includes(`'${category}'`));
+  if (matchBtn) { matchBtn.classList.add('active'); _currentFilter = category; }
+  else { catBtns[0].classList.add('active'); _currentFilter = 'all'; }
+  renderTemplates(_currentFilter);
+  showToast(`Template "${name}" created`, 'success');
+  setTimeout(() => openEditor(newTpl.id), 300);
+}
+
+// ── Editor ────────────────────────────────────────────────────────────────────
+function openEditor(id) {
+  const t = getAllTemplates().find(x => x.id === id);
+  if (!t) return;
+  _activeTemplate = t;
+
+  // Highlight selected card
+  document.querySelectorAll('.et-card').forEach(c => c.classList.remove('active-edit'));
+  const card = document.getElementById('card-' + id);
+  if (card) card.classList.add('active-edit');
+
+  document.getElementById('editorTitle').textContent    = t.name;
+  document.getElementById('editorSubtitle').textContent = t.trigger ? `Trigger: ${t.trigger}` : 'Manual / Bulk Send template';
+  document.getElementById('editorSubject').value = t.subject;
+  document.getElementById('editorBody').value    = t.body;
+
+  // Variables list
+  document.getElementById('editorVarsList').innerHTML = t.variables.map(v =>
+    `<button class="et-var-copy" onclick="copyVar('${v}',event)" title="Click to copy">${v}</button>`
+  ).join('');
+
+  updatePreview();
+
+  const editor = document.getElementById('templateEditor');
+  editor.classList.add('open');
+  editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeEditor() {
+  document.getElementById('templateEditor').classList.remove('open');
+  document.querySelectorAll('.et-card').forEach(c => c.classList.remove('active-edit'));
+  _activeTemplate = null;
+}
+
+function updatePreview() {
+  document.getElementById('previewSubject').textContent = document.getElementById('editorSubject').value || '—';
+  document.getElementById('previewBody').textContent    = document.getElementById('editorBody').value || '';
+}
+
+function copyVar(v, e) {
+  e.stopPropagation();
+  navigator.clipboard?.writeText(v).catch(() => {});
+  showToast(`Copied ${v} to clipboard`, 'success');
+}
+
+function saveTemplate() {
+  if (!_activeTemplate) return;
+  _activeTemplate.subject = document.getElementById('editorSubject').value;
+  _activeTemplate.body    = document.getElementById('editorBody').value;
+  showToast(`Template "${_activeTemplate.name}" saved — backend required for persistence`, 'success');
+}
+
+function sendTestEmail() {
+  showToast('Test email send — backend SMTP integration required', 'info');
+}
+
+function showToast(msg, type = 'success') {
+  let container = document.getElementById('etToast');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'etToast';
+    container.style.cssText = 'position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:9999;';
+    document.body.appendChild(container);
+  }
+  const cfg = {
+    success: { bg:'#f0fdf4', color:'#166534', border:'#bbf7d0' },
+    error:   { bg:'#fef2f2', color:'#dc2626', border:'#fca5a5' },
+    info:    { bg:'#f0f6ff', color:'#1e40af', border:'#bfdbfe' },
+  }[type] || {};
+  const t = document.createElement('div');
+  t.style.cssText = `background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border};padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.1);max-width:320px;`;
+  t.textContent = msg;
+  container.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderAdminSidebar('admin-email-templates');
+  renderTemplates('all');
+  // Close create modal on overlay click
+  const createModal = document.getElementById('createTemplateModal');
+  createModal.addEventListener('click', e => {
+    if (e.target === createModal) closeCreateTemplateModal();
+  });
+});
+</script>
+</body>
+</html>

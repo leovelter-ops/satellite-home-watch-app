@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employees — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Employees</span>
+          <span class="topbar-welcome">Workforce management &amp; time-off requests</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-icon-btn" data-msg-trigger="admin" aria-label="Open messages" title="Messages" type="button" onclick="SHWMsgPanel.toggle(this)" style="position:relative;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button class="topbar-icon-btn np-bell-btn" data-notif-trigger="admin" aria-label="Open notifications" title="Notifications" type="button" onclick="SHWNotifPanel.toggle(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="admin-badge corporate" id="topbarRoleBadge">Executive</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Executive Access Notice -->
+      <div style="background:linear-gradient(135deg,#4a044e,#7c2d8a);border-radius:14px;padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;gap:14px;">
+        <div style="width:38px;height:38px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#fff;">Executive Access</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.75);">This page is visible to executives only. Review employee data, approve or deny time-off requests, and access individual employee details.</div>
+        </div>
+      </div>
+
+      <!-- Summary Row -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px;" id="empSummaryCards"></div>
+
+      <!-- Tab Navigation -->
+      <div style="display:flex;gap:0;margin-bottom:20px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:4px;width:fit-content;">
+        <button onclick="setTab('employees')" id="tabEmployees" style="padding:8px 20px;font-size:13px;font-weight:600;border-radius:8px;border:none;cursor:pointer;background:#162d56;color:#fff;transition:all .15s;">Employees</button>
+        <button onclick="setTab('timeoff')" id="tabTimeOff" style="padding:8px 20px;font-size:13px;font-weight:600;border-radius:8px;border:none;cursor:pointer;background:none;color:#64748b;transition:all .15s;">Time-Off Requests <span id="pendingBadge" style="display:none;background:#ef4444;color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;margin-left:4px;">0</span></button>
+      </div>
+
+      <!-- Employees Tab -->
+      <div id="tabContentEmployees">
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;" id="employeeTable">
+          <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">Loading employees…</div>
+        </div>
+      </div>
+
+      <!-- Time-Off Requests Tab -->
+      <div id="tabContentTimeOff" style="display:none;">
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+          <button onclick="setTofFilter('pending')" id="tofFilterPending" style="padding:6px 14px;font-size:12px;font-weight:600;border-radius:20px;border:1px solid #162d56;background:#162d56;color:#fff;cursor:pointer;">Pending</button>
+          <button onclick="setTofFilter('approved')" id="tofFilterApproved" style="padding:6px 14px;font-size:12px;font-weight:600;border-radius:20px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;cursor:pointer;">Approved</button>
+          <button onclick="setTofFilter('denied')" id="tofFilterDenied" style="padding:6px 14px;font-size:12px;font-weight:600;border-radius:20px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;cursor:pointer;">Denied</button>
+          <button onclick="setTofFilter('all')" id="tofFilterAll" style="padding:6px 14px;font-size:12px;font-weight:600;border-radius:20px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;cursor:pointer;">All</button>
+        </div>
+        <div id="timeOffRequestsList">
+          <div style="padding:30px;text-align:center;color:#94a3b8;font-size:13px;">Loading time-off requests…</div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Admin Note Modal for Deny -->
+<div id="adminNoteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+    <div style="padding:18px 20px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:15px;font-weight:700;color:#0f1e38;" id="adminNoteTitle">Admin Note</div>
+      <button onclick="closeAdminNoteModal()" style="background:none;border:none;font-size:20px;color:#94a3b8;cursor:pointer;line-height:1;">×</button>
+    </div>
+    <div style="padding:18px 20px;">
+      <label style="font-size:12px;font-weight:700;color:#475569;display:block;margin-bottom:8px;">Note for Employee (optional)</label>
+      <textarea id="adminNoteText" rows="4" style="width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box;" placeholder="Add a note explaining the decision..."></textarea>
+    </div>
+    <div style="padding:14px 20px;border-top:1px solid #f1f5f9;display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="closeAdminNoteModal()" style="padding:8px 18px;font-size:13px;font-weight:600;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;cursor:pointer;">Cancel</button>
+      <button id="adminNoteConfirmBtn" style="padding:8px 18px;font-size:13px;font-weight:600;border-radius:8px;border:none;cursor:pointer;background:#dc2626;color:#fff;">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'executive', name: '', initials: '' };
+
+let _employees    = [];
+let _users        = [];
+let _visits       = [];
+let _tofRequests  = [];
+let _currentTab   = 'employees';
+let _tofFilter    = 'pending';
+let _pendingNoteAction = null; // { id, status }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderAdminSidebar('admin-employees');
+  await loadAllData();
+  renderSummaryCards();
+  renderEmployeeTable();
+  renderTimeOffRequests();
+});
+
+async function loadAllData() {
+  const [empsRes, usersRes, visitsRes, tofRes] = await Promise.all([
+    empApiGetAll('employees'),
+    empApiGetAll('users'),
+    empApiGetAll('visits'),
+    empApiGetAll('time_off_requests'),
+  ]);
+  _employees   = empsRes.data   || [];
+  _users       = usersRes.data  || [];
+  _visits      = visitsRes.data || [];
+  _tofRequests = tofRes.data    || [];
+
+  // Update pending badge
+  const pending = _tofRequests.filter(r => r.status === 'pending').length;
+  const badge = document.getElementById('pendingBadge');
+  if (pending > 0) { badge.style.display = ''; badge.textContent = pending; }
+  else { badge.style.display = 'none'; }
+}
+
+function setTab(tab) {
+  _currentTab = tab;
+  document.getElementById('tabContentEmployees').style.display = tab === 'employees' ? '' : 'none';
+  document.getElementById('tabContentTimeOff').style.display   = tab === 'timeoff'   ? '' : 'none';
+  const btnEmp = document.getElementById('tabEmployees');
+  const btnTof = document.getElementById('tabTimeOff');
+  btnEmp.style.background = tab === 'employees' ? '#162d56' : 'none';
+  btnEmp.style.color      = tab === 'employees' ? '#fff'    : '#64748b';
+  btnTof.style.background = tab === 'timeoff'   ? '#162d56' : 'none';
+  btnTof.style.color      = tab === 'timeoff'   ? '#fff'    : '#64748b';
+}
+
+function setTofFilter(f) {
+  _tofFilter = f;
+  ['pending','approved','denied','all'].forEach(x => {
+    const btn = document.getElementById('tofFilter' + x.charAt(0).toUpperCase() + x.slice(1));
+    if (!btn) return;
+    btn.style.background    = x === f ? '#162d56' : '#f8fafc';
+    btn.style.color         = x === f ? '#fff'    : '#64748b';
+    btn.style.borderColor   = x === f ? '#162d56' : '#e2e8f0';
+  });
+  renderTimeOffRequests();
+}
+
+function renderSummaryCards() {
+  const activeEmps = _employees.filter(e => e.status !== 'inactive' && e.status !== 'terminated');
+  const pendingTof = _tofRequests.filter(r => r.status === 'pending').length;
+  const thisMonth  = new Date(); const ms = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 1);
+  const monthVisits = _visits.filter(v => v.status === 'completed' && new Date(v.actual_end || v.updated_at) >= ms).length;
+
+  const cards = [
+    { label:'Total Employees',    value: _employees.length,    icon: 'people', color:'#162d56', bg:'#e8eef8' },
+    { label:'Active Staff',       value: activeEmps.length,    icon: 'check',  color:'#166534', bg:'#dcfce7' },
+    { label:'Pending Time Off',   value: pendingTof,           icon: 'clock',  color:'#b45309', bg:'#fef3c7' },
+    { label:'Visits This Month',  value: monthVisits,          icon: 'cal',    color:'#1d4ed8', bg:'#dbeafe' },
+  ];
+  const iconSVG = { people:'<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>',check:'<polyline points="20 6 9 17 4 12"/>',clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' };
+  document.getElementById('empSummaryCards').innerHTML = cards.map(c => `
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;">
+      <div style="width:36px;height:36px;background:${c.bg};border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${c.color}" stroke-width="2">${iconSVG[c.icon]}</svg>
+      </div>
+      <div style="font-size:22px;font-weight:800;color:#0f1e38;">${c.value}</div>
+      <div style="font-size:12px;color:#64748b;margin-top:2px;">${c.label}</div>
+    </div>`).join('');
+}
+
+function renderEmployeeTable() {
+  const container = document.getElementById('employeeTable');
+  if (!_employees.length) {
+    container.innerHTML = `<div style="padding:40px;text-align:center;color:#94a3b8;font-size:14px;">No employee records found.</div>`;
+    return;
+  }
+
+  // Build month's visit counts
+  const now = new Date(); const ms = new Date(now.getFullYear(), now.getMonth(), 1);
+  const visitMap = {};
+  _visits.filter(v => v.status === 'completed' && new Date(v.actual_end || v.updated_at) >= ms)
+    .forEach(v => { visitMap[v.assigned_employee_id] = (visitMap[v.assigned_employee_id] || 0) + 1; });
+
+  // Build pending time-off map
+  const tofMap = {};
+  _tofRequests.filter(r => r.status === 'pending').forEach(r => {
+    tofMap[r.employee_user_id] = (tofMap[r.employee_user_id] || 0) + 1;
+  });
+
+  // User map for names
+  const userMap = buildMap(_users);
+
+  container.innerHTML = `
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:#f8fafc;border-bottom:2px solid #e2e8f0;">
+            <th style="padding:12px 18px;font-size:11px;font-weight:700;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.6px;">Employee</th>
+            <th style="padding:12px 18px;font-size:11px;font-weight:700;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.6px;">Role</th>
+            <th style="padding:12px 18px;font-size:11px;font-weight:700;color:#94a3b8;text-align:center;text-transform:uppercase;letter-spacing:.6px;">Status</th>
+            <th style="padding:12px 18px;font-size:11px;font-weight:700;color:#94a3b8;text-align:right;text-transform:uppercase;letter-spacing:.6px;">Visits MTD</th>
+            <th style="padding:12px 18px;font-size:11px;font-weight:700;color:#94a3b8;text-align:center;text-transform:uppercase;letter-spacing:.6px;">Pending TOF</th>
+            <th style="padding:12px 18px;font-size:11px;font-weight:700;color:#94a3b8;text-align:center;text-transform:uppercase;letter-spacing:.6px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${_employees.map(emp => {
+            const user    = userMap[emp.user_id] || {};
+            const name    = emp.full_name || user.full_name || (emp.first_name ? `${emp.first_name} ${emp.last_name || ''}`.trim() : '—');
+            const email   = user.email || emp.email || '—';
+            const role    = FMT.snakeToTitle(emp.role || emp.position || 'inspector');
+            const status  = emp.status || 'active';
+            const mtd     = visitMap[emp.id] || 0;
+            const pending = tofMap[emp.user_id] || 0;
+            const initials = FMT.initials(name);
+            const statusColors = { active:{ bg:'#dcfce7',color:'#166534' }, inactive:{ bg:'#f1f5f9',color:'#64748b' }, terminated:{ bg:'#fee2e2',color:'#dc2626' } };
+            const sc = statusColors[status] || statusColors.active;
+            return `
+              <tr style="border-bottom:1px solid #f1f5f9;transition:background .1s;" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background=''">
+                <td style="padding:14px 18px;">
+                  <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="width:36px;height:36px;border-radius:50%;background:#162d56;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${initials}</div>
+                    <div>
+                      <div style="font-size:14px;font-weight:700;color:#0f1e38;">${name}</div>
+                      <div style="font-size:12px;color:#64748b;">${email}</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="padding:14px 18px;font-size:13px;color:#334155;">${role}</td>
+                <td style="padding:14px 18px;text-align:center;">
+                  <span style="font-size:11px;font-weight:700;border-radius:20px;padding:3px 10px;background:${sc.bg};color:${sc.color};">${FMT.snakeToTitle(status)}</span>
+                </td>
+                <td style="padding:14px 18px;font-size:14px;font-weight:700;color:#0f1e38;text-align:right;">${mtd}</td>
+                <td style="padding:14px 18px;text-align:center;">
+                  ${pending > 0 ? `<span style="font-size:11px;font-weight:700;border-radius:20px;padding:3px 10px;background:#fef3c7;color:#b45309;border:1px solid #fde68a;">${pending} pending</span>` : '<span style="color:#94a3b8;font-size:12px;">—</span>'}
+                </td>
+                <td style="padding:14px 18px;text-align:center;">
+                  <a href="admin-employee-detail.html?empId=${emp.id}" style="display:inline-block;padding:6px 14px;font-size:12px;font-weight:600;border-radius:8px;background:#f0f5ff;color:#162d56;border:1px solid #c7d8f5;text-decoration:none;transition:all .15s;" onmouseenter="this.style.background='#162d56';this.style.color='#fff'" onmouseleave="this.style.background='#f0f5ff';this.style.color='#162d56'">View Details →</a>
+                </td>
+              </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function renderTimeOffRequests() {
+  const filter = _tofFilter;
+  const requests = _tofRequests
+    .filter(r => filter === 'all' ? true : r.status === filter)
+    .sort((a,b) => new Date(b.created_at || b.submitted_at) - new Date(a.created_at || a.submitted_at));
+
+  const container = document.getElementById('timeOffRequestsList');
+  if (!requests.length) {
+    container.innerHTML = `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:40px;text-align:center;color:#94a3b8;font-size:14px;">No ${filter === 'all' ? '' : filter + ' '}time-off requests found.</div>`;
+    return;
+  }
+
+  const statusStyle = {
+    pending:  { bg:'#fef3c7', color:'#b45309', border:'#fde68a' },
+    approved: { bg:'#f0fdf4', color:'#166534', border:'#bbf7d0' },
+    denied:   { bg:'#fee2e2', color:'#dc2626', border:'#fca5a5' },
+    cancelled:{ bg:'#f1f5f9', color:'#64748b', border:'#e2e8f0' },
+  };
+
+  container.innerHTML = `
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+      ${requests.map(r => {
+        const st   = statusStyle[r.status] || statusStyle.pending;
+        const days = r.days_requested || Math.max(1, Math.ceil((new Date(r.end_date) - new Date(r.start_date)) / 86400000) + 1);
+        return `
+          <div style="padding:18px 20px;border-bottom:1px solid #f1f5f9;" id="tof-row-${r.id}">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:200px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
+                  <div style="font-size:14px;font-weight:700;color:#0f1e38;">${r.employee_name || 'Employee'}</div>
+                  <span style="font-size:11px;font-weight:700;border-radius:20px;padding:2px 9px;background:${st.bg};color:${st.color};border:1px solid ${st.border};">${r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span>
+                  <span style="font-size:11px;font-weight:600;background:#f0f5ff;color:#162d56;border-radius:6px;padding:2px 8px;">${FMT.snakeToTitle(r.request_type || 'vacation')}</span>
+                </div>
+                <div style="font-size:13px;color:#334155;margin-bottom:4px;">
+                  📅 ${FMT.date(r.start_date)} – ${FMT.date(r.end_date)}
+                  <span style="color:#94a3b8;margin-left:6px;">(${days} day${days !== 1 ? 's' : ''})</span>
+                  ${r.duration_type && r.duration_type !== 'full_day' ? `<span style="font-size:11px;color:#64748b;margin-left:6px;">(${FMT.snakeToTitle(r.duration_type)})</span>` : ''}
+                </div>
+                ${r.notes ? `<div style="font-size:12px;color:#64748b;margin-bottom:4px;line-height:1.5;">Notes: ${r.notes}</div>` : ''}
+                ${r.admin_notes ? `<div style="font-size:12px;color:#162d56;background:#e8eef8;border-radius:6px;padding:5px 9px;margin-top:4px;display:inline-block;">💬 Admin note: ${r.admin_notes}</div>` : ''}
+                <div style="font-size:11px;color:#94a3b8;margin-top:6px;">Submitted ${FMT.relTime(r.created_at || r.submitted_at)}</div>
+              </div>
+              ${r.status === 'pending' ? `
+              <div style="display:flex;gap:8px;flex-shrink:0;align-items:flex-start;">
+                <button onclick="handleTof('${r.id}','approved')"
+                  style="padding:8px 16px;font-size:13px;font-weight:700;border-radius:8px;border:none;background:#166534;color:#fff;cursor:pointer;transition:opacity .15s;"
+                  onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">
+                  ✓ Approve
+                </button>
+                <button onclick="openDenyModal('${r.id}')"
+                  style="padding:8px 16px;font-size:13px;font-weight:700;border-radius:8px;border:1px solid #fca5a5;background:#fff;color:#dc2626;cursor:pointer;transition:opacity .15s;"
+                  onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">
+                  ✕ Deny
+                </button>
+              </div>` : ''}
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
+async function handleTof(id, status, adminNote) {
+  const patch = { status, reviewed_by: ADMIN_SESSION.userId, reviewed_at: new Date().toISOString() };
+  if (adminNote) patch.admin_notes = adminNote;
+  const { error } = await empApiPatch('time_off_requests', id, patch);
+  if (error) { showToast('Could not update request.', 'error'); return; }
+  showToast(status === 'approved' ? 'Request approved!' : 'Request denied.', status === 'approved' ? 'success' : 'info');
+  // Update local state
+  const idx = _tofRequests.findIndex(r => r.id === id);
+  if (idx >= 0) { _tofRequests[idx] = { ..._tofRequests[idx], ...patch }; }
+  renderTimeOffRequests();
+  // Update pending badge
+  const pending = _tofRequests.filter(r => r.status === 'pending').length;
+  const badge = document.getElementById('pendingBadge');
+  if (pending > 0) { badge.style.display = ''; badge.textContent = pending; }
+  else badge.style.display = 'none';
+}
+
+function openDenyModal(id) {
+  _pendingNoteAction = { id, status: 'denied' };
+  document.getElementById('adminNoteTitle').textContent = 'Deny Time-Off Request';
+  document.getElementById('adminNoteText').value = '';
+  const modal = document.getElementById('adminNoteModal');
+  modal.style.display = 'flex';
+  document.getElementById('adminNoteConfirmBtn').textContent = 'Confirm Deny';
+  document.getElementById('adminNoteConfirmBtn').onclick = () => {
+    const note = document.getElementById('adminNoteText').value.trim();
+    closeAdminNoteModal();
+    handleTof(_pendingNoteAction.id, 'denied', note || null);
+  };
+}
+
+function closeAdminNoteModal() {
+  document.getElementById('adminNoteModal').style.display = 'none';
+  _pendingNoteAction = null;
+}
+</script>
+</body>
+</html>

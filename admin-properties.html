@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Properties — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/service-plan.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── Property Detail Panel ────────────────────────────────── */
+    .prop-detail-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15,30,56,.45);
+      display: flex; align-items: flex-start; justify-content: flex-end;
+      z-index: 1050; padding: 0;
+    }
+    .prop-detail-panel {
+      background: #fff;
+      width: min(780px, 100vw);
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: -8px 0 40px rgba(15,30,56,.18);
+      display: flex; flex-direction: column;
+    }
+    .prop-detail-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid #e2e8f0;
+      position: sticky; top: 0; background: #fff; z-index: 10;
+    }
+    .prop-detail-header-left { display: flex; align-items: center; gap: 14px; }
+    .prop-detail-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: #e8eef8; color: #162d56;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .prop-detail-icon svg { width: 20px; height: 20px; }
+    .prop-detail-name { font-size: 17px; font-weight: 800; color: #0f1e38; }
+    .prop-detail-addr { font-size: 12px; color: #64748b; margin-top: 2px; }
+    .prop-detail-close {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #f1f5f9; border: none; font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; color: #64748b;
+    }
+    .prop-detail-close:hover { background: #e2e8f0; }
+    .prop-detail-body { padding: 24px; flex: 1; }
+
+    /* Tabs */
+    .prop-detail-tabs {
+      display: flex; gap: 4px; border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 24px; overflow-x: auto; padding-bottom: 0;
+    }
+    .prop-detail-tab {
+      padding: 9px 16px; font-size: 12px; font-weight: 600;
+      color: #64748b; cursor: pointer; border-bottom: 2px solid transparent;
+      white-space: nowrap; transition: all .15s;
+    }
+    .prop-detail-tab:hover { color: #162d56; }
+    .prop-detail-tab.active { color: #162d56; border-bottom-color: #162d56; }
+
+    /* Section card */
+    .prop-detail-section {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+    .prop-detail-section-title {
+      font-size: 12px; font-weight: 700; color: #0f1e38;
+      text-transform: uppercase; letter-spacing: .5px;
+      margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .prop-detail-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px;
+    }
+    @media (max-width: 500px) { .prop-detail-grid { grid-template-columns: 1fr; } }
+    .prop-detail-field-label {
+      font-size: 10px; font-weight: 600; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: .4px; margin-bottom: 2px;
+    }
+    .prop-detail-field-val {
+      font-size: 13px; font-weight: 600; color: #334155;
+    }
+
+    /* Plan tab styles */
+    .sp-manage-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .sp-manage-title {
+      font-size: 15px; font-weight: 800; color: #0f1e38;
+    }
+
+    /* Next visit preview strip */
+    .plan-upcoming-strip {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 16px;
+    }
+    .plan-upcoming-strip-title {
+      font-size: 11px; font-weight: 700; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: .4px;
+      margin-bottom: 10px;
+    }
+    .plan-upcoming-date-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 12px; color: #334155;
+    }
+    .plan-upcoming-date-row:last-child { border-bottom: none; }
+    .plan-upcoming-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #162d56; flex-shrink: 0;
+    }
+    .plan-upcoming-date-label { font-weight: 600; }
+    .plan-upcoming-origin { margin-left: auto; }
+
+    /* One-off visit quick-add */
+    .oneoff-quick-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px;
+      background: #fff; border: 1px solid #e2e8f0;
+      border-radius: 8px; font-size: 12px; font-weight: 600; color: #334155;
+      cursor: pointer; transition: all .15s;
+    }
+    .oneoff-quick-btn:hover { background: #e8eef8; border-color: #162d56; color: #162d56; }
+    .oneoff-quick-btn svg { width: 13px; height: 13px; }
+
+    /* Visits history list */
+    .prop-visit-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .prop-visit-row:last-child { border-bottom: none; }
+    .prop-visit-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .prop-visit-info { flex: 1; }
+    .prop-visit-title { font-size: 13px; font-weight: 600; color: #0f1e38; }
+    .prop-visit-meta { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+    /* ════════════════════════════════════════
+       PROPERTIES ADMIN — MOBILE RESPONSIVE
+    ════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .prop-page-wrap,
+      .prop-content {
+        padding: 12px !important;
+        padding-bottom: 80px !important;
+      }
+
+      /* Property list/table → cards */
+      .prop-table-wrap { display: none !important; }
+      .prop-mobile-cards { display: flex !important; flex-direction: column; gap: 12px; }
+
+      /* Two-col layout → single col */
+      .prop-layout,
+      .prop-detail-layout {
+        grid-template-columns: 1fr !important;
+        flex-direction: column !important;
+      }
+
+      /* Detail panel */
+      .prop-detail-panel {
+        width: 100% !important;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+
+      /* Filter row */
+      .prop-filter-row {
+        flex-direction: column !important;
+        gap: 8px !important;
+      }
+
+      .prop-search-wrap { min-width: unset !important; width: 100%; }
+      .prop-filter-select { width: 100% !important; }
+
+      /* Stats row */
+      .prop-stats-row {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+      }
+
+      /* Service plan sections */
+      .service-plan-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .prop-stats-row {
+        grid-template-columns: 1fr 1fr !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Properties</span>
+          <span class="topbar-welcome">Manage enrolled properties and service plans</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-msg-trigger="admin"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          title="Messages"
+          type="button"
+          onclick="SHWMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="admin"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <button class="admin-add-btn" onclick="openPropertyModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Property
+        </button>
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+      <div class="admin-table-card">
+        <div class="admin-table-header">
+          <div class="admin-table-title" id="tableTitle">All Properties</div>
+          <div class="admin-table-actions">
+            <div class="admin-search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="admin-search-input" id="propSearch" placeholder="Search properties…" oninput="filterProperties()" />
+            </div>
+            <select class="admin-filter-select" id="propTypeFilter" onchange="filterProperties()">
+              <option value="">All Types</option>
+              <option value="single_family">Single Family</option>
+              <option value="condo">Condo</option>
+              <option value="townhouse">Townhouse</option>
+              <option value="vacation_rental">Vacation Rental</option>
+              <option value="commercial">Commercial</option>
+            </select>
+            <select class="admin-filter-select" id="propClientFilter" onchange="filterProperties()">
+              <option value="">All Customers</option>
+            </select>
+            <select class="admin-filter-select" id="propPlanFilter" onchange="filterProperties()">
+              <option value="">All Plans</option>
+              <option value="active">Plan Active</option>
+              <option value="paused">Plan Paused</option>
+              <option value="none">No Plan</option>
+            </select>
+          </div>
+        </div>
+        <div id="propTableBody">
+          <div style="padding:30px;text-align:center;color:#94a3b8;font-size:13px;">Loading properties…</div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ADD / EDIT PROPERTY MODAL (with Service Plan section)
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="propertyModal" class="admin-modal-overlay" style="display:none;">
+  <div class="admin-modal wide">
+    <div class="admin-modal-header">
+      <div class="admin-modal-title" id="propModalTitle">Add New Property</div>
+      <button class="admin-modal-close" onclick="closePropertyModal()">✕</button>
+    </div>
+    <div class="admin-modal-body">
+
+      <!-- Property Information -->
+      <div class="admin-form-section"><div class="admin-form-section-title">Property Information</div></div>
+      <div class="admin-form-grid">
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Property Name *</label>
+          <input type="text" class="admin-form-input" id="pName" placeholder="e.g., Gulf Shore Residence" />
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Owner Name *</label>
+          <input type="text" class="admin-form-input" id="pOwnerName" placeholder="Full name on title" />
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Assign to Client *</label>
+          <select class="admin-form-select" id="pClientId">
+            <option value="">Select client…</option>
+          </select>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Property Type</label>
+          <select class="admin-form-select" id="pType">
+            <option value="single_family">Single Family</option>
+            <option value="condo">Condo</option>
+            <option value="townhouse">Townhouse</option>
+            <option value="vacation_rental">Vacation Rental</option>
+            <option value="commercial">Commercial</option>
+          </select>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Bedrooms</label>
+          <input type="number" class="admin-form-input" id="pBedrooms" min="0" max="20" />
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Bathrooms</label>
+          <input type="number" class="admin-form-input" id="pBathrooms" min="0" max="20" step="0.5" />
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Sq Footage</label>
+          <input type="number" class="admin-form-input" id="pSqft" />
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Year Built</label>
+          <input type="number" class="admin-form-input" id="pYearBuilt" min="1900" max="2099" />
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="admin-form-section"><div class="admin-form-section-title">Address</div></div>
+      <div class="admin-form-grid">
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Street Address *</label>
+          <input type="text" class="admin-form-input" id="pAddr1" placeholder="Street address" />
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">City *</label>
+          <input type="text" class="admin-form-input" id="pCity" />
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">State</label>
+          <input type="text" class="admin-form-input" id="pState" placeholder="FL" maxlength="2" />
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Zip</label>
+          <input type="text" class="admin-form-input" id="pZip" />
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">County</label>
+          <input type="text" class="admin-form-input" id="pCounty" />
+        </div>
+      </div>
+
+      <!-- Access & Utilities -->
+      <div class="admin-form-section"><div class="admin-form-section-title">Access & Utilities</div></div>
+      <div class="admin-form-grid">
+        <div class="admin-form-group">
+          <label class="admin-form-label">Lockbox Code</label>
+          <input type="text" class="admin-form-input" id="pLockbox" placeholder="e.g., 4-digit code" />
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Alarm Code</label>
+          <input type="text" class="admin-form-input" id="pAlarm" />
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Service Status</label>
+          <select class="admin-form-select" id="pServiceStatus">
+            <option value="active">Active</option>
+            <option value="on_hold">On Hold</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Has Pool</label>
+          <select class="admin-form-select" id="pHasPool">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </div>
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Access Notes</label>
+          <textarea class="admin-form-textarea" id="pAccessNotes" rows="2" placeholder="Gate code, parking, etc."></textarea>
+        </div>
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Special Instructions</label>
+          <textarea class="admin-form-textarea" id="pSpecialInstructions" rows="2" placeholder="Pet info, HVAC notes, etc."></textarea>
+        </div>
+      </div>
+
+      <!-- ══ SERVICE PLAN SECTION ══ -->
+      <div id="servicePlanFormContainer"></div>
+
+    </div>
+    <div class="admin-modal-footer">
+      <button class="btn-secondary-outline" onclick="closePropertyModal()">Cancel</button>
+      <button class="btn-primary" id="propSubmitBtn" onclick="submitProperty()">Add Property</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PROPERTY DETAIL SIDE PANEL
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="propDetailOverlay" class="prop-detail-overlay" style="display:none;" onclick="handleDetailOverlayClick(event)">
+  <div class="prop-detail-panel" id="propDetailPanel">
+    <div class="prop-detail-header">
+      <div class="prop-detail-header-left">
+        <div class="prop-detail-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        </div>
+        <div>
+          <div class="prop-detail-name" id="pdName">—</div>
+          <div class="prop-detail-addr" id="pdAddr">—</div>
+        </div>
+      </div>
+      <button class="prop-detail-close" onclick="closeDetailPanel()">✕</button>
+    </div>
+
+    <div class="prop-detail-body">
+      <!-- Tabs -->
+      <div class="prop-detail-tabs">
+        <div class="prop-detail-tab active" onclick="switchDetailTab('overview')">Overview</div>
+        <div class="prop-detail-tab" onclick="switchDetailTab('plan')">
+          Service Plan <span id="pdPlanBadge"></span>
+        </div>
+        <div class="prop-detail-tab" onclick="switchDetailTab('visits')">Visits</div>
+        <div class="prop-detail-tab" onclick="switchDetailTab('alerts')">Alerts</div>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <div id="pdTab-overview">
+        <div class="prop-detail-section">
+          <div class="prop-detail-section-title">Property Details</div>
+          <div class="prop-detail-grid" id="pdInfoGrid">—</div>
+        </div>
+        <div class="prop-detail-section">
+          <div class="prop-detail-section-title">Access & Utilities</div>
+          <div class="prop-detail-grid" id="pdAccessGrid">—</div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="oneoff-quick-btn" onclick="editCurrentProperty()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg>
+            Edit Property
+          </button>
+          <button class="oneoff-quick-btn" onclick="window.location.href='admin-schedule.html#new'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Schedule One-Off Visit
+          </button>
+        </div>
+      </div>
+
+      <!-- SERVICE PLAN TAB -->
+      <div id="pdTab-plan" style="display:none;">
+        <div class="sp-manage-header">
+          <div class="sp-manage-title">Manage Service Plan</div>
+          <button class="sp-btn-assign" onclick="openServicePlanModal()" id="pdPlanAssignBtn" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Assign Plan
+          </button>
+        </div>
+
+        <!-- Plan card renders here -->
+        <div id="pdPlanCardContainer">
+          <div style="padding:24px;text-align:center;color:#94a3b8;font-size:13px;">Loading plan…</div>
+        </div>
+
+        <!-- Upcoming visits preview -->
+        <div id="pdUpcomingPreview" style="display:none;">
+          <div class="plan-upcoming-strip">
+            <div class="plan-upcoming-strip-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11" style="vertical-align:middle;margin-right:4px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Upcoming Routine Visits (Next 8 Weeks)
+            </div>
+            <div id="pdUpcomingList"></div>
+          </div>
+        </div>
+
+        <!-- One-off visit quick actions -->
+        <div style="margin-top:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;">
+          <div style="font-size:12px;font-weight:700;color:#334155;margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px;">
+            One-Off Visit Actions
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button class="oneoff-quick-btn" onclick="scheduleOneOff('storm_prep_inspection')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2h-3l-2.5-3z"/></svg>
+              Storm Prep
+            </button>
+            <button class="oneoff-quick-btn" onclick="scheduleOneOff('post_storm_inspection')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Post-Storm Check
+            </button>
+            <button class="oneoff-quick-btn" onclick="scheduleOneOff('vendor_access')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              Vendor Supervision
+            </button>
+            <button class="oneoff-quick-btn" onclick="scheduleOneOff('concierge_service')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+              Concierge Visit
+            </button>
+            <button class="oneoff-quick-btn" onclick="scheduleOneOff('special_request')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Special Request
+            </button>
+          </div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:8px;">
+            One-off visits are scheduled alongside your recurring plan without affecting the schedule frequency.
+          </div>
+        </div>
+      </div>
+
+      <!-- VISITS TAB -->
+      <div id="pdTab-visits" style="display:none;">
+        <div id="pdVisitsList">
+          <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">Loading visits…</div>
+        </div>
+      </div>
+
+      <!-- ALERTS TAB -->
+      <div id="pdTab-alerts" style="display:none;">
+        <div id="pdAlertsList">
+          <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">Loading alerts…</div>
+        </div>
+      </div>
+
+    </div><!-- /prop-detail-body -->
+  </div><!-- /prop-detail-panel -->
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SERVICE PLAN MODAL (Assign / Edit plan for a property)
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="servicePlanModal" class="sp-modal-overlay" style="display:none;">
+  <div class="sp-modal">
+    <div class="sp-modal-header">
+      <div class="sp-modal-title" id="spModalTitle">Assign Service Plan</div>
+      <button class="sp-modal-close" onclick="closeServicePlanModal()">✕</button>
+    </div>
+    <div class="sp-modal-body">
+      <div class="sp-auto-info-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <div>
+          Setting a service plan will automatically generate routine visits in the
+          <strong>Schedule &amp; Dispatch</strong> board, <strong>Customer Dashboard</strong>,
+          and <strong>Property Details</strong>. No manual visit creation needed.
+        </div>
+      </div>
+      <div class="admin-form-grid" id="spFormContainer"></div>
+    </div>
+    <div class="sp-modal-footer">
+      <button class="btn-secondary-outline" onclick="closeServicePlanModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveServicePlan()">Save Plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- One-off visit quick-schedule modal (minimal) -->
+<div id="oneOffModal" class="admin-modal-overlay" style="display:none;">
+  <div class="admin-modal">
+    <div class="admin-modal-header">
+      <div class="admin-modal-title" id="oneOffTitle">Schedule One-Off Visit</div>
+      <button class="admin-modal-close" onclick="closeOneOffModal()">✕</button>
+    </div>
+    <div class="admin-modal-body">
+      <div class="sp-auto-info-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+        This one-off visit will be added alongside the existing service plan without affecting the recurring schedule.
+      </div>
+      <div class="admin-form-grid">
+        <div class="admin-form-group">
+          <label class="admin-form-label">Visit Type</label>
+          <select class="admin-form-select" id="oneOffType">
+            <option value="storm_prep_inspection">Storm Prep Inspection</option>
+            <option value="post_storm_inspection">Post-Storm Inspection</option>
+            <option value="vendor_access">Vendor Supervision</option>
+            <option value="concierge_service">Concierge Service</option>
+            <option value="special_request">Special Request</option>
+            <option value="emergency_check">Emergency Check</option>
+            <option value="new_client_walkthrough">New Client Walkthrough</option>
+          </select>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Inspector</label>
+          <select class="admin-form-select" id="oneOffInspector">
+            <option value="">Unassigned</option>
+          </select>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Date *</label>
+          <input type="date" class="admin-form-input" id="oneOffDate" />
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Time</label>
+          <input type="time" class="admin-form-input" id="oneOffTime" value="09:00" />
+        </div>
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Notes</label>
+          <textarea class="admin-form-textarea" id="oneOffNotes" rows="2" placeholder="Internal notes for inspector…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="admin-modal-footer">
+      <button class="btn-secondary-outline" onclick="closeOneOffModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitOneOff()">Schedule Visit</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/service-plan-engine.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   ADMIN PROPERTIES PAGE
+   ═══════════════════════════════════════════════════════════════════ */
+
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+let _properties  = [];
+let _clients     = [];
+let _users       = [];
+let _visits      = [];
+let _alerts      = [];
+let _employees   = [];
+let _plans       = [];
+let _editing     = null;         // property id being edited
+let _detailPropId = null;        // property id open in side panel
+let _detailPlan   = null;        // current plan for the detail panel
+let _detailTab    = 'overview';
+
+// ── Init ────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  renderAdminSidebar('admin-properties');
+  await loadData();
+  if (window.location.hash === '#new') openPropertyModal();
+  const params = new URLSearchParams(window.location.search);
+  const propId = params.get('propId') || params.get('openProp');
+  if (propId) {
+    // Navigate to the full property detail page instead of opening side panel
+    window.location.href = `admin-property-detail.html?propId=${propId}`;
+  }
+});
+
+async function loadData() {
+  const [propsRes, clientsRes, usersRes, visitsRes, alertsRes, empsRes, plansRes] = await Promise.all([
+    empApiGetAll('properties'),
+    empApiGetAll('clients'),
+    empApiGetAll('users'),
+    empApiGetAll('visits'),
+    empApiGetAll('alerts'),
+    empApiGetAll('employees'),
+    empApiGetAll('property_service_plans'),
+  ]);
+  _properties = propsRes.data    || [];
+  _clients    = clientsRes.data  || [];
+  _users      = usersRes.data    || [];
+  _visits     = visitsRes.data   || [];
+  _alerts     = alertsRes.data   || [];
+  _employees  = empsRes.data     || [];
+  _plans      = plansRes.data    || [];
+
+  const userMap = buildMap(_users);
+  const cfSel   = document.getElementById('propClientFilter');
+  const cpSel   = document.getElementById('pClientId');
+
+  _clients.forEach(c => {
+    const user  = userMap[c.user_id] || {};
+    const label = user.full_name || c.company_name || c.id;
+    [cfSel, cpSel].forEach(sel => {
+      const opt = document.createElement('option');
+      opt.value = c.id; opt.textContent = label;
+      sel.appendChild(opt);
+    });
+  });
+
+  filterProperties();
+}
+
+// ── Navigate to full property detail page ───────────────────────────────
+function goToPropertyDetail(propId, tab) {
+  let url = `admin-property-detail.html?propId=${propId}`;
+  if (tab) url += `&tab=${tab}`;
+  window.location.href = url;
+}
+
+// ── Filter / render ──────────────────────────────────────────────────────
+function filterProperties() {
+  const q      = (document.getElementById('propSearch').value || '').toLowerCase();
+  const type   = document.getElementById('propTypeFilter').value;
+  const client = document.getElementById('propClientFilter').value;
+  const plan   = document.getElementById('propPlanFilter').value;
+
+  const planMap = {};
+  _plans.forEach(p => { planMap[p.property_id] = p; });
+
+  const filtered = _properties.filter(p => {
+    const matchQ = !q ||
+      (p.property_name || '').toLowerCase().includes(q) ||
+      (p.address_line1 || '').toLowerCase().includes(q) ||
+      (p.city || '').toLowerCase().includes(q);
+    const matchT = !type   || p.property_type === type;
+    const matchC = !client || p.client_id === client;
+    let matchP = true;
+    if (plan === 'active')  matchP = planMap[p.id]?.status === 'active';
+    if (plan === 'paused')  matchP = planMap[p.id]?.status === 'paused';
+    if (plan === 'none')    matchP = !planMap[p.id];
+    return matchQ && matchT && matchC && matchP;
+  });
+
+  document.getElementById('tableTitle').textContent = `Properties (${filtered.length})`;
+  renderPropertyTable(filtered, planMap);
+}
+
+function renderPropertyTable(props, planMap) {
+  const userMap   = buildMap(_users);
+  const clientMap = buildMap(_clients);
+
+  if (!props.length) {
+    document.getElementById('propTableBody').innerHTML = `
+      <div class="admin-empty-state">
+        <div class="admin-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+        <div class="admin-empty-title">No properties found</div>
+        <div class="admin-empty-text">Adjust filters or add a new property.</div>
+      </div>`;
+    return;
+  }
+
+  let tableRows = '';
+  let mobileCards = '';
+
+  props.forEach(p => {
+    const client  = clientMap[p.client_id] || {};
+    const user    = userMap[client.user_id] || {};
+    const propPlan = planMap[p.id];
+    const propVis = _visits.filter(v => v.property_id === p.id);
+    const lastV   = propVis.filter(v => v.status === 'completed')
+                           .sort((a,b) => new Date(b.actual_end) - new Date(a.actual_end))[0];
+    const openAlerts   = _alertCount(p.id);
+    const ownerName    = user.full_name || '—';
+    const ownerInitials= ownerName.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+    const addr         = [p.address_line1, p.city, p.state].filter(Boolean).join(', ');
+    const svcClass     = p.service_status === 'active' ? 'active' : p.service_status === 'on_hold' ? 'pending' : 'inactive';
+    const alertColor   = openAlerts > 0 ? '#dc2626' : '#22c55e';
+    const alertLabel   = openAlerts > 0 ? openAlerts + ' open' : '✓ None';
+
+    // Plan pill
+    let planPill = '';
+    if (!propPlan) {
+      planPill = `<span class="sp-inline-pill none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/></svg> No Plan</span>`;
+    } else if (propPlan.status === 'active') {
+      planPill = `<span class="sp-inline-pill active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> ${FMT.snakeToTitle(propPlan.frequency)}</span>`;
+    } else if (propPlan.status === 'paused') {
+      planPill = `<span class="sp-inline-pill paused"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Paused</span>`;
+    } else {
+      planPill = `<span class="sp-inline-pill cancelled">Cancelled</span>`;
+    }
+
+    // Desktop table row
+    tableRows += `<tr>
+      <td>
+        <div class="cell-primary">${p.property_name || '—'}</div>
+        <div class="cell-secondary">${addr}</div>
+      </td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:28px;height:28px;border-radius:50%;background:#162d56;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ownerInitials}</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#0f1e38;">${ownerName}</div>
+            <a href="crm-customer-profile.html" style="font-size:11px;color:#162d56;font-weight:500;text-decoration:none;">View Profile →</a>
+          </div>
+        </div>
+      </td>
+      <td style="color:#64748b;font-size:12px;">${FMT.snakeToTitle(p.property_type)}</td>
+      <td>${planPill}</td>
+      <td style="padding-left:20px;">
+        <span style="font-size:13px;font-weight:700;color:${alertColor};">${alertLabel}</span>
+      </td>
+      <td style="font-size:12px;color:#64748b;">${lastV ? FMT.date(lastV.actual_end) : '—'}</td>
+      <td><span class="tbl-status ${svcClass}">${FMT.snakeToTitle(p.service_status || 'active')}</span></td>
+      <td class="cell-actions">
+        <button class="tbl-action-btn" onclick="goToPropertyDetail('${p.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          See Details
+        </button>
+        <button class="tbl-action-btn" onclick="editProperty('${p.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg>
+          Edit
+        </button>
+        <button class="tbl-action-btn" onclick="goToPropertyDetail('${p.id}', 'plan')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Service Plan
+        </button>
+      </td>
+    </tr>`;
+
+    // Mobile card
+    mobileCards += `
+      <div class="admin-mobile-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+          <div style="min-width:0;">
+            <div style="font-size:14px;font-weight:700;color:#0f1e38;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.property_name || '—'}</div>
+            ${addr ? `<div style="font-size:11px;color:#64748b;margin-top:2px;">${addr}</div>` : ''}
+          </div>
+          <span class="tbl-status ${svcClass}" style="flex-shrink:0;">${FMT.snakeToTitle(p.service_status || 'active')}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#475569;">
+            <div style="width:20px;height:20px;border-radius:50%;background:#162d56;color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ownerInitials}</div>
+            <span style="font-weight:500;">${ownerName}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#475569;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            ${FMT.snakeToTitle(p.property_type)}
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            ${planPill}
+            <span style="font-size:12px;font-weight:700;color:${alertColor};">${alertLabel} alerts</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Last visit: ${lastV ? FMT.date(lastV.actual_end) : '—'}
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid #f1f5f9;flex-wrap:wrap;">
+          <button class="tbl-action-btn" style="flex:1;justify-content:center;" onclick="goToPropertyDetail('${p.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            See Details
+          </button>
+          <button class="tbl-action-btn" style="flex:1;justify-content:center;" onclick="editProperty('${p.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg>
+            Edit
+          </button>
+          <button class="tbl-action-btn" style="flex:1;justify-content:center;" onclick="goToPropertyDetail('${p.id}', 'plan')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+            Plan
+          </button>
+        </div>
+      </div>`;
+  });
+
+  document.getElementById('propTableBody').innerHTML =
+    `<table class="admin-data-table">
+      <thead><tr>
+        <th>Property</th><th>Owner (Customer)</th><th>Type</th>
+        <th>Service Plan</th><th>Active Alerts</th><th>Last Visit</th>
+        <th>Status</th><th style="text-align:right;">Actions</th>
+      </tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+    <div class="admin-mobile-cards-list" style="padding:12px;">${mobileCards}</div>`;
+}
+
+// ── Property Add/Edit Modal ──────────────────────────────────────────────
+function openPropertyModal(propId = null) {
+  _editing = propId;
+  document.getElementById('propModalTitle').textContent = propId ? 'Edit Property' : 'Add New Property';
+  document.getElementById('propSubmitBtn').textContent  = propId ? 'Save Changes' : 'Add Property';
+
+  if (propId) {
+    const prop = _properties.find(p => p.id === propId);
+    if (prop) {
+      document.getElementById('pName').value           = prop.property_name || '';
+      document.getElementById('pOwnerName').value      = prop.owner_name || '';
+      document.getElementById('pClientId').value       = prop.client_id || '';
+      document.getElementById('pType').value           = prop.property_type || 'single_family';
+      document.getElementById('pBedrooms').value       = prop.bedrooms || '';
+      document.getElementById('pBathrooms').value      = prop.bathrooms || '';
+      document.getElementById('pSqft').value           = prop.square_footage || '';
+      document.getElementById('pYearBuilt').value      = prop.year_built || '';
+      document.getElementById('pAddr1').value          = prop.address_line1 || '';
+      document.getElementById('pCity').value           = prop.city || '';
+      document.getElementById('pState').value          = prop.state || '';
+      document.getElementById('pZip').value            = prop.zip || '';
+      document.getElementById('pCounty').value         = prop.county || '';
+      document.getElementById('pLockbox').value        = prop.lockbox_code || '';
+      document.getElementById('pAlarm').value          = prop.alarm_code || '';
+      document.getElementById('pServiceStatus').value  = prop.service_status || 'active';
+      document.getElementById('pHasPool').value        = prop.has_pool ? 'true' : 'false';
+      document.getElementById('pAccessNotes').value    = prop.access_notes || '';
+      document.getElementById('pSpecialInstructions').value = prop.special_instructions || '';
+    }
+  } else {
+    ['pName','pOwnerName','pAddr1','pCity','pState','pZip','pCounty','pLockbox','pAlarm','pAccessNotes','pSpecialInstructions','pBedrooms','pBathrooms','pSqft','pYearBuilt']
+      .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    document.getElementById('pServiceStatus').value = 'active';
+    document.getElementById('pHasPool').value        = 'false';
+  }
+
+  // Inject service plan form if creating new property
+  const spContainer = document.getElementById('servicePlanFormContainer');
+  const existingPlan = propId ? _plans.find(p => p.property_id === propId) : null;
+  const inspectors = _employees
+    .filter(e => e.role === 'inspector')
+    .map(e => { const u = buildMap(_users)[e.user_id] || {}; return { id: e.id, full_name: u.full_name || e.id }; });
+
+  spContainer.innerHTML = ServicePlanEngine.buildPlanFormHTML(existingPlan, inspectors);
+
+  document.getElementById('propertyModal').style.display = 'flex';
+}
+
+function closePropertyModal() {
+  document.getElementById('propertyModal').style.display = 'none';
+  _editing = null;
+}
+function editProperty(id) { openPropertyModal(id); }
+
+async function submitProperty() {
+  const name  = document.getElementById('pName').value.trim();
+  const owner = document.getElementById('pOwnerName').value.trim();
+  const cid   = document.getElementById('pClientId').value;
+  const addr1 = document.getElementById('pAddr1').value.trim();
+  const city  = document.getElementById('pCity').value.trim();
+
+  if (!name || !cid || !addr1 || !city) {
+    showToast('Property name, client, address and city are required', 'error');
+    return;
+  }
+
+  const now  = new Date().toISOString();
+  const data = {
+    property_name: name, owner_name: owner, client_id: cid,
+    property_type:     document.getElementById('pType').value,
+    bedrooms:          parseInt(document.getElementById('pBedrooms').value) || null,
+    bathrooms:         parseFloat(document.getElementById('pBathrooms').value) || null,
+    square_footage:    parseInt(document.getElementById('pSqft').value) || null,
+    year_built:        parseInt(document.getElementById('pYearBuilt').value) || null,
+    address_line1: addr1, city,
+    state:             document.getElementById('pState').value,
+    zip:               document.getElementById('pZip').value,
+    county:            document.getElementById('pCounty').value,
+    lockbox_code:      document.getElementById('pLockbox').value,
+    alarm_code:        document.getElementById('pAlarm').value,
+    service_status:    document.getElementById('pServiceStatus').value,
+    has_pool:          document.getElementById('pHasPool').value === 'true',
+    access_notes:      document.getElementById('pAccessNotes').value,
+    special_instructions: document.getElementById('pSpecialInstructions').value,
+    updated_at: now,
+  };
+
+  let propId = _editing;
+  let error;
+
+  if (_editing) {
+    ({ error } = await empApiPatch('properties', _editing, data));
+  } else {
+    data.created_at = now;
+    const res = await empApiPost('properties', data);
+    error  = res.error;
+    propId = res.data?.id;
+  }
+
+  if (error) { showToast('Error: ' + error, 'error'); return; }
+
+  // Handle service plan
+  const planValues = ServicePlanEngine.readPlanFormValues();
+  if (planValues.plan_type !== 'no_active_plan' && propId) {
+    const existingPlan = _plans.find(p => p.property_id === propId);
+    if (existingPlan) {
+      await ServicePlanEngine.updatePlan(existingPlan.id, planValues);
+    } else {
+      await ServicePlanEngine.createPlan({
+        ...planValues,
+        property_id: propId,
+        client_id:   cid,
+      });
+    }
+  }
+
+  showToast(_editing ? 'Property updated' : `${name} added with service plan!`, 'success');
+  closePropertyModal();
+  const [propsRes, plansRes] = await Promise.all([empApiGetAll('properties'), empApiGetAll('property_service_plans')]);
+  _properties = propsRes.data  || [];
+  _plans      = plansRes.data  || [];
+  filterProperties();
+}
+
+// ── Detail Side Panel ────────────────────────────────────────────────────
+function openDetailPanel(propId) {
+  _detailPropId = propId;
+  const prop = _properties.find(p => p.id === propId);
+  if (!prop) return;
+
+  document.getElementById('pdName').textContent = prop.property_name || '—';
+  document.getElementById('pdAddr').textContent = [prop.address_line1, prop.city, prop.state].filter(Boolean).join(', ');
+
+  switchDetailTab('overview');
+  renderDetailOverview(prop);
+  loadDetailPlan(propId);
+  renderDetailVisits(propId);
+  renderDetailAlerts(propId);
+
+  document.getElementById('propDetailOverlay').style.display = 'flex';
+}
+
+function closeDetailPanel() {
+  document.getElementById('propDetailOverlay').style.display = 'none';
+  _detailPropId = null;
+  _detailPlan   = null;
+}
+
+function handleDetailOverlayClick(e) {
+  if (e.target === document.getElementById('propDetailOverlay')) closeDetailPanel();
+}
+
+function switchDetailTab(tab) {
+  _detailTab = tab;
+  ['overview','plan','visits','alerts'].forEach(t => {
+    document.getElementById(`pdTab-${t}`).style.display = t === tab ? '' : 'none';
+  });
+  document.querySelectorAll('.prop-detail-tab').forEach((el, i) => {
+    const tabs = ['overview','plan','visits','alerts'];
+    el.classList.toggle('active', tabs[i] === tab);
+  });
+}
+
+function editCurrentProperty() {
+  closeDetailPanel();
+  openPropertyModal(_detailPropId);
+}
+
+function renderDetailOverview(prop) {
+  const infoHTML = `
+    <div><div class="prop-detail-field-label">Property Type</div><div class="prop-detail-field-val">${FMT.snakeToTitle(prop.property_type)}</div></div>
+    <div><div class="prop-detail-field-label">Owner</div><div class="prop-detail-field-val">${prop.owner_name || '—'}</div></div>
+    <div><div class="prop-detail-field-label">Bedrooms</div><div class="prop-detail-field-val">${prop.bedrooms || '—'}</div></div>
+    <div><div class="prop-detail-field-label">Bathrooms</div><div class="prop-detail-field-val">${prop.bathrooms || '—'}</div></div>
+    <div><div class="prop-detail-field-label">Sq. Footage</div><div class="prop-detail-field-val">${prop.square_footage ? prop.square_footage.toLocaleString() + ' sq ft' : '—'}</div></div>
+    <div><div class="prop-detail-field-label">Year Built</div><div class="prop-detail-field-val">${prop.year_built || '—'}</div></div>
+    <div><div class="prop-detail-field-label">Has Pool</div><div class="prop-detail-field-val">${prop.has_pool ? 'Yes' : 'No'}</div></div>
+    <div><div class="prop-detail-field-label">Service Status</div><div class="prop-detail-field-val">${FMT.snakeToTitle(prop.service_status || 'active')}</div></div>`;
+  document.getElementById('pdInfoGrid').innerHTML = infoHTML;
+
+  const accessHTML = `
+    <div><div class="prop-detail-field-label">Lockbox Code</div><div class="prop-detail-field-val">${prop.lockbox_code || '—'}</div></div>
+    <div><div class="prop-detail-field-label">Alarm Code</div><div class="prop-detail-field-val">${prop.alarm_code || '—'}</div></div>
+    <div class="admin-form-full"><div class="prop-detail-field-label">Access Notes</div><div class="prop-detail-field-val" style="font-weight:400;color:#64748b;">${prop.access_notes || '—'}</div></div>
+    <div class="admin-form-full"><div class="prop-detail-field-label">Special Instructions</div><div class="prop-detail-field-val" style="font-weight:400;color:#64748b;">${prop.special_instructions || '—'}</div></div>`;
+  document.getElementById('pdAccessGrid').innerHTML = accessHTML;
+}
+
+async function loadDetailPlan(propId) {
+  const { data: plan } = await ServicePlanEngine.getPlanForProperty(propId);
+  _detailPlan = plan;
+
+  const propMap = buildMap(_properties);
+  const empMap  = buildMap(_employees);
+  const userMap = buildMap(_users);
+  const enriched = plan ? ServicePlanEngine.enrichPlan(plan, propMap, userMap, empMap) : null;
+
+  const container = document.getElementById('pdPlanCardContainer');
+  container.innerHTML = ServicePlanEngine.buildPlanSummaryCard(enriched, true, 'admin');
+
+  // Update tab badge
+  const badge = document.getElementById('pdPlanBadge');
+  if (plan) {
+    badge.innerHTML = planStatusBadge(plan.status);
+    badge.style.marginLeft = '6px';
+  } else {
+    badge.innerHTML = '';
+  }
+
+  // Assign btn
+  document.getElementById('pdPlanAssignBtn').style.display = plan ? 'none' : '';
+
+  // Upcoming dates preview
+  if (plan && plan.status === 'active') {
+    const dates = ServicePlanEngine.generateVisitDates(plan, 8);
+    const listEl = document.getElementById('pdUpcomingList');
+    const preview = document.getElementById('pdUpcomingPreview');
+    if (dates.length) {
+      preview.style.display = '';
+      const fmt = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+      listEl.innerHTML = dates.slice(0, 8).map((d, i) => `
+        <div class="plan-upcoming-date-row">
+          <div class="plan-upcoming-dot" style="background:${i===0?'#162d56':'#94a3b8'};"></div>
+          <div class="plan-upcoming-date-label">${fmt(d)}</div>
+          <div class="plan-upcoming-origin">${visitOriginBadge(true)}</div>
+        </div>`).join('');
+    } else {
+      preview.style.display = 'none';
+    }
+  } else {
+    document.getElementById('pdUpcomingPreview').style.display = 'none';
+  }
+}
+
+/** Called by confirm action handler on reload */
+async function loadPlanForCurrentProperty() {
+  if (_detailPropId) await loadDetailPlan(_detailPropId);
+  const plansRes = await empApiGetAll('property_service_plans');
+  _plans = plansRes.data || [];
+  filterProperties();
+}
+
+function renderDetailVisits(propId) {
+  const propVis = _visits.filter(v => v.property_id === propId)
+    .sort((a, b) => new Date(b.scheduled_start) - new Date(a.scheduled_start))
+    .slice(0, 15);
+
+  const listEl = document.getElementById('pdVisitsList');
+
+  // Also check plan for upcoming virtual visits
+  const plan = _plans.find(p => p.property_id === propId);
+  let virtualVisits = [];
+  if (plan && plan.status === 'active') {
+    const propMap = buildMap(_properties);
+    virtualVisits = ServicePlanEngine.buildVirtualVisits(plan, propMap, propVis.map(v => v.scheduled_start?.slice(0,10)));
+  }
+
+  if (!propVis.length && !virtualVisits.length) {
+    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No visits found</div>';
+    return;
+  }
+
+  const statusDot = {
+    scheduled: '#3b82f6', en_route: '#f59e0b', in_progress: '#f97316',
+    completed: '#22c55e', cancelled: '#94a3b8',
+  };
+
+  // Show virtual (upcoming from plan) first, then real visits
+  let html = '';
+
+  if (virtualVisits.length) {
+    html += `<div style="font-size:11px;font-weight:700;color:#7e22ce;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">
+      Upcoming from Plan (auto-generated)
+    </div>`;
+    html += virtualVisits.slice(0, 4).map(v => `
+      <div class="prop-visit-row" style="opacity:.8;">
+        <div class="prop-visit-dot" style="background:#7e22ce;"></div>
+        <div class="prop-visit-info">
+          <div class="prop-visit-title">Routine Inspection ${visitOriginBadge(true)}</div>
+          <div class="prop-visit-meta">${new Date(v.scheduled_start).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' })} · Not yet saved</div>
+        </div>
+        <span style="font-size:11px;color:#7e22ce;font-weight:600;">Virtual</span>
+      </div>`).join('');
+  }
+
+  html += `<div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin:12px 0 8px;">Visit History</div>`;
+  html += propVis.map(v => {
+    const dot = statusDot[v.status] || '#94a3b8';
+    const typeLabel = FMT.snakeToTitle(v.visit_type || 'routine_inspection');
+    const dateFmt   = v.scheduled_start ? new Date(v.scheduled_start).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+    const originBadge = v.is_plan_generated ? visitOriginBadge(true) : visitOriginBadge(false);
+    const isCompleted = v.status === 'completed';
+    // Route by status: completed → admin visit detail, others → schedule management
+    const destUrl = isCompleted
+      ? `admin-visit-detail.html?visitId=${v.id}`
+      : `admin-schedule.html?visitId=${v.id}${v.scheduled_start ? '&date=' + v.scheduled_start.slice(0, 10) : ''}`;
+    const titleAttr = isCompleted ? 'View completed visit details' : 'Manage in Schedule & Dispatch';
+    const clickHandler = `onclick="window.location.href='${destUrl}'" style="cursor:pointer;" title="${titleAttr}"`;
+    return `
+      <div class="prop-visit-row" ${clickHandler} onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''">
+        <div class="prop-visit-dot" style="background:${dot};"></div>
+        <div class="prop-visit-info">
+          <div class="prop-visit-title" style="color:#162d56;">${typeLabel} ${originBadge}
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="margin-left:4px;vertical-align:middle;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </div>
+          <div class="prop-visit-meta">${dateFmt} · ${FMT.snakeToTitle(v.status)}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  listEl.innerHTML = html;
+}
+
+function renderDetailAlerts(propId) {
+  const propAlerts = _alerts.filter(a => a.property_id === propId)
+    .sort((a,b) => new Date(b.date_created) - new Date(a.date_created))
+    .slice(0, 10);
+
+  const listEl = document.getElementById('pdAlertsList');
+  if (!propAlerts.length) {
+    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No alerts found ✓</div>';
+    return;
+  }
+
+  const sevDot = { critical:'#dc2626', high:'#f97316', medium:'#f59e0b', low:'#22c55e' };
+  listEl.innerHTML = propAlerts.map(a => `
+    <div class="prop-visit-row" onclick="navigateToAlert('${a.id}')" style="cursor:pointer;" title="View alert details"
+      onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''">
+      <div class="prop-visit-dot" style="background:${sevDot[a.severity]||'#94a3b8'};"></div>
+      <div class="prop-visit-info">
+        <div class="prop-visit-title" style="color:#162d56;">${a.title || a.alert_title || a.category || '—'}
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="margin-left:4px;vertical-align:middle;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+        <div class="prop-visit-meta">${FMT.snakeToTitle(a.severity)} · ${FMT.snakeToTitle(a.status)} · ${a.date_created ? FMT.date(a.date_created) : '—'}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Service Plan Modal (Assign / Edit) ───────────────────────────────────
+function openServicePlanModal(mode = 'assign') {
+  document.getElementById('spModalTitle').textContent = _detailPlan ? 'Edit Service Plan' : 'Assign Service Plan';
+
+  const inspectors = _employees
+    .filter(e => e.role === 'inspector')
+    .map(e => { const u = buildMap(_users)[e.user_id] || {}; return { id: e.id, full_name: u.full_name || e.id }; });
+
+  // Build plan form fields
+  const formHTML = ServicePlanEngine.buildPlanFormHTML(_detailPlan, inspectors);
+  // The buildPlanFormHTML wraps in admin-form-section + admin-form-grid
+  // We need just the form part — render into spFormContainer
+  const tmpDiv = document.createElement('div');
+  tmpDiv.innerHTML = formHTML;
+  document.getElementById('spFormContainer').innerHTML = '';
+  document.getElementById('spFormContainer').appendChild(tmpDiv);
+
+  document.getElementById('servicePlanModal').style.display = 'flex';
+}
+
+function closeServicePlanModal() {
+  document.getElementById('servicePlanModal').style.display = 'none';
+}
+
+async function saveServicePlan() {
+  const propId = _detailPropId;
+  if (!propId) { showToast('No property selected', 'error'); return; }
+
+  const values = ServicePlanEngine.readPlanFormValues();
+  const client = _properties.find(p => p.id === propId)?.client_id || null;
+
+  if (_detailPlan) {
+    const { error } = await ServicePlanEngine.updatePlan(_detailPlan.id, values);
+    if (error) { showToast('Error: ' + error, 'error'); return; }
+    showToast('Service plan updated', 'success');
+  } else {
+    const { error } = await ServicePlanEngine.createPlan({
+      ...values,
+      property_id: propId,
+      client_id:   client,
+    });
+    if (error) { showToast('Error: ' + error, 'error'); return; }
+    showToast('Service plan created and visits generated!', 'success');
+  }
+
+  closeServicePlanModal();
+  await loadPlanForCurrentProperty();
+}
+
+// ── One-Off Visit Quick Schedule ─────────────────────────────────────────
+function scheduleOneOff(visitType) {
+  document.getElementById('oneOffTitle').textContent = `Schedule ${FMT.snakeToTitle(visitType)}`;
+  document.getElementById('oneOffType').value = visitType;
+  document.getElementById('oneOffDate').value = new Date().toISOString().slice(0, 10);
+
+  // Populate inspectors
+  const sel = document.getElementById('oneOffInspector');
+  sel.innerHTML = '<option value="">Unassigned</option>';
+  _employees.filter(e => e.role === 'inspector').forEach(e => {
+    const u = buildMap(_users)[e.user_id] || {};
+    const opt = document.createElement('option');
+    opt.value = e.id; opt.textContent = u.full_name || e.id;
+    sel.appendChild(opt);
+  });
+
+  document.getElementById('oneOffModal').style.display = 'flex';
+}
+
+function closeOneOffModal() {
+  document.getElementById('oneOffModal').style.display = 'none';
+}
+
+async function submitOneOff() {
+  const date     = document.getElementById('oneOffDate').value;
+  const time     = document.getElementById('oneOffTime').value || '09:00';
+  const type     = document.getElementById('oneOffType').value;
+  const inspector = document.getElementById('oneOffInspector').value;
+  const notes    = document.getElementById('oneOffNotes').value;
+
+  if (!date) { showToast('Date is required', 'error'); return; }
+  if (!_detailPropId) { showToast('No property selected', 'error'); return; }
+
+  const prop = _properties.find(p => p.id === _detailPropId);
+  const scheduledStart = `${date}T${time}:00.000Z`;
+
+  const { error } = await ServicePlanEngine.createOneOffVisit({
+    property_id:           _detailPropId,
+    client_id:             prop?.client_id || null,
+    assigned_employee_id:  inspector || null,
+    visit_type:            type,
+    scheduled_start:       scheduledStart,
+    estimated_duration_mins: 60,
+    notes,
+  });
+
+  if (error) { showToast('Error: ' + error, 'error'); return; }
+  showToast(`${FMT.snakeToTitle(type)} scheduled!`, 'success');
+  closeOneOffModal();
+
+  // Refresh visits
+  const { data: fresh } = await empApiGetAll('visits');
+  _visits = fresh || [];
+  if (_detailPropId) renderDetailVisits(_detailPropId);
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────
+function _alertCount(propId) {
+  return (_alerts || []).filter(a =>
+    a.property_id === propId &&
+    ['open','in_progress','pending_client_decision','scheduled_for_repair'].includes(a.status)
+  ).length;
+}
+
+function navigateToAlert(alertId) {
+  window.location.href = `admin-alerts.html?alertId=${alertId}`;
+}
+</script>
+</body>
+</html>

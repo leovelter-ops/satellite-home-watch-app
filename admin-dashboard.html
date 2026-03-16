@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operations Dashboard — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Operations Dashboard</span>
+          <span class="topbar-welcome" id="dashSubtitle">Loading overview…</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-msg-trigger="admin"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          title="Messages"
+          type="button"
+          onclick="SHWMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="admin"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="admin-badge corporate" id="topbarRoleBadge">Executive</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Header Banner -->
+      <div class="admin-header-banner">
+        <div>
+          <div class="admin-header-title">Satellite Home Watch — Operations</div>
+          <div class="admin-header-sub" id="bannerSub">Loading operational summary…</div>
+        </div>
+        <div class="admin-header-actions">
+          <button class="admin-btn-primary" onclick="window.location.href='admin-schedule.html'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Schedule
+          </button>
+          <button class="admin-btn-solid" onclick="window.location.href='crm-customers.html'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Customers
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="admin-stats-row" id="statsRow">
+        <div class="admin-stat-card"><div class="admin-stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="admin-stat-value" id="statClients">—</div><div class="admin-stat-label">Active Customers</div></div>
+        <div class="admin-stat-card"><div class="admin-stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><div class="admin-stat-value" id="statProperties">—</div><div class="admin-stat-label">Properties</div></div>
+        <div class="admin-stat-card"><div class="admin-stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="admin-stat-value" id="statVisitsToday">—</div><div class="admin-stat-label">Visits Today</div></div>
+        <div class="admin-stat-card"><div class="admin-stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="admin-stat-value" id="statAlerts">—</div><div class="admin-stat-label">Open Alerts</div></div>
+        <div class="admin-stat-card"><div class="admin-stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div class="admin-stat-value" id="statServiceReqs">—</div><div class="admin-stat-label">Open Service Reqs</div></div>
+      </div>
+
+      <!-- Content grid -->
+      <div class="admin-content-grid">
+
+        <!-- LEFT: Main content -->
+        <div>
+
+          <!-- Today's Visit Schedule -->
+          <div class="admin-table-card">
+            <div class="admin-table-header">
+              <div class="admin-table-title">Today's Visit Schedule</div>
+              <div class="admin-table-actions">
+                <a href="admin-schedule.html" style="font-size:12px;color:#162d56;font-weight:600;text-decoration:none;">Full Schedule →</a>
+              </div>
+            </div>
+            <div id="todayScheduleTable" style="padding:0;">
+              <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">Loading…</div>
+            </div>
+          </div>
+
+          <!-- Open Alerts -->
+          <div class="admin-table-card" style="margin-top:0;">
+            <div class="admin-table-header">
+              <div class="admin-table-title">Open Alerts</div>
+              <a href="admin-alerts.html?status=open" style="font-size:12px;color:#162d56;font-weight:600;text-decoration:none;">View All →</a>
+            </div>
+            <div id="openAlertsTable">
+              <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">Loading…</div>
+            </div>
+          </div>
+
+          <!-- Pending Service Requests -->
+          <div class="admin-table-card" style="margin-top:0;">
+            <div class="admin-table-header">
+              <div class="admin-table-title">Pending Service Requests</div>
+              <a href="crm-requests.html" style="font-size:12px;color:#162d56;font-weight:600;text-decoration:none;">View All (CRM) →</a>
+            </div>
+            <div id="serviceRequestsTable">
+              <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">Loading…</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: Side panels -->
+        <div>
+
+          <!-- Quick Actions -->
+          <div class="admin-summary-card">
+            <div class="admin-summary-header">Quick Actions</div>
+            <div class="admin-summary-body">
+              <div class="admin-quick-actions">
+                <button class="admin-quick-btn" onclick="window.location.href='admin-schedule.html#new'">
+                  <div class="admin-quick-btn-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+                  <div><div class="admin-quick-btn-label">Schedule Visit</div><div class="admin-quick-btn-sub">Assign inspector</div></div>
+                </button>
+                <button class="admin-quick-btn" onclick="window.location.href='crm-customers.html'">
+                  <div class="admin-quick-btn-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+                  <div><div class="admin-quick-btn-label">Customers</div><div class="admin-quick-btn-sub">CRM &amp; accounts</div></div>
+                </button>
+                <button class="admin-quick-btn" onclick="window.location.href='admin-properties.html#new'">
+                  <div class="admin-quick-btn-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+                  <div><div class="admin-quick-btn-label">Add Property</div><div class="admin-quick-btn-sub">Enroll property</div></div>
+                </button>
+                <button class="admin-quick-btn" onclick="window.location.href='admin-invitations.html'">
+                  <div class="admin-quick-btn-icon" style="background:#fce7f3;color:#9d174d;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+                  <div><div class="admin-quick-btn-label">Invitations</div><div class="admin-quick-btn-sub">Manage access</div></div>
+                </button>
+                <button class="admin-quick-btn" onclick="window.location.href='admin-user-management.html'">
+                  <div class="admin-quick-btn-icon" style="background:#ede9fe;color:#6d28d9;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                  <div><div class="admin-quick-btn-label">User Management</div><div class="admin-quick-btn-sub">Roles &amp; access</div></div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inspector Status -->
+          <div class="admin-summary-card">
+            <div class="admin-summary-header">Inspector Status Today</div>
+            <div class="admin-summary-body">
+              <div id="inspectorStatus">
+                <div style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">Loading…</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity Feed -->
+          <div class="admin-summary-card">
+            <div class="admin-summary-header">Recent Activity</div>
+            <div class="admin-summary-body">
+              <div class="admin-activity-feed" id="activityFeed">
+                <div style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">Loading…</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+// Admin session
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'executive', name: '', initials: '' };
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderAdminSidebar('admin-dashboard');
+  document.getElementById('dashSubtitle').textContent =
+    `${new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })}`;
+  await loadDashboard();
+});
+
+async function loadDashboard() {
+  const [clientsRes, propsRes, visitsRes, alertsRes, srRes, empsRes, usersRes] = await Promise.all([
+    empApiGetAll('clients'),
+    empApiGetAll('properties'),
+    empApiGetAll('visits'),
+    empApiGetAll('alerts'),
+    empApiGetAll('service_requests'),
+    empApiGetAll('employees'),
+    empApiGetAll('users'),
+  ]);
+
+  const clients    = clientsRes.data  || [];
+  const properties = propsRes.data    || [];
+  const visits     = visitsRes.data   || [];
+  const alerts     = alertsRes.data   || [];
+  const srs        = srRes.data       || [];
+  const emps       = empsRes.data     || [];
+  const users      = usersRes.data    || [];
+
+  const userMap    = buildMap(users);
+  const propMap    = buildMap(properties);
+  const empMap     = buildMap(emps);
+
+  // Stats
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayEnd   = new Date(todayStart.getTime() + 86400000);
+
+  const activeClients = clients.filter(c => c.status === 'active');
+  const todayVisits   = visits.filter(v => {
+    const d = new Date(v.scheduled_start);
+    return d >= todayStart && d < todayEnd;
+  });
+  const openAlerts    = alerts.filter(a => ['open','in_progress','pending_client_decision','scheduled_for_repair'].includes(a.status));
+  const openSRs       = srs.filter(s => ['submitted','acknowledged','in_progress','pending_quote'].includes(s.status));
+
+  document.getElementById('statClients').textContent    = activeClients.length;
+  document.getElementById('statProperties').textContent = properties.length;
+  document.getElementById('statVisitsToday').textContent= todayVisits.length;
+  document.getElementById('statAlerts').textContent     = openAlerts.length;
+  document.getElementById('statServiceReqs').textContent= openSRs.length;
+
+  document.getElementById('bannerSub').textContent =
+    `${todayVisits.length} visit${todayVisits.length !== 1 ? 's' : ''} today · ${openAlerts.length} open alert${openAlerts.length !== 1 ? 's' : ''} · ${openSRs.length} pending service request${openSRs.length !== 1 ? 's' : ''}`;
+
+  // Today's schedule table
+  renderTodaySchedule(todayVisits, propMap, empMap, userMap);
+
+  // Open alerts table
+  renderOpenAlerts(openAlerts.slice(0, 5), propMap);
+
+  // Service requests
+  renderServiceRequests(openSRs.slice(0, 5), propMap);
+
+  // Inspector status
+  renderInspectorStatus(emps, users, visits, todayVisits);
+
+  // Activity feed
+  renderActivityFeed(visits, alerts, clients, propMap);
+}
+
+function renderTodaySchedule(visits, propMap, empMap, userMap) {
+  const container = document.getElementById('todayScheduleTable');
+  if (!visits.length) {
+    container.innerHTML = `<div class="admin-empty-state"><div class="admin-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></div><div class="admin-empty-title">No visits scheduled today</div></div>`;
+    return;
+  }
+  const sorted = [...visits].sort((a,b) => new Date(a.scheduled_start) - new Date(b.scheduled_start));
+  container.innerHTML = `<table class="admin-data-table">
+    <thead><tr>
+      <th>Time</th><th>Property</th><th>Inspector</th><th>Type</th><th>Status</th><th style="text-align:right;">Actions</th>
+    </tr></thead>
+    <tbody>${sorted.map(v => {
+      const prop = propMap[v.property_id] || {};
+      const emp  = empMap[v.assigned_employee_id] || {};
+      const user = userMap[emp.user_id] || {};
+      const statusMap = { scheduled:'scheduled', en_route:'in_progress', arrived:'in_progress', in_progress:'in_progress', completed:'completed' };
+      return `<tr>
+        <td style="font-weight:600;color:#162d56;">${FMT.time(v.scheduled_start)}</td>
+        <td><div class="cell-primary">${prop.property_name || '—'}</div><div class="cell-secondary">${prop.city || ''}, ${prop.state || ''}</div></td>
+        <td>${user.full_name || 'Unassigned'}</td>
+        <td>${FMT.snakeToTitle(v.visit_type)}</td>
+        <td><span class="tbl-status ${statusMap[v.status] || 'scheduled'}">${FMT.snakeToTitle(v.status)}</span></td>
+        <td class="cell-actions">
+          <button class="tbl-action-btn" onclick="window.location.href='admin-schedule.html?visitId=${v.id}'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            Manage
+          </button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+function renderOpenAlerts(alerts, propMap) {
+  const container = document.getElementById('openAlertsTable');
+  if (!alerts.length) {
+    container.innerHTML = `<div style="padding:20px;text-align:center;color:#64748b;font-size:13px;">No open alerts 🎉</div>`;
+    return;
+  }
+  const sevColors = { urgent:'#dc2626', high:'#f97316', medium:'#eab308', low:'#22c55e' };
+  container.innerHTML = `<table class="admin-data-table">
+    <thead><tr><th>Alert</th><th>Property</th><th>Severity</th><th>Status</th><th style="text-align:right;">Action</th></tr></thead>
+    <tbody>${alerts.map(a => {
+      const prop = propMap[a.property_id] || {};
+      const sColor = sevColors[a.severity] || '#94a3b8';
+      return `<tr>
+        <td><div class="cell-primary">${a.alert_title || '—'}</div><div class="cell-secondary">${FMT.snakeToTitle(a.category)}</div></td>
+        <td>${prop.property_name || '—'}</td>
+        <td><span style="color:${sColor};font-weight:700;font-size:12px;">${a.severity?.toUpperCase() || '—'}</span></td>
+        <td><span class="tbl-status open">${FMT.snakeToTitle(a.status)}</span></td>
+        <td class="cell-actions">
+          <button class="tbl-action-btn" onclick="window.location.href='admin-alerts.html?alertId=${a.id}'">Resolve</button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+function renderServiceRequests(srs, propMap) {
+  const container = document.getElementById('serviceRequestsTable');
+  if (!srs.length) {
+    container.innerHTML = `<div style="padding:20px;text-align:center;color:#64748b;font-size:13px;">No pending service requests</div>`;
+    return;
+  }
+  container.innerHTML = `<table class="admin-data-table">
+    <thead><tr><th>Request</th><th>Property</th><th>Priority</th><th>Status</th><th style="text-align:right;">Action</th></tr></thead>
+    <tbody>${srs.map(sr => {
+      const prop = propMap[sr.property_id] || {};
+      return `<tr>
+        <td><div class="cell-primary">${sr.title || FMT.snakeToTitle(sr.service_type)}</div><div class="cell-secondary">${FMT.date(sr.created_at)}</div></td>
+        <td>${prop.property_name || '—'}</td>
+        <td><span class="tbl-status ${sr.priority === 'urgent' ? 'open' : sr.priority === 'high' ? 'pending' : 'scheduled'}">${sr.priority || 'normal'}</span></td>
+        <td><span class="tbl-status ${sr.status === 'submitted' ? 'pending' : 'in_progress'}">${FMT.snakeToTitle(sr.status)}</span></td>
+        <td class="cell-actions">
+          <button class="tbl-action-btn" onclick="window.location.href='crm-requests.html'">Review</button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+function renderInspectorStatus(emps, users, visits, todayVisits) {
+  const userMap = buildMap(users);
+  const inspectors = emps.filter(e => e.role === 'inspector');
+  if (!inspectors.length) {
+    document.getElementById('inspectorStatus').innerHTML = `<div style="color:#94a3b8;font-size:13px;text-align:center;padding:12px;">No inspectors found</div>`;
+    return;
+  }
+  const html = inspectors.map(emp => {
+    const user = userMap[emp.user_id] || {};
+    const myToday = todayVisits.filter(v => v.assigned_employee_id === emp.id);
+    const activeV = myToday.find(v => ['en_route','arrived','in_progress'].includes(v.status));
+    const statusText = activeV ? '🟢 On Visit' : myToday.length > 0 ? '📋 Scheduled' : '⚪ Available';
+    const initials = FMT.initials(user.full_name || '??');
+    return `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+        <div style="width:34px;height:34px;border-radius:50%;background:#162d56;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${initials}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:#0f1e38;">${user.full_name || emp.id}</div>
+          <div style="font-size:11px;color:#64748b;">${myToday.length} visit${myToday.length !== 1 ? 's' : ''} today</div>
+        </div>
+        <div style="font-size:12px;font-weight:500;">${statusText}</div>
+      </div>`;
+  }).join('');
+  document.getElementById('inspectorStatus').innerHTML = html || `<div style="color:#94a3b8;font-size:13px;">No inspectors</div>`;
+}
+
+function renderActivityFeed(visits, alerts, clients, propMap) {
+  const events = [];
+
+  // Recent completed visits
+  const recentVisits = visits
+    .filter(v => v.status === 'completed' && v.actual_end)
+    .sort((a,b) => new Date(b.actual_end) - new Date(a.actual_end))
+    .slice(0, 3);
+  recentVisits.forEach(v => {
+    const prop = propMap[v.property_id] || {};
+    events.push({ type: 'visit', text: `Visit completed — ${prop.property_name || '—'}`, time: v.actual_end });
+  });
+
+  // Recent alerts
+  const recentAlerts = alerts
+    .sort((a,b) => new Date(b.date_created) - new Date(a.date_created))
+    .slice(0, 3);
+  recentAlerts.forEach(a => {
+    const prop = propMap[a.property_id] || {};
+    events.push({ type: 'alert', text: `Alert: ${a.alert_title || '—'} — ${prop.property_name || '—'}`, time: a.date_created });
+  });
+
+  // Sort all by time
+  events.sort((a,b) => new Date(b.time) - new Date(a.time));
+
+  const typeConf = {
+    visit:  { dotClass: 'visit', icon: '<polyline points="20 6 9 17 4 12"/>' },
+    alert:  { dotClass: 'alert', icon: '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>' },
+    client: { dotClass: 'client', icon: '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>' },
+  };
+
+  const feed = document.getElementById('activityFeed');
+  if (!events.length) {
+    feed.innerHTML = `<div style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">No recent activity</div>`;
+    return;
+  }
+  feed.innerHTML = events.slice(0, 6).map(e => {
+    const conf = typeConf[e.type] || typeConf.client;
+    return `
+      <div class="admin-activity-item">
+        <div class="admin-activity-dot ${conf.dotClass}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${conf.icon}</svg>
+        </div>
+        <div class="admin-activity-text">
+          <div class="admin-activity-title">${e.text}</div>
+          <div class="admin-activity-meta">${FMT.relTime(e.time)}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>

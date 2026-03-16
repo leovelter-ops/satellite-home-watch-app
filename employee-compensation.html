@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compensation — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/employee.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Staff navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Compensation</span>
+          <span class="topbar-welcome">Pay & earnings reference</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <!-- Messages notification icon -->
+        <button
+          class="topbar-icon-btn emp-msg-notif-btn"
+          id="empMsgNotifBtn"
+          aria-label="Message notifications"
+          title="Messages"
+          type="button"
+          onclick="openEmpMsgNotif(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span class="topbar-notif-badge" id="empMsgBadge" style="display:none;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="employee"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <div class="emp-topbar-role">
+          <span class="role-chip inspector">Inspector</span>
+        </div>
+        <div class="topbar-avatar" id="topbarAvatar"></div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Summary Cards -->
+      <div class="emp-stats-grid" style="margin-bottom:24px;">
+        <div class="emp-stat-card">
+          <div class="emp-stat-icon" style="background:#dcfce7;color:#166534;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+            </svg>
+          </div>
+          <div class="emp-stat-value" id="statYTDPay">—</div>
+          <div class="emp-stat-label">YTD Earnings</div>
+        </div>
+        <div class="emp-stat-card">
+          <div class="emp-stat-icon" style="background:#dbeafe;color:#1d4ed8;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <div class="emp-stat-value" id="statPayPeriod">—</div>
+          <div class="emp-stat-label">Current Pay Period</div>
+        </div>
+        <div class="emp-stat-card">
+          <div class="emp-stat-icon" style="background:#fef3c7;color:#b45309;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="emp-stat-value" id="statHourlyRate">—</div>
+          <div class="emp-stat-label">Base Rate</div>
+        </div>
+        <div class="emp-stat-card">
+          <div class="emp-stat-icon" style="background:#ede9fe;color:#7c3aed;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <div>
+            <div class="emp-stat-value" id="statVisitBonus">—</div>
+            <div class="emp-stat-label">Visit Bonuses (MTD)</div>
+            <div style="font-size:11px;color:#7c3aed;font-weight:600;margin-top:2px;" id="statVisitBonusRate"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pay Structure Reference -->
+      <div class="vd-grid">
+        <!-- Left Column -->
+        <div>
+          <div class="vd-card" style="margin-bottom:20px;">
+            <div class="vd-card-header">
+              <div class="vd-card-title">My Pay Structure</div>
+              <span style="font-size:11px;font-weight:700;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:20px;padding:2px 10px;">Active</span>
+            </div>
+            <div class="vd-card-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;" id="payStructureGrid">
+                <!-- Populated by JS -->
+              </div>
+              <div style="background:#f0f5ff;border:1px solid #c7d8f5;border-radius:10px;padding:12px 14px;font-size:12px;color:#162d56;line-height:1.6;" id="payCalcExplanation">
+                <strong>How pay is calculated:</strong> Loading your pay structure…
+              </div>
+            </div>
+          </div>
+
+          <!-- Pay History Table -->
+          <div class="vd-card">
+            <div class="vd-card-header">
+              <div class="vd-card-title">Pay Period History</div>
+            </div>
+            <div class="vd-card-body" style="padding:0;">
+              <div id="payHistoryTable" style="overflow-x:auto;">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div>
+          <!-- Upcoming Pay Date -->
+          <div class="vd-side-section" style="margin-bottom:20px;">
+            <div class="vd-side-header">
+              <div class="vd-side-title">Next Payday</div>
+            </div>
+            <div class="vd-side-body">
+              <div style="text-align:center;padding:10px 0;">
+                <div style="font-size:28px;font-weight:800;color:#0f1e38;" id="nextPaydayDate">—</div>
+                <div style="font-size:12px;color:#64748b;margin-top:4px;" id="nextPaydayIn">—</div>
+                <div style="margin-top:16px;padding:10px 14px;background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;">
+                  <div style="font-size:11px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.5px;">Estimated Next Payment</div>
+                  <div style="font-size:20px;font-weight:800;color:#166534;margin-top:4px;" id="estNextPayment">$—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Benefits & Deductions -->
+          <div class="vd-side-section" style="margin-bottom:20px;">
+            <div class="vd-side-header">
+              <div class="vd-side-title">Benefits & Deductions</div>
+            </div>
+            <div class="vd-side-body">
+              <div id="benefitsDeductions">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Bonus Program -->
+          <div class="vd-side-section">
+            <div class="vd-side-header">
+              <div class="vd-side-title">Bonus Program</div>
+            </div>
+            <div class="vd-side-body">
+              <div style="font-size:12px;color:#334155;line-height:1.7;" id="bonusProgram">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Message Notifications Panel -->
+<div id="empMsgNotifPanel" style="display:none;position:fixed;top:60px;right:16px;width:340px;max-width:calc(100vw - 32px);background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 32px rgba(22,45,86,.15);z-index:9999;">
+  <div style="padding:14px 16px 10px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:14px;font-weight:700;color:#0f1e38;">Message Notifications</div>
+    <button onclick="closeEmpMsgNotif()" style="background:none;border:none;font-size:18px;color:#94a3b8;cursor:pointer;line-height:1;">×</button>
+  </div>
+  <div id="empMsgNotifList" style="max-height:340px;overflow-y:auto;padding:8px 0;">
+    <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No new messages</div>
+  </div>
+  <div style="padding:10px 16px;border-top:1px solid #f1f5f9;text-align:center;">
+    <a href="employee-messages.html" style="font-size:13px;font-weight:600;color:#162d56;text-decoration:none;">View All Messages →</a>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/emp-msg-notif.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  renderEmpSidebar('emp-compensation');
+  await loadCompensationData();
+  initEmpMsgNotif();
+});
+
+async function loadCompensationData() {
+  const [visitsRes, empsRes] = await Promise.all([
+    empApiGetAll('visits'),
+    empApiGetAll('employees'),
+  ]);
+
+  const allVisits = visitsRes.data || [];
+  const allEmps   = empsRes.data  || [];
+  const myEmp     = allEmps.find(e => e.user_id === EMP_SESSION.userId) || {};
+
+  // Pay structure — read from real employee record
+  const hourlyRate         = myEmp.hourly_rate            || 22.00;
+  const visitBonus         = myEmp.visit_bonus            || 5.00;
+  const payFrequency       = myEmp.pay_frequency          || 'Bi-weekly';
+  const otMultiplier       = myEmp.overtime_multiplier    || 1.5;
+  const otRate             = hourlyRate * otMultiplier;
+  const weeklyPayWeekday   = myEmp.weekly_pay_weekday     !== undefined ? myEmp.weekly_pay_weekday : 5;
+  const monthlyPayDay      = myEmp.monthly_pay_day        || 1;
+  const biweeklyPayDays    = (() => {
+    if (Array.isArray(myEmp.biweekly_pay_days)) return myEmp.biweekly_pay_days;
+    if (typeof myEmp.biweekly_pay_days === 'string') {
+      try { return JSON.parse(myEmp.biweekly_pay_days); } catch(e) { return [1, 15]; }
+    }
+    return [1, 15];
+  })();
+
+  // Visits filter
+  const myEmpId = myEmp.id;
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const yearStart  = new Date(now.getFullYear(), 0, 1);
+
+  const myVisits   = allVisits.filter(v => v.assigned_employee_id === myEmpId);
+  const mtdVisits  = myVisits.filter(v => v.status === 'completed' && new Date(v.actual_end || v.updated_at) >= monthStart);
+  const ytdVisits  = myVisits.filter(v => v.status === 'completed' && new Date(v.actual_end || v.updated_at) >= yearStart);
+
+  const mtdHours = mtdVisits.reduce((sum, v) => sum + ((v.duration_minutes || 90) / 60), 0);
+  const ytdHours = ytdVisits.reduce((sum, v) => sum + ((v.duration_minutes || 90) / 60), 0);
+  const mtdBonus = mtdVisits.length * visitBonus;
+  const ytdPay   = (ytdHours * hourlyRate) + (ytdVisits.length * visitBonus);
+
+  // Stat cards
+  document.getElementById('statYTDPay').textContent      = `$${ytdPay.toFixed(2)}`;
+  document.getElementById('statPayPeriod').textContent   = payFrequency;
+  document.getElementById('statHourlyRate').textContent  = `$${hourlyRate.toFixed(2)}/hr`;
+  document.getElementById('statVisitBonus').textContent  = `$${mtdBonus.toFixed(2)}`;
+  // Show rate near visit bonus card
+  const rateEl = document.getElementById('statVisitBonusRate');
+  if (rateEl) rateEl.textContent = `$${visitBonus.toFixed(2)}/visit · ${mtdVisits.length} visits`;
+
+  // Pay structure grid
+  const grid = document.getElementById('payStructureGrid');
+  const items = [
+    { label: 'Base Hourly Rate',     value: `$${hourlyRate.toFixed(2)}/hr` },
+    { label: 'Pay Frequency',        value: payFrequency },
+    { label: 'Per-Visit Bonus',      value: `$${visitBonus.toFixed(2)}/visit` },
+    { label: 'Overtime Rate',        value: `$${otRate.toFixed(2)}/hr (${otMultiplier}×)` },
+    { label: 'MTD Completed Visits', value: mtdVisits.length, sub: `$${visitBonus.toFixed(2)}/visit bonus · $${hourlyRate.toFixed(2)}/hr` },
+    { label: 'MTD Hours Worked',     value: `${mtdHours.toFixed(1)} hrs`, sub: `Base: $${hourlyRate.toFixed(2)}/hr` },
+  ];
+  grid.innerHTML = items.map(i => `
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;">
+      <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">${i.label}</div>
+      <div style="font-size:16px;font-weight:700;color:#0f1e38;margin-top:4px;">${i.value}</div>
+      ${i.sub ? `<div style="font-size:10px;color:#64748b;margin-top:3px;font-weight:600;">${i.sub}</div>` : ''}
+    </div>`).join('');
+
+  // ── Dynamic pay calculation explanation (Fix #2) ──────────────────────────
+  const visitBonusNote = visitBonus > 0
+    ? ` Each completed visit earns a <strong>$${visitBonus.toFixed(2)} per-visit bonus</strong>.`
+    : '';
+  const otNote = `Hours beyond 40 per week are paid at the <strong>overtime rate of $${otRate.toFixed(2)}/hr (${otMultiplier}×)</strong>.`;
+  document.getElementById('payCalcExplanation').innerHTML =
+    `<strong>How your pay is calculated:</strong> Your base hourly rate of <strong>$${hourlyRate.toFixed(2)}/hr</strong> applies to all regular hours logged on visits.${visitBonusNote} ${otNote} Any special pay adjustments appear in your pay history below.`;
+
+  // Next payday
+  const nextPay = getNextPayday(payFrequency, weeklyPayWeekday, biweeklyPayDays, monthlyPayDay);
+  const daysUntil = Math.ceil((nextPay - now) / 86400000);
+  document.getElementById('nextPaydayDate').textContent = nextPay.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  document.getElementById('nextPaydayIn').textContent   = daysUntil === 0 ? 'Today!' : `In ${daysUntil} day${daysUntil !== 1 ? 's' : ''}`;
+
+  // Estimated next payment
+  const periodHours = mtdHours;
+  const estPay = (periodHours * hourlyRate) + mtdBonus;
+  document.getElementById('estNextPayment').textContent = `$${estPay.toFixed(2)}`;
+
+  // Benefits & deductions — read from employee record (configured by executive)
+  const parseBdList = raw => {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    try { return JSON.parse(raw); } catch(e) { return []; }
+  };
+  const benefits   = parseBdList(myEmp.benefits   || myEmp.benefit_items);
+  const deductions = parseBdList(myEmp.deductions  || myEmp.deduction_items);
+
+  const hasBenefits   = benefits.length > 0;
+  const hasDeductions = deductions.length > 0;
+
+  let bdHtml = '<div style="display:flex;flex-direction:column;gap:0;font-size:13px;">';
+
+  if (hasBenefits) {
+    bdHtml += `<div style="font-size:10px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.5px;padding:6px 0 4px;">Benefits</div>`;
+    benefits.forEach((item, i) => {
+      const isLast = !hasDeductions && i === benefits.length - 1;
+      bdHtml += `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;${isLast ? '' : 'border-bottom:1px solid #f1f5f9;'}">
+          <span style="color:#334155;">${_escHtmlComp(item.label || 'Benefit')}</span>
+          <span style="font-weight:600;color:#166534;">+${_escHtmlComp(item.value || '—')}</span>
+        </div>`;
+    });
+  }
+
+  if (hasDeductions) {
+    bdHtml += `<div style="font-size:10px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.5px;padding:${hasBenefits ? '10px' : '6px'} 0 4px;">Deductions</div>`;
+    deductions.forEach((item, i) => {
+      const isLast = i === deductions.length - 1;
+      bdHtml += `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;${isLast ? '' : 'border-bottom:1px solid #f1f5f9;'}">
+          <span style="color:#334155;">${_escHtmlComp(item.label || 'Deduction')}</span>
+          <span style="font-weight:600;color:#dc2626;">−${_escHtmlComp(item.value || '—')}</span>
+        </div>`;
+    });
+  }
+
+  if (!hasBenefits && !hasDeductions) {
+    bdHtml += `<div style="padding:12px 0;color:#94a3b8;font-size:12px;text-align:center;font-style:italic;">No benefits or deductions configured yet.<br>Contact your manager for details.</div>`;
+  }
+
+  bdHtml += '</div>';
+  if (hasBenefits || hasDeductions) {
+    bdHtml += `<div style="margin-top:10px;font-size:11px;color:#94a3b8;">Contact HR for benefit enrollment changes.</div>`;
+  }
+
+  document.getElementById('benefitsDeductions').innerHTML = bdHtml;
+
+  // Bonus program (dynamic rates)
+  document.getElementById('bonusProgram').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 12px;">
+        <div style="font-weight:700;color:#166534;">Per-Visit Completion</div>
+        <div style="color:#166534;margin-top:2px;">$${visitBonus.toFixed(2)} per completed inspection visit</div>
+      </div>
+      <div style="background:#f0f5ff;border:1px solid #c7d8f5;border-radius:8px;padding:10px 12px;">
+        <div style="font-weight:700;color:#162d56;">Monthly Excellence Bonus</div>
+        <div style="color:#162d56;margin-top:2px;">$50 for completing 40+ visits in a calendar month</div>
+      </div>
+      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;">
+        <div style="font-weight:700;color:#b45309;">Referral Bonus</div>
+        <div style="color:#b45309;margin-top:2px;">$100 for each new client referral that signs a contract</div>
+      </div>
+    </div>`;
+
+  // Pay history table
+  renderPayHistory(myEmp, ytdVisits, hourlyRate, visitBonus);
+}
+
+function _escHtmlComp(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getNextPayday(freq, weeklyWeekday, biweeklyDays, monthlyDay) {
+  const now  = new Date();
+  const next = new Date(now);
+
+  if (freq === 'Weekly') {
+    // Find next occurrence of the configured weekday
+    const targetDay  = typeof weeklyWeekday === 'number' ? weeklyWeekday : 5; // default Friday
+    const dayOfWeek  = now.getDay();
+    const daysAhead  = ((targetDay - dayOfWeek) + 7) % 7 || 7;
+    next.setDate(now.getDate() + daysAhead);
+
+  } else if (freq === 'Bi-weekly') {
+    // Use configured dates — find the soonest future date this month, else first of next month
+    const days = Array.isArray(biweeklyDays) && biweeklyDays.length > 0
+      ? [...biweeklyDays].sort((a, b) => a - b)
+      : [1, 15];
+    const today = now.getDate();
+    // Find next day >= today in same month
+    const upcomingThisMonth = days.find(d => d > today);
+    if (upcomingThisMonth) {
+      next.setDate(upcomingThisMonth);
+    } else {
+      // Roll to first pay day of next month
+      next.setMonth(now.getMonth() + 1);
+      next.setDate(days[0]);
+    }
+
+  } else if (freq === 'Monthly') {
+    const day = typeof monthlyDay === 'number' ? monthlyDay : 1;
+    if (now.getDate() < day) {
+      next.setDate(day);
+    } else {
+      next.setMonth(now.getMonth() + 1);
+      next.setDate(day);
+    }
+  }
+
+  return next;
+}
+
+function renderPayHistory(emp, ytdVisits, hourlyRate, visitBonus) {
+  const container = document.getElementById('payHistoryTable');
+  // Build pay periods from completed visits using real API data only
+  const periods = [];
+  const now = new Date();
+  for (let i = 0; i < 6; i++) {
+    const periodEnd   = new Date(now.getFullYear(), now.getMonth() - i, i === 0 ? now.getDate() : 15);
+    const periodStart = new Date(periodEnd);
+    periodStart.setDate(periodEnd.getDate() - 14);
+    const periodVisits = ytdVisits.filter(v => {
+      if (v.status !== 'completed') return false;
+      const d = new Date(v.actual_end || v.updated_at);
+      return d >= periodStart && d <= periodEnd;
+    });
+    if (periodVisits.length > 0) {
+      const hours  = periodVisits.reduce((s, v) => s + ((v.duration_minutes || 90) / 60), 0);
+      const gross  = (hours * hourlyRate) + (periodVisits.length * visitBonus);
+      periods.push({ start: periodStart, end: periodEnd, visits: periodVisits.length, hours, gross });
+    }
+  }
+
+  if (!periods.length) {
+    container.innerHTML = '<div style="padding:24px;text-align:center;color:#94a3b8;font-size:13px;">No pay history available yet.</div>';
+    return;
+  }
+
+  container.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+          <th style="padding:10px 16px;font-size:11px;font-weight:700;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:.5px;">Period</th>
+          <th style="padding:10px 16px;font-size:11px;font-weight:700;color:#94a3b8;text-align:right;text-transform:uppercase;letter-spacing:.5px;">Visits</th>
+          <th style="padding:10px 16px;font-size:11px;font-weight:700;color:#94a3b8;text-align:right;text-transform:uppercase;letter-spacing:.5px;">Hours</th>
+          <th style="padding:10px 16px;font-size:11px;font-weight:700;color:#94a3b8;text-align:right;text-transform:uppercase;letter-spacing:.5px;">Gross Pay</th>
+          <th style="padding:10px 16px;font-size:11px;font-weight:700;color:#94a3b8;text-align:center;text-transform:uppercase;letter-spacing:.5px;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${periods.map((p, i) => `
+          <tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="padding:12px 16px;font-size:13px;color:#334155;">
+              ${p.start.toLocaleDateString('en-US', {month:'short',day:'numeric'})} – ${p.end.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'})}
+            </td>
+            <td style="padding:12px 16px;font-size:13px;color:#334155;text-align:right;">${p.visits}</td>
+            <td style="padding:12px 16px;font-size:13px;color:#334155;text-align:right;">${p.hours.toFixed(1)}</td>
+            <td style="padding:12px 16px;font-size:14px;font-weight:700;color:#0f1e38;text-align:right;">$${p.gross.toFixed(2)}</td>
+            <td style="padding:12px 16px;text-align:center;">
+              <span style="font-size:11px;font-weight:700;border-radius:20px;padding:2px 10px;
+                background:${i === 0 ? '#fef3c7' : '#f0fdf4'};
+                color:${i === 0 ? '#b45309' : '#166534'};
+                border:1px solid ${i === 0 ? '#fde68a' : '#bbf7d0'};">
+                ${i === 0 ? 'In Progress' : 'Paid'}
+              </span>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+</script>
+</body>
+</html>

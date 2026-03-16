@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Request Time Off — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/employee.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Staff navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Request Time Off</span>
+          <span class="topbar-welcome">Submit &amp; track your time-off requests</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <!-- Messages notification icon -->
+        <button
+          class="topbar-icon-btn emp-msg-notif-btn"
+          id="empMsgNotifBtn"
+          aria-label="Message notifications"
+          title="Messages"
+          type="button"
+          onclick="openEmpMsgNotif(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span class="topbar-notif-badge" id="empMsgBadge" style="display:none;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="employee"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <div class="emp-topbar-role">
+          <span class="role-chip inspector">Inspector</span>
+        </div>
+        <div class="topbar-avatar" id="topbarAvatar"></div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+      <div class="vd-grid">
+
+        <!-- Left: Submit Request Form -->
+        <div>
+          <div class="vd-card" style="margin-bottom:20px;">
+            <div class="vd-card-header">
+              <div class="vd-card-title">New Time-Off Request</div>
+            </div>
+            <div class="vd-card-body">
+              <form id="timeOffForm" onsubmit="submitTimeOff(event)">
+
+                <div class="vd-form-group" style="margin-bottom:16px;">
+                  <label class="vd-form-label">Request Type *</label>
+                  <select class="vd-form-select" id="tofType" required>
+                    <option value="">Select type...</option>
+                    <option value="vacation">Vacation</option>
+                    <option value="sick_leave">Sick Leave</option>
+                    <option value="personal">Personal Day</option>
+                    <option value="family_emergency">Family Emergency</option>
+                    <option value="bereavement">Bereavement</option>
+                    <option value="unpaid">Unpaid Leave</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div class="vd-form-row" style="margin-bottom:16px;">
+                  <div class="vd-form-group">
+                    <label class="vd-form-label">Start Date *</label>
+                    <input type="date" class="vd-form-input" id="tofStartDate" required />
+                  </div>
+                  <div class="vd-form-group">
+                    <label class="vd-form-label">End Date *</label>
+                    <input type="date" class="vd-form-input" id="tofEndDate" required />
+                  </div>
+                </div>
+
+                <div class="vd-form-group" style="margin-bottom:16px;">
+                  <label class="vd-form-label">Duration</label>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+                      <input type="radio" name="tofDuration" value="full_day" checked style="accent-color:#162d56;" />
+                      Full Day(s)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+                      <input type="radio" name="tofDuration" value="half_day_am" style="accent-color:#162d56;" />
+                      Half Day (AM)
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+                      <input type="radio" name="tofDuration" value="half_day_pm" style="accent-color:#162d56;" />
+                      Half Day (PM)
+                    </label>
+                  </div>
+                </div>
+
+                <div class="vd-form-group" style="margin-bottom:16px;">
+                  <label class="vd-form-label">Reason / Notes <span style="color:#94a3b8;font-weight:400;">(optional)</span></label>
+                  <textarea class="vd-notes-area" id="tofNotes" rows="4"
+                    placeholder="Provide any additional context for your manager. This field is optional but helps with approval."></textarea>
+                </div>
+
+                <div style="background:#f0f5ff;border:1px solid #c7d8f5;border-radius:10px;padding:12px 14px;font-size:12px;color:#162d56;margin-bottom:16px;">
+                  <strong>Note:</strong> Requests are reviewed by management. You will be notified of approval or denial. Submitting a request does not guarantee approval. Please ensure you have coverage arranged for your scheduled visits during this period.
+                </div>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <button type="submit" class="emp-btn-start in-progress" id="tofSubmitBtn" style="padding:10px 24px;">
+                    Submit Request
+                  </button>
+                  <button type="button" class="emp-btn-secondary" onclick="resetForm()">Clear Form</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: My Requests List -->
+        <div>
+          <!-- Balance Summary -->
+          <div class="vd-side-section" style="margin-bottom:20px;">
+            <div class="vd-side-header">
+              <div class="vd-side-title">Time-Off Balance</div>
+            </div>
+            <div class="vd-side-body">
+              <div style="display:flex;flex-direction:column;gap:10px;" id="balanceSummary">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;">
+                  <span style="font-size:13px;color:#166534;font-weight:600;">Vacation Days</span>
+                  <span style="font-size:16px;font-weight:800;color:#166534;" id="balVacation">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;">
+                  <span style="font-size:13px;color:#b45309;font-weight:600;">Sick Days</span>
+                  <span style="font-size:16px;font-weight:800;color:#b45309;" id="balSick">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#f0f5ff;border:1px solid #c7d8f5;border-radius:8px;">
+                  <span style="font-size:13px;color:#162d56;font-weight:600;">Personal Days</span>
+                  <span style="font-size:16px;font-weight:800;color:#162d56;" id="balPersonal">—</span>
+                </div>
+              </div>
+              <div style="font-size:11px;color:#94a3b8;margin-top:10px;">Balances reset each calendar year. Contact HR for corrections.</div>
+            </div>
+          </div>
+
+          <!-- My Past Requests -->
+          <div class="vd-side-section">
+            <div class="vd-side-header">
+              <div class="vd-side-title">My Requests</div>
+            </div>
+            <div class="vd-side-body" style="padding:0;">
+              <div id="myRequestsList" style="padding:14px;">
+                <div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0;">Loading requests...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Message Notifications Panel -->
+<div id="empMsgNotifPanel" style="display:none;position:fixed;top:60px;right:16px;width:340px;max-width:calc(100vw - 32px);background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 32px rgba(22,45,86,.15);z-index:9999;">
+  <div style="padding:14px 16px 10px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:14px;font-weight:700;color:#0f1e38;">Message Notifications</div>
+    <button onclick="closeEmpMsgNotif()" style="background:none;border:none;font-size:18px;color:#94a3b8;cursor:pointer;line-height:1;">×</button>
+  </div>
+  <div id="empMsgNotifList" style="max-height:340px;overflow-y:auto;padding:8px 0;">
+    <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No new messages</div>
+  </div>
+  <div style="padding:10px 16px;border-top:1px solid #f1f5f9;text-align:center;">
+    <a href="employee-messages.html" style="font-size:13px;font-weight:600;color:#162d56;text-decoration:none;">View All Messages →</a>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/emp-msg-notif.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  renderEmpSidebar('emp-time-off');
+  setDefaultDates();
+  await loadBalances();
+  await loadMyRequests();
+  initEmpMsgNotif();
+});
+
+function setDefaultDates() {
+  const today = new Date();
+  const yyyy  = today.getFullYear();
+  const mm    = String(today.getMonth() + 1).padStart(2, '0');
+  const dd    = String(today.getDate()).padStart(2, '0');
+  const todayStr = `${yyyy}-${mm}-${dd}`;
+  document.getElementById('tofStartDate').value = todayStr;
+  document.getElementById('tofEndDate').value   = todayStr;
+  document.getElementById('tofStartDate').min   = todayStr;
+  document.getElementById('tofEndDate').min     = todayStr;
+  document.getElementById('tofStartDate').addEventListener('change', () => {
+    document.getElementById('tofEndDate').min = document.getElementById('tofStartDate').value;
+    if (document.getElementById('tofEndDate').value < document.getElementById('tofStartDate').value) {
+      document.getElementById('tofEndDate').value = document.getElementById('tofStartDate').value;
+    }
+  });
+}
+
+async function loadBalances() {
+  // Load time-off requests to compute used days
+  const { data: requests } = await empApiGetAll('time_off_requests');
+  const myReqs = (requests || []).filter(r => r.employee_user_id === EMP_SESSION.userId);
+  const year   = new Date().getFullYear();
+
+  const usedVacation = myReqs.filter(r => r.request_type === 'vacation' && r.status === 'approved' && new Date(r.start_date).getFullYear() === year)
+    .reduce((s, r) => s + (r.days_requested || 1), 0);
+  const usedSick = myReqs.filter(r => r.request_type === 'sick_leave' && r.status === 'approved' && new Date(r.start_date).getFullYear() === year)
+    .reduce((s, r) => s + (r.days_requested || 1), 0);
+  const usedPersonal = myReqs.filter(r => r.request_type === 'personal' && r.status === 'approved' && new Date(r.start_date).getFullYear() === year)
+    .reduce((s, r) => s + (r.days_requested || 1), 0);
+
+  const allocVacation = 10, allocSick = 5, allocPersonal = 3;
+  document.getElementById('balVacation').textContent = `${Math.max(0, allocVacation - usedVacation)} days`;
+  document.getElementById('balSick').textContent     = `${Math.max(0, allocSick - usedSick)} days`;
+  document.getElementById('balPersonal').textContent = `${Math.max(0, allocPersonal - usedPersonal)} days`;
+}
+
+async function loadMyRequests() {
+  const { data: requests } = await empApiGetAll('time_off_requests');
+  const myReqs = (requests || [])
+    .filter(r => r.employee_user_id === EMP_SESSION.userId)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  const container = document.getElementById('myRequestsList');
+  if (!myReqs.length) {
+    container.innerHTML = `<div style="text-align:center;color:#94a3b8;font-size:13px;padding:20px 0;">No time-off requests yet.</div>`;
+    return;
+  }
+
+  const statusStyles = {
+    pending:  { bg:'#fef3c7', color:'#b45309', border:'#fde68a', label:'Pending' },
+    approved: { bg:'#f0fdf4', color:'#166534', border:'#bbf7d0', label:'Approved' },
+    denied:   { bg:'#fee2e2', color:'#dc2626', border:'#fca5a5', label:'Denied' },
+    cancelled:{ bg:'#f1f5f9', color:'#64748b', border:'#e2e8f0', label:'Cancelled' },
+  };
+
+  container.innerHTML = myReqs.map(r => {
+    const st = statusStyles[r.status] || statusStyles.pending;
+    const days = r.days_requested || daysBetween(r.start_date, r.end_date);
+    return `
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">
+          <div style="font-size:13px;font-weight:700;color:#0f1e38;">${FMT.snakeToTitle(r.request_type || 'vacation')}</div>
+          <span style="font-size:10px;font-weight:700;background:${st.bg};color:${st.color};border:1px solid ${st.border};border-radius:20px;padding:2px 9px;flex-shrink:0;">${st.label}</span>
+        </div>
+        <div style="font-size:12px;color:#334155;margin-bottom:4px;">
+          ${FMT.date(r.start_date)} – ${FMT.date(r.end_date)}
+          <span style="color:#94a3b8;margin-left:6px;">(${days} day${days !== 1 ? 's' : ''})</span>
+        </div>
+        ${r.notes ? `<div style="font-size:11px;color:#64748b;margin-bottom:6px;line-height:1.5;">${r.notes}</div>` : ''}
+        ${r.admin_notes ? `<div style="font-size:11px;color:#162d56;background:#e8eef8;border-radius:6px;padding:5px 8px;margin-bottom:6px;">💬 Admin: ${r.admin_notes}</div>` : ''}
+        <div style="font-size:11px;color:#94a3b8;">Submitted ${FMT.relTime(r.created_at)}</div>
+        ${r.status === 'pending' ? `<button onclick="cancelRequest('${r.id}')" style="margin-top:8px;font-size:11px;color:#dc2626;background:none;border:1px solid #fca5a5;border-radius:6px;padding:3px 10px;cursor:pointer;">Cancel Request</button>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function daysBetween(start, end) {
+  if (!start || !end) return 1;
+  const d1 = new Date(start), d2 = new Date(end);
+  return Math.max(1, Math.ceil((d2 - d1) / 86400000) + 1);
+}
+
+async function submitTimeOff(e) {
+  e.preventDefault();
+  const btn = document.getElementById('tofSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  const startDate = document.getElementById('tofStartDate').value;
+  const endDate   = document.getElementById('tofEndDate').value;
+  const type      = document.getElementById('tofType').value;
+  const notes     = document.getElementById('tofNotes').value.trim();
+  const duration  = document.querySelector('input[name="tofDuration"]:checked')?.value || 'full_day';
+  const days      = daysBetween(startDate, endDate);
+
+  if (!type) { showToast('Please select a request type.', 'error'); btn.disabled = false; btn.textContent = 'Submit Request'; return; }
+  if (endDate < startDate) { showToast('End date must be on or after start date.', 'error'); btn.disabled = false; btn.textContent = 'Submit Request'; return; }
+
+  const { data, error } = await empApiPost('time_off_requests', {
+    employee_user_id: EMP_SESSION.userId,
+    employee_name:    EMP_SESSION.name,
+    request_type:     type,
+    start_date:       startDate,
+    end_date:         endDate,
+    duration_type:    duration,
+    days_requested:   duration.includes('half') ? 0.5 : days,
+    notes:            notes || null,
+    status:           'pending',
+    submitted_at:     new Date().toISOString(),
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Submit Request';
+
+  if (error) { showToast('Could not submit request. Please try again.', 'error'); return; }
+
+  showToast('Time-off request submitted successfully!', 'success');
+  resetForm();
+  await loadMyRequests();
+  await loadBalances();
+}
+
+function resetForm() {
+  document.getElementById('timeOffForm').reset();
+  setDefaultDates();
+}
+
+async function cancelRequest(id) {
+  if (!confirm('Cancel this time-off request?')) return;
+  const { error } = await empApiPatch('time_off_requests', id, { status: 'cancelled' });
+  if (error) { showToast('Could not cancel request.', 'error'); return; }
+  showToast('Request cancelled.', 'success');
+  await loadMyRequests();
+  await loadBalances();
+}
+</script>
+</body>
+</html>

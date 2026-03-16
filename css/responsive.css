@@ -1,0 +1,1016 @@
+/* ============================================
+   Satellite Home Watch — Shared Responsive System
+   Mobile-First Architecture Overrides
+   v2 — deployment bundle refresh
+   ============================================
+
+   Breakpoints:
+   - Desktop:  > 1024px  (sidebar layout, full columns)
+   - Tablet:   768px–1024px (condensed sidebar or drawer)
+   - Mobile:   < 768px  (full drawer, stacked layout)
+   - Mobile SM: < 480px (tighter spacing)
+   ============================================ */
+
+/* ════════════════════════════════════════════
+   1. MOBILE TOPBAR (shown on tablet/mobile)
+   ════════════════════════════════════════════ */
+
+.mobile-topbar {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: var(--navy-900);
+  z-index: 300;
+  align-items: center;
+  padding: 0 var(--space-4);
+  gap: var(--space-3);
+  box-shadow: 0 2px 8px rgba(10,22,40,0.3);
+}
+
+.mobile-topbar-menu-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: white;
+  background: rgba(255,255,255,0.08);
+  flex-shrink: 0;
+  transition: background var(--transition-fast);
+  cursor: pointer;
+  border: none;
+}
+
+.mobile-topbar-menu-btn:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+.mobile-topbar-menu-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mobile-topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-topbar-logo img {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+}
+
+.mobile-topbar-logo-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mobile-topbar-logo-primary {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: white;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-topbar-logo-sub {
+  font-size: 0.6rem;
+  font-weight: var(--weight-semibold);
+  color: var(--navy-400);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mobile-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.mobile-topbar-action-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--navy-300);
+  background: rgba(255,255,255,0.06);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: none;
+  position: relative;
+  text-decoration: none;
+}
+
+.mobile-topbar-action-btn:hover {
+  background: rgba(255,255,255,0.12);
+  color: white;
+}
+
+.mobile-topbar-action-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Profile avatar inside mobile topbar */
+.mobile-topbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(100,140,220,0.3);
+  border: 1.5px solid rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: var(--weight-bold);
+  color: white;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background var(--transition-fast);
+}
+
+.mobile-topbar-avatar:hover {
+  background: rgba(100,140,220,0.45);
+}
+
+.mobile-topbar-badge {
+  /* ── Badge bubble on the top-right of the mobile action button ── */
+  position: absolute;
+  top: -3px;
+  right: -3px;
+
+  /* ── Size: pill when a number is shown ── */
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  box-sizing: border-box;
+
+  /* ── Red bubble with dark border to pop against the dark topbar ── */
+  background: #dc2626;
+  border-radius: 9999px;
+  border: 1.5px solid var(--navy-900);
+
+  /* ── Number centering ── */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* ── Typography ── */
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+  white-space: nowrap;
+  font-family: inherit;
+
+  /* ── Always on top of the SVG icon ── */
+  z-index: 2;
+
+  /* ── Smooth entry when count changes ── */
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+/* When the badge has no text (empty dot indicator) shrink to a small dot */
+.mobile-topbar-badge:empty {
+  min-width: 8px;
+  height: 8px;
+  padding: 0;
+  top: 4px;
+  right: 4px;
+}
+
+/* ── Ensure the badge is never clipped by the button's border-radius ── */
+.mobile-topbar-action-btn {
+  overflow: visible;
+}
+
+/* SVG sits below the badge in the z-order */
+.mobile-topbar-action-btn svg {
+  position: relative;
+  z-index: 0;
+}
+
+/* ════════════════════════════════════════════
+   2. DRAWER OVERLAY
+   ════════════════════════════════════════════ */
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 22, 40, 0.6);
+  z-index: 299;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity var(--transition-slow);
+}
+
+.sidebar-overlay.open {
+  display: block;
+  opacity: 1;
+}
+
+/* ════════════════════════════════════════════
+   SIDEBAR DRAWER CLOSE BUTTON
+   Hidden by default, visible inside mobile drawer
+   ════════════════════════════════════════════ */
+
+.sidebar-drawer-close {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  margin-left: auto;
+}
+
+.sidebar-drawer-close:hover {
+  background: rgba(255,255,255,0.18);
+  color: white;
+}
+
+.sidebar-drawer-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ════════════════════════════════════════════
+   3. MOBILE CARD SYSTEM (table → card conversion)
+   ════════════════════════════════════════════ */
+
+/* Mobile list wrapper */
+.mobile-card-list {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Mobile item card */
+.mobile-item-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: var(--border-light);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4);
+  transition: box-shadow var(--transition-fast);
+}
+
+.mobile-item-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.mobile-item-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.mobile-item-card-title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--navy-900);
+  line-height: 1.3;
+}
+
+.mobile-item-card-sub {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.mobile-item-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mobile-item-card-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+.mobile-item-card-row svg {
+  width: 13px;
+  height: 13px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.mobile-item-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: var(--border-light);
+}
+
+.mobile-item-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+/* ════════════════════════════════════════════
+   4. STICKY MOBILE ACTIONS
+   ════════════════════════════════════════════ */
+
+.mobile-sticky-actions {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: var(--border-medium);
+  padding: var(--space-3) var(--space-4);
+  z-index: 150;
+  box-shadow: 0 -4px 12px rgba(10,22,40,0.1);
+  gap: var(--space-3);
+}
+
+.mobile-sticky-actions .btn {
+  flex: 1;
+  justify-content: center;
+}
+
+/* ════════════════════════════════════════════
+   5. MOBILE PAGE HEADER
+   ════════════════════════════════════════════ */
+
+.mobile-page-header {
+  display: none;
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  background: var(--color-bg-primary);
+  border-bottom: var(--border-light);
+}
+
+.mobile-page-header-title {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--navy-900);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.mobile-page-header-sub {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+/* ════════════════════════════════════════════
+   6. COLLAPSIBLE SECTIONS
+   ════════════════════════════════════════════ */
+
+.collapsible-section {
+  border: var(--border-light);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--color-surface);
+  margin-bottom: var(--space-3);
+  box-shadow: var(--shadow-sm);
+}
+
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  cursor: pointer;
+  user-select: none;
+  background: var(--color-surface);
+  transition: background var(--transition-fast);
+  gap: var(--space-3);
+}
+
+.collapsible-header:hover {
+  background: var(--cream-50);
+}
+
+.collapsible-header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+}
+
+.collapsible-header-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--navy-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.collapsible-header-icon svg {
+  width: 15px;
+  height: 15px;
+  color: var(--navy-600);
+}
+
+.collapsible-header-title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--navy-900);
+}
+
+.collapsible-header-sub {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.collapsible-chevron {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: transform var(--transition-base);
+}
+
+.collapsible-section.open .collapsible-chevron {
+  transform: rotate(180deg);
+}
+
+.collapsible-body {
+  display: none;
+  padding: 0 var(--space-4) var(--space-4);
+  border-top: var(--border-light);
+}
+
+.collapsible-section.open .collapsible-body {
+  display: block;
+}
+
+/* ════════════════════════════════════════════
+   7. LAYOUT UTILITIES
+   ════════════════════════════════════════════ */
+
+.stack-mobile {
+  /* becomes single column on mobile */
+}
+
+.two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.three-col-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+.four-col-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+/* Flex row that wraps on mobile */
+.flex-row-stack {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+/* ════════════════════════════════════════════
+   8. MOBILE FILTERS BAR
+   ════════════════════════════════════════════ */
+
+.mobile-filters-bar {
+  display: none;
+  overflow-x: auto;
+  padding: var(--space-3) var(--space-4);
+  gap: var(--space-2);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  border-bottom: var(--border-light);
+  background: var(--color-surface);
+}
+
+.mobile-filters-bar::-webkit-scrollbar { display: none; }
+
+.mobile-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0.3125rem var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1.5px solid var(--blue-gray-200);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.mobile-filter-chip.active {
+  background: var(--navy-700);
+  color: white;
+  border-color: var(--navy-700);
+}
+
+.mobile-filter-chip svg {
+  width: 11px;
+  height: 11px;
+}
+
+/* ════════════════════════════════════════════
+   9. CHAT MOBILE LAYOUT
+   ════════════════════════════════════════════ */
+
+.mobile-chat-state-list .messages-sidebar { display: block; }
+.mobile-chat-state-list .messages-content { display: none; }
+.mobile-chat-state-thread .messages-sidebar { display: none; }
+.mobile-chat-state-thread .messages-content { display: block; }
+
+/* ════════════════════════════════════════════
+   10. RESPONSIVE SHOW/HIDE
+   ════════════════════════════════════════════ */
+
+.show-tablet-up { display: none !important; }
+.show-mobile-only { display: none !important; }
+.hide-on-mobile { }
+
+/* ════════════════════════════════════════════
+   TABLET BREAKPOINT (≤ 1024px)
+   ════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  /* ── Show the dark blue mobile topbar ── */
+  .mobile-topbar {
+    display: flex;
+  }
+
+  /* ── Sidebar becomes an off-canvas drawer ── */
+  .sidebar {
+    transform: translateX(calc(-1 * var(--sidebar-width)));
+    z-index: 301;
+    box-shadow: var(--shadow-2xl);
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  /* ── Main content spans full width, padded only for the mobile topbar ── */
+  .main-content {
+    margin-left: 0 !important;
+    padding-top: 56px; /* height of .mobile-topbar only */
+  }
+
+  /* ── HIDE the white desktop topbar on tablet/mobile.
+         The dark blue .mobile-topbar is the ONLY header here. ── */
+  .topbar {
+    display: none !important;
+  }
+
+  /* Show tablet-up items */
+  .show-tablet-up {
+    display: block !important;
+  }
+
+  /* Two-col grid to single on tablet */
+  .two-col-grid.stack-tablet {
+    grid-template-columns: 1fr;
+  }
+
+  /* Three/Four col to two on tablet */
+  .three-col-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .four-col-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Stats grids */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ════════════════════════════════════════════
+   MOBILE BREAKPOINT (≤ 768px)
+   ════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  /* Show mobile-only content */
+  .show-mobile-only {
+    display: block !important;
+  }
+
+  /* Hide desktop/tablet-only content */
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  /* Show mobile card lists */
+  .mobile-card-list {
+    display: flex !important;
+  }
+
+  /* Show mobile page header */
+  .mobile-page-header {
+    display: block;
+  }
+
+  /* Show mobile filters bar */
+  .mobile-filters-bar {
+    display: flex;
+  }
+
+  /* Show sticky mobile actions */
+  .mobile-sticky-actions {
+    display: flex;
+  }
+
+  /* All grids collapse to single column */
+  .two-col-grid,
+  .three-col-grid,
+  .four-col-grid,
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Flex rows stack */
+  .flex-row-stack {
+    flex-direction: column;
+  }
+
+  /* Page content padding */
+  .page-content,
+  .page-body {
+    padding: var(--space-4) !important;
+  }
+
+  /* Page header compact */
+  .page-header {
+    padding: var(--space-4) var(--space-4) var(--space-3) !important;
+  }
+
+  .page-header-title {
+    font-size: var(--text-xl) !important;
+  }
+
+  .page-header-sub {
+    font-size: var(--text-sm) !important;
+    display: none;
+  }
+
+  /* Card padding tighter */
+  .card-body {
+    padding: var(--space-4) !important;
+  }
+
+  /* Tables hidden, cards shown */
+  .desktop-table-wrapper {
+    display: none !important;
+  }
+
+  /* Section spacing */
+  .section-gap {
+    gap: var(--space-4) !important;
+  }
+
+  /* Form full width */
+  .form-row {
+    flex-direction: column !important;
+    gap: var(--space-3) !important;
+  }
+
+  /* White desktop topbar is already hidden at ≤1024px via the tablet rule above.
+     These rules are kept as no-ops for safety but the topbar is display:none. */
+
+  /* Property selector compact (hidden on mobile regardless) */
+  .property-selector-wrap {
+    display: none;
+  }
+
+  /* Modals full screen on mobile */
+  .modal-container {
+    margin: 0 !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    transform: none !important;
+    top: auto !important;
+  }
+
+  /* Page bottom padding for sticky actions */
+  .has-sticky-actions {
+    padding-bottom: 80px !important;
+  }
+
+  /* Mobile stats cards */
+  .stat-card {
+    padding: var(--space-4) !important;
+  }
+
+  .stat-card-value {
+    font-size: var(--text-2xl) !important;
+  }
+
+  /* Chat mobile */
+  .messages-layout {
+    position: relative;
+  }
+
+  /* ════════════════════════════════════════════
+     FIX 3: MOBILE SIDEBAR DRAWER
+     On mobile the sidebar becomes a 82% slide-out drawer
+     (not full-screen) so it feels lighter and the overlay
+     is clearly visible on the right side.
+     ════════════════════════════════════════════ */
+  .sidebar {
+    width: 82vw !important;
+    max-width: 320px !important;
+  }
+
+  /* Close button shown only in mobile drawer */
+  .sidebar-drawer-close {
+    display: flex !important;
+  }
+}
+
+/* ════════════════════════════════════════════
+   MOBILE SMALL (≤ 480px)
+   ════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .mobile-topbar {
+    padding: 0 var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .page-content,
+  .page-body {
+    padding: var(--space-3) !important;
+  }
+
+  .card-body {
+    padding: var(--space-3) !important;
+  }
+
+  .mobile-item-card {
+    padding: var(--space-3);
+  }
+
+  /* Very compact mobile topbar */
+  /* (White .topbar is hidden at ≤1024px — these rules are safe no-ops) */
+
+  /* Button sizes */
+  .btn {
+    padding: 0.5rem var(--space-4);
+    font-size: var(--text-xs);
+  }
+
+  .btn-lg {
+    padding: 0.625rem var(--space-5);
+    font-size: var(--text-sm);
+  }
+}
+
+/* ════════════════════════════════════════════
+   ADMIN / CRM TABLE TO CARD PATTERNS
+   ════════════════════════════════════════════ */
+
+/* Admin mobile card */
+.admin-mobile-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: var(--border-light);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4);
+  display: none;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (max-width: 768px) {
+  .admin-mobile-card {
+    display: flex;
+  }
+}
+
+/* Admin data table hides on mobile */
+@media (max-width: 768px) {
+  .admin-data-table {
+    display: none !important;
+  }
+
+  /* Also hide the docs-table (uses different class) */
+  .docs-table {
+    display: none !important;
+  }
+
+  .admin-mobile-cards-list {
+    display: flex !important;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+}
+
+.admin-mobile-cards-list {
+  display: none;
+}
+
+/* ════════════════════════════════════════════
+   SCHEDULE / DISPATCH MOBILE
+   ════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .schedule-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dispatch-card {
+    flex-direction: column !important;
+  }
+
+  .schedule-time-col {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: var(--border-light);
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+}
+
+/* ════════════════════════════════════════════
+   DETAIL PAGE MOBILE LAYOUT
+   ════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .detail-layout {
+    flex-direction: column !important;
+  }
+
+  .detail-sidebar-panel {
+    width: 100% !important;
+    order: 2;
+  }
+
+  .detail-main-panel {
+    order: 1;
+  }
+
+  .detail-hero {
+    min-height: 160px !important;
+    height: 160px !important;
+  }
+}
+
+/* ════════════════════════════════════════════
+   FORM LAYOUT MOBILE
+   ════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .form-two-col {
+    grid-template-columns: 1fr !important;
+  }
+
+  .form-three-col {
+    grid-template-columns: 1fr !important;
+  }
+
+  .form-section-header {
+    font-size: var(--text-base) !important;
+  }
+}
+
+/* ════════════════════════════════════════════
+   DASHBOARD MOBILE PRIORITY REORDER
+   ════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  /* Client dashboard: property status first */
+  .dashboard-priority-1 { order: 1; }
+  .dashboard-priority-2 { order: 2; }
+  .dashboard-priority-3 { order: 3; }
+  .dashboard-priority-4 { order: 4; }
+  .dashboard-priority-5 { order: 5; }
+
+  .dashboard-main-grid {
+    display: flex !important;
+    flex-direction: column;
+  }
+}
+
+/* ════════════════════════════════════════════
+   MOBILE BACK BUTTON
+   ════════════════════════════════════════════ */
+
+.mobile-back-btn {
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--navy-700);
+  cursor: pointer;
+  padding: var(--space-2) 0;
+  border: none;
+  background: none;
+  margin-bottom: var(--space-3);
+}
+
+.mobile-back-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 768px) {
+  .mobile-back-btn {
+    display: flex;
+  }
+}
+
+/* ════════════════════════════════════════════
+   GLOBAL SCROLLABLE TABLES (always works)
+   ════════════════════════════════════════════ */
+
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-xl);
+}
+
+.table-scroll-wrapper table {
+  min-width: 600px;
+}
+
+/* ════════════════════════════════════════════
+   TOPBAR HIDE ON TABLET/MOBILE WHEN USING 
+   MOBILE TOPBAR
+   NOTE: The entire .topbar (white bar) is now hidden 
+   via display:none in the ≤1024px block above.
+   This section is kept as reference only.
+   ════════════════════════════════════════════ */
+
+/* No additional rules needed here — handled in the tablet breakpoint block */
+
+/* ════════════════════════════════════════════
+   PRINT
+   ════════════════════════════════════════════ */
+
+@media print {
+  .sidebar,
+  .mobile-topbar,
+  .topbar,
+  .mobile-sticky-actions,
+  .sidebar-overlay {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    padding-top: 0 !important;
+  }
+}

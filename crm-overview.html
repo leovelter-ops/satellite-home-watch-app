@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRM System — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── CRM OVERVIEW — MOBILE RESPONSIVE ──────────────────────────── */
+
+    /* Prevent page-level horizontal overflow */
+    body, .app-wrapper, .main-content, .dashboard-content {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    /* Main content padding on mobile (controlled by mobile topbar) */
+    @media (max-width: 1024px) {
+      .dashboard-content {
+        padding: 16px !important;
+      }
+    }
+
+    /* ── Header banner compact on mobile ── */
+    @media (max-width: 768px) {
+      .dashboard-content {
+        padding: 12px !important;
+      }
+
+      .crm-header-banner {
+        padding: 16px 18px !important;
+        margin-bottom: 16px !important;
+        gap: 12px !important;
+      }
+      .crm-header-sub-hide {
+        display: none;
+      }
+      .crm-header-title {
+        font-size: 16px !important;
+      }
+      .crm-header-left {
+        gap: 12px !important;
+      }
+      .crm-header-icon {
+        width: 36px !important;
+        height: 36px !important;
+      }
+      .admin-header-actions {
+        width: 100%;
+        gap: 8px !important;
+      }
+      .admin-header-actions .admin-btn-primary,
+      .admin-header-actions .admin-btn-solid {
+        flex: 1;
+        justify-content: center;
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+      }
+
+      /* ── Stats: 2×2 grid ── */
+      .crm-stats-row {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        margin-bottom: 16px !important;
+      }
+      .crm-stat-card {
+        padding: 14px 14px !important;
+      }
+      .crm-stat-value {
+        font-size: 22px !important;
+      }
+
+      /* ── Search bar ── */
+      .crm-search-bar-wrap {
+        margin-bottom: 16px !important;
+      }
+      .crm-search-bar {
+        font-size: 13px !important;
+        padding: 11px 14px 11px 42px !important;
+      }
+
+      /* ── Two-col stacks to single col ── */
+      .crm-two-col {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        margin-bottom: 16px !important;
+      }
+
+      /* ── Lead rows: prevent meta overflow ── */
+      .crm-lead-row {
+        padding: 12px 14px !important;
+        gap: 10px !important;
+      }
+      .crm-lead-meta {
+        font-size: 11px !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 160px;
+      }
+      .crm-lead-info {
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      /* ── Activity items ── */
+      .crm-activity-item {
+        padding: 12px 14px !important;
+        gap: 10px !important;
+      }
+      .crm-activity-time {
+        font-size: 10px !important;
+        white-space: nowrap;
+      }
+
+      /* ── Quick access row: 1 col stack ── */
+      .crm-quick-access-row {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .crm-stats-row {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+      }
+      .crm-stat-card {
+        padding: 12px !important;
+      }
+      .crm-stat-value {
+        font-size: 20px !important;
+      }
+      .crm-lead-meta {
+        max-width: 120px;
+      }
+    }
+
+    /* ── Quick access grid ── */
+    .crm-quick-access-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .crm-quick-card {
+      cursor: pointer;
+    }
+    @media (max-width: 900px) {
+      .crm-quick-access-row {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+    @media (max-width: 768px) {
+      .crm-quick-access-row {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">CRM System</span>
+          <span class="topbar-welcome">Customer relationship management and lead tracking</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Header Banner -->
+      <div class="crm-header-banner">
+        <div class="crm-header-left">
+          <div class="crm-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+          </div>
+          <div>
+            <div class="crm-header-title">CRM System</div>
+            <div class="crm-header-sub crm-header-sub-hide">Customer relationship management and lead tracking</div>
+          </div>
+        </div>
+        <div class="admin-header-actions">
+          <button class="admin-btn-primary" onclick="window.location.href='crm-leads.html'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            View Leads
+          </button>
+          <button class="admin-btn-solid" onclick="window.location.href='crm-customers.html'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            All Customers
+          </button>
+        </div>
+      </div>
+
+      <!-- CRM Stats Row -->
+      <div class="crm-stats-row">
+        <div class="crm-stat-card">
+          <div class="crm-stat-top">
+            <div class="crm-stat-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <span class="crm-stat-trend up">↑ 4%</span>
+          </div>
+          <div class="crm-stat-value" id="ovTotalCustomers">—</div>
+          <div class="crm-stat-label">Total Customers</div>
+        </div>
+        <div class="crm-stat-card">
+          <div class="crm-stat-top">
+            <div class="crm-stat-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <span class="crm-stat-trend up">↑ 2%</span>
+          </div>
+          <div class="crm-stat-value" id="ovActiveCustomers">—</div>
+          <div class="crm-stat-label">Active Customers</div>
+        </div>
+        <div class="crm-stat-card">
+          <div class="crm-stat-top">
+            <div class="crm-stat-icon amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <span class="crm-stat-trend down">↓ 1</span>
+          </div>
+          <div class="crm-stat-value" id="ovOpenLeads">—</div>
+          <div class="crm-stat-label">Open Leads</div>
+        </div>
+        <div class="crm-stat-card">
+          <div class="crm-stat-top">
+            <div class="crm-stat-icon teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            </div>
+            <span class="crm-stat-trend neu">+3</span>
+          </div>
+          <div class="crm-stat-value" id="ovPendingRequests">—</div>
+          <div class="crm-stat-label">Pending Requests</div>
+        </div>
+      </div>
+
+      <!-- CRM Search Bar -->
+      <div class="crm-search-bar-wrap">
+        <div class="crm-search-bar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <input type="text" class="crm-search-bar" placeholder="Search customer, property, phone, or email…" oninput="filterCRM(this.value)" />
+      </div>
+
+      <!-- Two Column Content -->
+      <div class="crm-two-col">
+
+        <!-- Recent Leads -->
+        <div class="crm-section-card">
+          <div class="crm-section-header">
+            <div class="crm-section-title">
+              <span class="crm-section-title-dot blue"></span>
+              Recent Leads
+            </div>
+            <a href="crm-leads.html" style="font-size:12px;color:#162d56;font-weight:600;text-decoration:none;">View All →</a>
+          </div>
+          <div class="crm-section-body" id="recentLeadsList">
+            <div style="text-align:center;padding:24px 16px;color:#94a3b8;font-size:13px;">Loading leads…</div>
+          </div>
+        </div>
+
+        <!-- Recent Customer Activity -->
+        <div class="crm-section-card">
+          <div class="crm-section-header">
+            <div class="crm-section-title">
+              <span class="crm-section-title-dot green"></span>
+              Recent Customer Activity
+            </div>
+            <a href="crm-customers.html" style="font-size:12px;color:#162d56;font-weight:600;text-decoration:none;">View All →</a>
+          </div>
+          <div class="crm-section-body" id="recentActivityList">
+            <div style="text-align:center;padding:24px 16px;color:#94a3b8;font-size:13px;">Loading activity…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Quick Access Row -->
+      <div class="crm-quick-access-row">
+        <div class="crm-stat-card crm-quick-card" onclick="window.location.href='crm-customers.html'">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="crm-stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#0f1e38;">Customers</div>
+              <div style="font-size:12px;color:#64748b;" id="qcCustomers">— total</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#162d56;font-weight:600;margin-top:10px;">Open Customer List →</div>
+        </div>
+        <div class="crm-stat-card crm-quick-card" onclick="window.location.href='crm-leads.html'">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="crm-stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#0f1e38;">Leads</div>
+              <div style="font-size:12px;color:#64748b;" id="qcLeads">— open</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#162d56;font-weight:600;margin-top:10px;">Manage Leads →</div>
+        </div>
+        <div class="crm-stat-card crm-quick-card" onclick="window.location.href='crm-requests.html'">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="crm-stat-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#0f1e38;">Requests</div>
+              <div style="font-size:12px;color:#64748b;" id="qcRequests">— pending</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#162d56;font-weight:600;margin-top:10px;">View Requests →</div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+function _initials(name) {
+  return name.replace(/&/g, '').trim().split(/\s+/).map(w => w[0] || '').join('').toUpperCase().slice(0, 2) || '—';
+}
+function _timeAgo(ts) {
+  const diff = Date.now() - (typeof ts === 'number' ? ts : Number(ts));
+  const m = Math.floor(diff / 60000);
+  if (m < 60) return m <= 1 ? 'Just now' : `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return d === 1 ? 'Yesterday' : `${d}d ago`;
+}
+
+async function loadOverviewData() {
+  try {
+    const [custRes, leadRes, reqRes] = await Promise.all([
+      fetch('tables/users?limit=1&search=role:client'),
+      fetch('tables/leads?limit=200'),
+      fetch('tables/service_requests?limit=200'),
+    ]);
+    const [custJson, leadJson, reqJson] = await Promise.all([
+      custRes.ok ? custRes.json() : { total: 0, data: [] },
+      leadRes.ok ? leadRes.json() : { total: 0, data: [] },
+      reqRes.ok ? reqRes.json() : { total: 0, data: [] },
+    ]);
+
+    const totalCust = custJson.total || 0;
+    const activeCust = (custJson.data || []).filter(u => u.status === 'active').length;
+    const openLeads = (leadJson.data || []).filter(l => !['converted', 'lost'].includes(l.status)).length;
+    const pendingReqs = (reqJson.data || []).filter(r => ['new', 'reviewing', 'scheduled'].includes(r.status)).length;
+
+    const sv = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    sv('ovTotalCustomers', totalCust);
+    sv('ovActiveCustomers', activeCust);
+    sv('ovOpenLeads', openLeads);
+    sv('ovPendingRequests', pendingReqs);
+    sv('qcCustomers', `${totalCust} total · ${activeCust} active`);
+    sv('qcLeads', `${openLeads} open`);
+    sv('qcRequests', `${pendingReqs} pending`);
+
+    // Recent Leads
+    const recentLeads = (leadJson.data || []).slice(0, 5);
+    const leadsList = document.getElementById('recentLeadsList');
+    if (leadsList) {
+      if (recentLeads.length === 0) {
+        leadsList.innerHTML = `<div style="text-align:center;padding:24px 16px;color:#94a3b8;font-size:13px;">No leads yet.</div>`;
+      } else {
+        const LEAD_STATUS_HTML = { new: '<span class="tbl-status new-lead">New</span>', contacted: '<span class="tbl-status contacted">Contacted</span>', qualified: '<span class="tbl-status qualified">Qualified</span>', converted: '<span class="tbl-status converted">Converted</span>', lost: '<span class="tbl-status lost">Lost</span>' };
+        leadsList.innerHTML = recentLeads.map(l => {
+          const name = l.full_name || l.name || '—';
+          const ini = _initials(name);
+          return `<div class="crm-lead-row" onclick="window.location.href='crm-lead-profile.html?id=${l.id}'">
+            <div class="crm-lead-avatar">${ini}</div>
+            <div class="crm-lead-info">
+              <div class="crm-lead-name">${name}</div>
+              <div class="crm-lead-meta">${l.email || '—'}</div>
+            </div>
+            <div class="crm-lead-right">
+              ${LEAD_STATUS_HTML[l.status] || `<span class="tbl-status">${l.status || 'new'}</span>`}
+              <div class="crm-lead-source">${l.source || 'Website'}</div>
+            </div>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    // Recent Activity — use recently updated users and properties as a proxy
+    const activityList = document.getElementById('recentActivityList');
+    if (activityList) {
+      const actItems = [...(custJson.data || []).slice(0, 3).map(u => ({ type: 'client', label: `Client — ${u.full_name || u.email || '—'}`, sub: u.email || '—', ts: u.created_at })), ...(reqJson.data || []).slice(0, 2).map(r => ({ type: 'request', label: `Service request — ${r.request_type || r.type || 'Other'}`, sub: r.client_name || r.full_name || '—', ts: r.created_at }))].sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 5);
+      if (actItems.length === 0) {
+        activityList.innerHTML = `<div style="text-align:center;padding:24px 16px;color:#94a3b8;font-size:13px;">No recent activity.</div>`;
+      } else {
+        activityList.innerHTML = `<div class="crm-activity-list">${actItems.map(a => `<div class="crm-activity-item"><div class="crm-activity-dot ${a.type === 'request' ? 'request' : 'added'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="crm-activity-text"><div class="crm-activity-title">${a.label}</div><div class="crm-activity-sub">${a.sub}</div></div><div class="crm-activity-time">${a.ts ? _timeAgo(a.ts) : '—'}</div></div>`).join('')}</div>`;
+      }
+    }
+  } catch (e) {
+    ['ovTotalCustomers','ovActiveCustomers','ovOpenLeads','ovPendingRequests'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '—'; });
+    const ll = document.getElementById('recentLeadsList'); if (ll) ll.innerHTML = `<div style="text-align:center;padding:24px 16px;color:#94a3b8;font-size:13px;">Unable to load leads.</div>`;
+    const al = document.getElementById('recentActivityList'); if (al) al.innerHTML = `<div style="text-align:center;padding:24px 16px;color:#94a3b8;font-size:13px;">Unable to load activity.</div>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderAdminSidebar('crm-customers');
+  loadOverviewData();
+});
+function filterCRM(val) {
+  const rows = document.querySelectorAll('.crm-lead-row, .crm-activity-item');
+  const q = val.toLowerCase();
+  rows.forEach(r => {
+    r.style.display = q === '' || r.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

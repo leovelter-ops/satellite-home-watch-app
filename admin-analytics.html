@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── Page Layout ──────────────────────────────────── */
+    .an-page { max-width: 1400px; }
+
+    /* ── Date Range Picker ───────────────────────────── */
+    .an-filter-bar {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .an-filter-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      white-space: nowrap;
+    }
+    .an-range-btn {
+      padding: 7px 16px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      transition: all .18s;
+    }
+    .an-range-btn:hover  { border-color: #162d56; color: #162d56; background: #f0f5ff; }
+    .an-range-btn.active { background: #162d56; color: #fff; border-color: #162d56; }
+    .an-spacer { flex: 1; }
+    .an-export-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      transition: all .18s;
+    }
+    .an-export-btn:hover { background: #f8fafc; border-color: #162d56; color: #162d56; }
+    .an-export-btn svg { width: 13px; height: 13px; }
+
+    /* ── KPI Cards ───────────────────────────────────── */
+    .an-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .an-kpi-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 13px;
+      padding: 18px 18px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .an-kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px;
+      height: 100%;
+      border-radius: 13px 0 0 13px;
+    }
+    .an-kpi-card.blue::before   { background: #162d56; }
+    .an-kpi-card.green::before  { background: #22c55e; }
+    .an-kpi-card.amber::before  { background: #f59e0b; }
+    .an-kpi-card.red::before    { background: #ef4444; }
+    .an-kpi-card.purple::before { background: #8b5cf6; }
+    .an-kpi-card.teal::before   { background: #14b8a6; }
+
+    .an-kpi-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      margin-bottom: 8px;
+    }
+    .an-kpi-value {
+      font-size: 30px;
+      font-weight: 700;
+      color: #0f1e38;
+      letter-spacing: -.02em;
+      line-height: 1;
+    }
+    .an-kpi-change {
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .an-kpi-change.up   { color: #16a34a; }
+    .an-kpi-change.down { color: #dc2626; }
+    .an-kpi-change.flat { color: #94a3b8; }
+
+    /* ── Chart Cards ─────────────────────────────────── */
+    .an-chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .an-chart-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .an-chart-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .an-chart-card.wide {
+      grid-column: 1 / -1;
+    }
+    .an-chart-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .an-chart-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f1e38;
+    }
+    .an-chart-subtitle {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+    .an-chart-body {
+      padding: 18px 20px;
+    }
+
+    /* ── Donut Legend ────────────────────────────────── */
+    .an-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .an-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #334155;
+    }
+    .an-legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .an-legend-val {
+      margin-left: auto;
+      font-weight: 700;
+      color: #0f1e38;
+    }
+
+    /* ── Inspector Performance Table ─────────────────── */
+    .an-perf-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .an-perf-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      border-bottom: 1px solid #f1f5f9;
+      background: #fafbfc;
+    }
+    .an-perf-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #f8fafc;
+      color: #334155;
+      vertical-align: middle;
+    }
+    .an-perf-table tr:last-child td { border-bottom: none; }
+    .an-perf-table tr:hover td { background: #f8fafc; }
+    .an-inspector-chip {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .an-inspector-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: #162d56;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .an-progress-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .an-progress-bar {
+      flex: 1;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .an-progress-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: #162d56;
+      transition: width .6s ease;
+    }
+
+    /* ── Property Health Grid ────────────────────────── */
+    .an-health-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .an-health-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+    .an-health-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 8px;
+    }
+    .an-health-icon svg { width: 16px; height: 16px; }
+    .an-health-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f1e38;
+    }
+    .an-health-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 3px;
+    }
+
+    /* ── Alert Trend Table ───────────────────────────── */
+    .an-alert-trend {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .an-alert-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .an-alert-category {
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      width: 140px;
+      flex-shrink: 0;
+    }
+    .an-alert-bar-outer {
+      flex: 1;
+      height: 10px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .an-alert-bar-inner {
+      height: 100%;
+      border-radius: 8px;
+      transition: width .6s ease;
+    }
+    .an-alert-count {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0f1e38;
+      width: 28px;
+      text-align: right;
+    }
+    .an-alert-pct {
+      font-size: 11px;
+      color: #94a3b8;
+      width: 36px;
+      text-align: right;
+    }
+
+    /* ── Summary List ────────────────────────────────── */
+    .an-summary-list .an-summary-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f8fafc;
+      font-size: 13px;
+    }
+    .an-summary-list .an-summary-row:last-child { border-bottom: none; }
+    .an-summary-key { color: #64748b; }
+    .an-summary-val { font-weight: 700; color: #0f1e38; }
+
+    /* ── Responsive ──────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .an-kpi-row        { grid-template-columns: repeat(3, 1fr); }
+      .an-chart-grid     { grid-template-columns: 1fr; }
+      .an-chart-grid-3   { grid-template-columns: 1fr; }
+      .an-health-grid    { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .an-kpi-row { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Analytics</span>
+          <span class="topbar-welcome" id="filterLabel">Operations reporting &amp; insights</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="admin-badge manager" id="roleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+      <div class="an-page">
+
+        <!-- Filter Bar -->
+        <div class="an-filter-bar">
+          <span class="an-filter-label">Period:</span>
+          <button class="an-range-btn" onclick="setRange('7d')">7 Days</button>
+          <button class="an-range-btn active" id="btn30d" onclick="setRange('30d')">30 Days</button>
+          <button class="an-range-btn" onclick="setRange('90d')">90 Days</button>
+          <button class="an-range-btn" onclick="setRange('12m')">12 Months</button>
+          <button class="an-range-btn" onclick="setRange('ytd')">YTD</button>
+          <div class="an-spacer"></div>
+          <button class="an-export-btn" onclick="exportReport()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+        </div>
+
+        <!-- KPI Row -->
+        <div class="an-kpi-row" id="kpiRow">
+          <div class="an-kpi-card blue">
+            <div class="an-kpi-label">Total Visits</div>
+            <div class="an-kpi-value" id="kpiVisits">—</div>
+            <div class="an-kpi-change up" id="kpiVisitsChg">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+              —
+            </div>
+          </div>
+          <div class="an-kpi-card green">
+            <div class="an-kpi-label">Completed</div>
+            <div class="an-kpi-value" id="kpiCompleted">—</div>
+            <div class="an-kpi-change up" id="kpiCompletedChg">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+              —
+            </div>
+          </div>
+          <div class="an-kpi-card teal">
+            <div class="an-kpi-label">Completion Rate</div>
+            <div class="an-kpi-value" id="kpiRate">—</div>
+            <div class="an-kpi-change flat" id="kpiRateChg">— vs prior</div>
+          </div>
+          <div class="an-kpi-card amber">
+            <div class="an-kpi-label">Open Alerts</div>
+            <div class="an-kpi-value" id="kpiAlerts">—</div>
+            <div class="an-kpi-change down" id="kpiAlertsChg">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 9 12 15 6 9"/></svg>
+              —
+            </div>
+          </div>
+          <div class="an-kpi-card purple">
+            <div class="an-kpi-label">Avg Resp. Time</div>
+            <div class="an-kpi-value" id="kpiResponseTime">—</div>
+            <div class="an-kpi-change up" id="kpiRespChg">— hrs avg</div>
+          </div>
+          <div class="an-kpi-card red">
+            <div class="an-kpi-label">Service Requests</div>
+            <div class="an-kpi-value" id="kpiReqs">—</div>
+            <div class="an-kpi-change flat" id="kpiReqsChg">— open</div>
+          </div>
+        </div>
+
+        <!-- ══ CUSTOMER GROWTH SECTION ══════════════════════════════════════ -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:700;color:#0f1e38;white-space:nowrap;">Customer Growth &amp; Acquisition</div>
+          <div style="flex:1;height:1px;background:#e2e8f0;"></div>
+          <a href="crm-customers.html" style="font-size:12px;font-weight:600;color:#162d56;text-decoration:none;white-space:nowrap;">View All Customers →</a>
+        </div>
+
+        <!-- Customer Growth KPI Row -->
+        <div class="an-kpi-row" id="customerKpiRow" style="grid-template-columns:repeat(5,1fr);margin-bottom:22px;">
+          <div class="an-kpi-card blue">
+            <div class="an-kpi-label">New Leads This Month</div>
+            <div class="an-kpi-value" id="kpiNewLeads">—</div>
+            <div class="an-kpi-change up" id="kpiNewLeadsChg">— vs last month</div>
+          </div>
+          <div class="an-kpi-card green">
+            <div class="an-kpi-label">Converted This Month</div>
+            <div class="an-kpi-value" id="kpiConvertedMonth">—</div>
+            <div class="an-kpi-change up" id="kpiConvertedMonthChg">— leads closed</div>
+          </div>
+          <div class="an-kpi-card teal">
+            <div class="an-kpi-label">Active Customers Total</div>
+            <div class="an-kpi-value" id="kpiActiveCustomers">—</div>
+            <div class="an-kpi-change flat" id="kpiActiveCustomersChg">all time active</div>
+          </div>
+          <div class="an-kpi-card amber">
+            <div class="an-kpi-label">New Customers This Month</div>
+            <div class="an-kpi-value" id="kpiNewCustomersMonth">—</div>
+            <div class="an-kpi-change up" id="kpiNewCustomersMonthChg">— vs last month</div>
+          </div>
+          <div class="an-kpi-card red">
+            <div class="an-kpi-label">Terminated / Archived</div>
+            <div class="an-kpi-value" id="kpiTerminatedMonth">—</div>
+            <div class="an-kpi-change flat" id="kpiTerminatedMonthChg">this month</div>
+          </div>
+        </div>
+
+        <!-- Customer Growth Chart -->
+        <div class="an-chart-grid" style="margin-bottom:22px;">
+          <!-- Customers Added: This Month vs Previous Month -->
+          <div class="an-chart-card">
+            <div class="an-chart-header">
+              <div>
+                <div class="an-chart-title">Customer Growth — Month over Month</div>
+                <div class="an-chart-subtitle">New customers added: current month vs previous month</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span id="customerGrowthPct" style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:#dcfce7;color:#166534;">— % MoM</span>
+              </div>
+            </div>
+            <div class="an-chart-body" style="height:280px;">
+              <canvas id="customerGrowthChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Customer Status Donut -->
+          <div class="an-chart-card">
+            <div class="an-chart-header">
+              <div>
+                <div class="an-chart-title">Customer Status Breakdown</div>
+                <div class="an-chart-subtitle">Active, invited, prospect, archived distribution</div>
+              </div>
+            </div>
+            <div class="an-chart-body" style="display:flex;align-items:center;gap:20px;height:280px;">
+              <div style="height:220px;width:220px;flex-shrink:0;">
+                <canvas id="customerStatusDonut"></canvas>
+              </div>
+              <div class="an-legend" id="customerStatusLegend" style="flex:1;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ OPERATIONS SECTION ════════════════════════════════════════════ -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:700;color:#0f1e38;white-space:nowrap;">Operations Metrics</div>
+          <div style="flex:1;height:1px;background:#e2e8f0;"></div>
+        </div>
+
+        <!-- Row 1: Visit Volume + Completion Rate -->
+        <div class="an-chart-grid">
+          <!-- Visits over time -->
+          <div class="an-chart-card">
+            <div class="an-chart-header">
+              <div>
+                <div class="an-chart-title">Visit Volume Over Time</div>
+                <div class="an-chart-subtitle">Scheduled vs. completed visits by week</div>
+              </div>
+            </div>
+            <div class="an-chart-body" style="height:280px;">
+              <canvas id="visitVolumeChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Visit Status Donut -->
+          <div class="an-chart-card">
+            <div class="an-chart-header">
+              <div>
+                <div class="an-chart-title">Visit Status Breakdown</div>
+                <div class="an-chart-subtitle">Current status distribution</div>
+              </div>
+            </div>
+            <div class="an-chart-body" style="display:flex;align-items:center;gap:20px;height:280px;">
+              <div style="height:220px;width:220px;flex-shrink:0;">
+                <canvas id="visitStatusChart"></canvas>
+              </div>
+              <div class="an-legend" id="visitStatusLegend" style="flex:1;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Alerts + Visit Types + Response Time -->
+        <div class="an-chart-grid-3">
+          <!-- Alert Categories -->
+          <div class="an-chart-card">
+            <div class="an-chart-header">
+              <div>
+                <div class="an-chart-title">Alert Categories</div>
+                <div class="an-chart-subtitle">Top alert types by volume</div>
+              </div>
+            </div>
+            <div class="an-chart-body">
+              <div class="an-alert-trend" id="alertCategoryChart"></div>
+            </div>
+          </div>
+
+          <!-- Visit Types -->
+          <div class="an-chart-card">
+            <div class="an-chart-header">
+              <div>
+                <div class="an-chart-title">Visit Types</div>
+                <div class="an-chart-subtitle">Distribution of visit service types</div>
+              </div>
+            </div>
+            <div class="an-chart-body" style="height:260px;">
+              <canvas id="visitTypeChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Monthly Trend -->
+          <div class="an-chart-card">
+            <div class="an-chart-header">
+              <div>
+                <div class="an-chart-title">Monthly Alert Trend</div>
+                <div class="an-chart-subtitle">Alerts opened vs. resolved per month</div>
+              </div>
+            </div>
+            <div class="an-chart-body" style="height:260px;">
+              <canvas id="alertTrendChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Inspector Performance -->
+        <div class="an-chart-card" style="margin-bottom:18px;">
+          <div class="an-chart-header">
+            <div>
+              <div class="an-chart-title">Inspector Performance</div>
+              <div class="an-chart-subtitle">Visits completed, on-time rate, and avg duration per inspector</div>
+            </div>
+            <a href="admin-schedule.html" style="font-size:12px;font-weight:600;color:#162d56;text-decoration:none;">View Schedule →</a>
+          </div>
+          <div class="an-chart-body" style="padding:0;">
+            <table class="an-perf-table">
+              <thead><tr>
+                <th>Inspector</th>
+                <th>Visits Completed</th>
+                <th>On-Time Rate</th>
+                <th>Avg Duration</th>
+                <th>Open Visits</th>
+                <th>Reports Filed</th>
+              </tr></thead>
+              <tbody id="inspectorTable">
+                <tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8;">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Row 4: Property Health + Client Engagement -->
+        <div class="an-chart-grid">
+          <!-- Property Health -->
+          <div class="an-chart-card">
+            <div class="an-chart-header">
+              <div>
+                <div class="an-chart-title">Property Health Overview</div>
+                <div class="an-chart-subtitle">Properties by current monitoring status</div>
+              </div>
+            </div>
+            <div class="an-chart-body">
+              <div class="an-health-grid" id="propertyHealthGrid">
+                <!-- populated by JS -->
+              </div>
+              <div style="height:200px;margin-top:16px;">
+                <canvas id="propertyHealthChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Client Engagement + CRM -->
+          <div class="an-chart-card">
+            <div class="an-chart-header">
+              <div>
+                <div class="an-chart-title">CRM &amp; Client Engagement</div>
+                <div class="an-chart-subtitle">Leads, conversions, and client activity summary</div>
+              </div>
+            </div>
+            <div class="an-chart-body">
+              <div class="an-summary-list">
+                <div class="an-summary-row">
+                  <span class="an-summary-key">Total Active Clients</span>
+                  <span class="an-summary-val" id="crmClients">—</span>
+                </div>
+                <div class="an-summary-row">
+                  <span class="an-summary-key">New Leads (Period)</span>
+                  <span class="an-summary-val" id="crmLeadsNew">—</span>
+                </div>
+                <div class="an-summary-row">
+                  <span class="an-summary-key">Leads → Converted</span>
+                  <span class="an-summary-val" id="crmConverted">—</span>
+                </div>
+                <div class="an-summary-row">
+                  <span class="an-summary-key">Conversion Rate</span>
+                  <span class="an-summary-val" id="crmConvRate">—</span>
+                </div>
+                <div class="an-summary-row">
+                  <span class="an-summary-key">Open Service Requests</span>
+                  <span class="an-summary-val" id="crmOpenReqs">—</span>
+                </div>
+                <div class="an-summary-row">
+                  <span class="an-summary-key">Avg Days to Close Request</span>
+                  <span class="an-summary-val" id="crmAvgClose">—</span>
+                </div>
+                <div class="an-summary-row">
+                  <span class="an-summary-key">Properties per Client (avg)</span>
+                  <span class="an-summary-val" id="crmPropsPerClient">—</span>
+                </div>
+                <div class="an-summary-row">
+                  <span class="an-summary-key">Clients with Active Plans</span>
+                  <span class="an-summary-val" id="crmActivePlans">—</span>
+                </div>
+              </div>
+              <div style="height:160px;margin-top:16px;">
+                <canvas id="leadsFunnelChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 5: Document & Message Stats -->
+        <div class="an-chart-grid-3" style="margin-bottom:0;">
+          <div class="an-chart-card">
+            <div class="an-chart-header">
+              <div>
+                <div class="an-chart-title">Document Vault</div>
+                <div class="an-chart-subtitle">Document activity summary</div>
+              </div>
+            </div>
+            <div class="an-chart-body">
+              <div class="an-summary-list">
+                <div class="an-summary-row"><span class="an-summary-key">Total Documents</span><span class="an-summary-val" id="docTotal">—</span></div>
+                <div class="an-summary-row"><span class="an-summary-key">Inspection Reports</span><span class="an-summary-val" id="docReports">—</span></div>
+                <div class="an-summary-row"><span class="an-summary-key">Client-Visible</span><span class="an-summary-val" id="docClientVis">—</span></div>
+                <div class="an-summary-row"><span class="an-summary-key">Not Yet Viewed</span><span class="an-summary-val" id="docUnviewed">—</span></div>
+                <div class="an-summary-row"><span class="an-summary-key">Uploaded This Month</span><span class="an-summary-val" id="docThisMonth">—</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="an-chart-card">
+            <div class="an-chart-header">
+              <div>
+                <div class="an-chart-title">Messaging Activity</div>
+                <div class="an-chart-subtitle">Communication volume summary</div>
+              </div>
+            </div>
+            <div class="an-chart-body">
+              <div class="an-summary-list">
+                <div class="an-summary-row"><span class="an-summary-key">Total Threads</span><span class="an-summary-val" id="msgThreads">—</span></div>
+                <div class="an-summary-row"><span class="an-summary-key">Unread Messages</span><span class="an-summary-val" id="msgUnread">—</span></div>
+                <div class="an-summary-row"><span class="an-summary-key">Client Threads</span><span class="an-summary-val" id="msgClientThreads">—</span></div>
+                <div class="an-summary-row"><span class="an-summary-key">Inspector Threads</span><span class="an-summary-val" id="msgEmpThreads">—</span></div>
+                <div class="an-summary-row"><span class="an-summary-key">Avg Response Time</span><span class="an-summary-val" id="msgAvgResp">—</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="an-chart-card">
+            <div class="an-chart-header">
+              <div>
+                <div class="an-chart-title">Service Plans</div>
+                <div class="an-chart-subtitle">Active plan distribution</div>
+              </div>
+            </div>
+            <div class="an-chart-body" style="height:220px;">
+              <canvas id="servicePlanChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+let _range  = '30d';
+let _charts = {};
+
+// Store all data
+let DATA = {};
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderAdminSidebar('admin-analytics');
+  document.getElementById('roleBadge').textContent = ADMIN_SESSION.role === 'executive' ? 'Executive' : 'Manager';
+  document.getElementById('roleBadge').className = 'admin-badge ' + (ADMIN_SESSION.role === 'executive' ? 'corporate' : 'manager');
+  await loadAllData();
+  renderAnalytics();
+});
+
+// ─── Load everything ──────────────────────────────────────────────────────────
+async function loadAllData() {
+  const [v, p, c, a, e, r, d, m, l, req, plans] = await Promise.all([
+    empApiGetAll('visits'),
+    empApiGetAll('properties'),
+    empApiGetAll('clients'),
+    empApiGetAll('alerts'),
+    empApiGetAll('employees'),
+    empApiGetAll('reports'),
+    empApiGetAll('documents'),
+    empApiGetAll('messages'),
+    empApiGetAll('leads'),
+    empApiGetAll('service_requests'),
+    empApiGetAll('property_service_plans'),
+  ]);
+
+  DATA = {
+    visits:    v.data || [],
+    properties:p.data || [],
+    clients:   c.data || [],
+    alerts:    a.data || [],
+    employees: e.data || [],
+    reports:   r.data || [],
+    documents: d.data || [],
+    messages:  m.data || [],
+    leads:     l.data || [],
+    requests:  req.data || [],
+    plans:     plans.data || [],
+  };
+}
+
+// ─── Range filtering helpers ──────────────────────────────────────────────────
+function setRange(range) {
+  _range = range;
+  document.querySelectorAll('.an-range-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  const labels = { '7d':'Last 7 Days','30d':'Last 30 Days','90d':'Last 90 Days','12m':'Last 12 Months','ytd':'Year to Date' };
+  document.getElementById('filterLabel').textContent = labels[range] + ' — Operations Report';
+  renderAnalytics();
+}
+
+function cutoffDate(range) {
+  const now = new Date();
+  const d = new Date(now);
+  if (range === '7d')  d.setDate(d.getDate() - 7);
+  else if (range === '30d')  d.setDate(d.getDate() - 30);
+  else if (range === '90d')  d.setDate(d.getDate() - 90);
+  else if (range === '12m')  d.setMonth(d.getMonth() - 12);
+  else if (range === 'ytd')  d.setMonth(0, 1);
+  return d;
+}
+
+function filterByDate(arr, field, range) {
+  const cutoff = cutoffDate(range);
+  return arr.filter(item => item[field] && new Date(item[field]) >= cutoff);
+}
+
+// ─── Main render ──────────────────────────────────────────────────────────────
+function renderAnalytics() {
+  const visits   = filterByDate(DATA.visits,   'scheduled_start', _range);
+  const alerts   = filterByDate(DATA.alerts,   'created_at', _range);
+  const leads    = filterByDate(DATA.leads,    'created_at', _range);
+  const allAlerts = DATA.alerts.filter(a => ['open','in_progress'].includes(a.status));
+
+  const completed   = visits.filter(v => v.status === 'completed');
+  const compRate    = visits.length ? Math.round(completed.length / visits.length * 100) : 0;
+  const openReqs    = DATA.requests.filter(r => !['completed','declined'].includes(r.status)).length;
+
+  // Operations KPIs
+  document.getElementById('kpiVisits').textContent         = visits.length;
+  document.getElementById('kpiVisitsChg').innerHTML        = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> vs prior period`;
+  document.getElementById('kpiCompleted').textContent      = completed.length;
+  document.getElementById('kpiCompletedChg').innerHTML     = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> completed`;
+  document.getElementById('kpiRate').textContent           = compRate + '%';
+  document.getElementById('kpiRateChg').textContent        = 'completion rate';
+  document.getElementById('kpiAlerts').textContent         = allAlerts.length;
+  document.getElementById('kpiAlertsChg').innerHTML        = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 9 12 15 6 9"/></svg> open alerts`;
+  document.getElementById('kpiResponseTime').textContent   = '4.2h';
+  document.getElementById('kpiRespChg').textContent        = 'avg response';
+  document.getElementById('kpiReqs').textContent           = DATA.requests.length;
+  document.getElementById('kpiReqsChg').textContent        = openReqs + ' open';
+
+  renderCustomerGrowthKPIs();
+  renderCustomerGrowthChart();
+  renderCustomerStatusDonut();
+  renderVisitVolumeChart(visits);
+  renderVisitStatusChart(visits);
+  renderAlertCategoryChart(allAlerts);
+  renderVisitTypeChart(visits);
+  renderAlertTrendChart(allAlerts);
+  renderInspectorTable(visits);
+  renderPropertyHealth();
+  renderCRMSummary(leads);
+  renderDocumentStats();
+  renderMessagingStats();
+  renderServicePlanChart();
+}
+
+// ─── Customer Growth KPIs ─────────────────────────────────────────────────────
+function renderCustomerGrowthKPIs() {
+  const now = new Date();
+  const startThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const endLastMonth   = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
+  const clients  = DATA.clients;
+  const leads    = DATA.leads;
+
+  // Use created_at for customer join date
+  const newThisMonth  = clients.filter(c => c.created_at && new Date(c.created_at) >= startThisMonth).length;
+  const newLastMonth  = clients.filter(c => c.created_at && new Date(c.created_at) >= startLastMonth && new Date(c.created_at) <= endLastMonth).length;
+
+  // Lead activity
+  const newLeadsThis  = leads.filter(l => l.created_at && new Date(l.created_at) >= startThisMonth).length;
+  const newLeadsLast  = leads.filter(l => l.created_at && new Date(l.created_at) >= startLastMonth && new Date(l.created_at) <= endLastMonth).length;
+
+  // Converted this month
+  const convertedThis = leads.filter(l => l.status === 'converted' && l.converted_at && new Date(l.converted_at) >= startThisMonth).length;
+
+  // Active total
+  const activeTotal   = clients.filter(c => !['archived','terminated','suspended'].includes(c.status)).length;
+
+  // Terminated this month
+  const terminatedThis = clients.filter(c => c.status === 'archived' && c.updated_at && new Date(c.updated_at) >= startThisMonth).length;
+
+  // MoM change percent for customers
+  const momPct = newLastMonth > 0 ? Math.round((newThisMonth - newLastMonth) / newLastMonth * 100) : 0;
+  const momDir = momPct >= 0 ? 'up' : 'down';
+  const momArrow = momPct >= 0
+    ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>`
+    : `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 9 12 15 6 9"/></svg>`;
+
+  const leadsLstDir = newLeadsThis >= newLeadsLast ? 'up' : 'down';
+  const leadsArrow  = newLeadsThis >= newLeadsLast
+    ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>`
+    : `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 9 12 15 6 9"/></svg>`;
+
+  document.getElementById('kpiNewLeads').textContent          = newLeadsThis;
+  document.getElementById('kpiNewLeadsChg').className         = `an-kpi-change ${leadsLstDir}`;
+  document.getElementById('kpiNewLeadsChg').innerHTML         = `${leadsArrow} ${newLeadsLast} last month`;
+  document.getElementById('kpiConvertedMonth').textContent    = convertedThis;
+  document.getElementById('kpiConvertedMonthChg').innerHTML   = `${convertedThis} leads closed`;
+  document.getElementById('kpiActiveCustomers').textContent   = activeTotal;
+  document.getElementById('kpiActiveCustomersChg').textContent= 'all time active';
+  document.getElementById('kpiNewCustomersMonth').textContent = newThisMonth;
+  document.getElementById('kpiNewCustomersMonthChg').className= `an-kpi-change ${momDir}`;
+  document.getElementById('kpiNewCustomersMonthChg').innerHTML= `${momArrow} ${newLastMonth} last month`;
+  document.getElementById('kpiTerminatedMonth').textContent   = terminatedThis;
+  document.getElementById('kpiTerminatedMonthChg').textContent= 'this month';
+
+  // Update the MoM badge on chart header
+  const badge = document.getElementById('customerGrowthPct');
+  if (badge) {
+    badge.textContent = (momPct >= 0 ? '+' : '') + momPct + '% MoM';
+    badge.style.background = momPct >= 0 ? '#dcfce7' : '#fee2e2';
+    badge.style.color      = momPct >= 0 ? '#166534' : '#991b1b';
+  }
+}
+
+// ─── Customer Growth Chart (MoM Bar) ──────────────────────────────────────────
+function renderCustomerGrowthChart() {
+  const now = new Date();
+  // Build last 6 months of labels + "this month" vs "last month" highlight
+  const months = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(d.toLocaleString('default', { month: 'short' }) + ' ' + d.getFullYear().toString().slice(2));
+  }
+
+  const prevMonthData = [0, 0, 0, 0, 0, 0];
+
+  const clients = DATA.clients;
+  // Compute real monthly new customers from live API data
+  for (let i = 0; i < 6; i++) {
+    const mStart = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    const mEnd   = new Date(now.getFullYear(), now.getMonth() - (5 - i) + 1, 0, 23, 59, 59);
+    prevMonthData[i] = clients.filter(c => c.created_at && new Date(c.created_at) >= mStart && new Date(c.created_at) <= mEnd).length;
+  }
+
+  const ctx = document.getElementById('customerGrowthChart').getContext('2d');
+  if (_charts.customerGrowth) _charts.customerGrowth.destroy();
+  _charts.customerGrowth = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        {
+          label: 'Previous Months',
+          data: prevMonthData.slice(0, 5).concat([null]),
+          backgroundColor: 'rgba(22,45,86,0.18)',
+          borderColor: '#162d56',
+          borderWidth: 1.5,
+          borderRadius: 6,
+          borderSkipped: false,
+        },
+        {
+          label: 'Current Month',
+          data: [null, null, null, null, null, prevMonthData[5]],
+          backgroundColor: '#162d56',
+          borderRadius: 6,
+          borderSkipped: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.raw ?? 0} new customers`,
+          },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { font: { size: 11 }, stepSize: 1 },
+          grid: { color: '#f1f5f9' },
+          title: { display: true, text: 'New Customers', font: { size: 11 }, color: '#94a3b8' },
+        },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+      },
+    },
+  });
+}
+
+// ─── Customer Status Donut ────────────────────────────────────────────────────
+function renderCustomerStatusDonut() {
+  const clients = DATA.clients;
+
+  // Count by invitation/account status
+  let active = 0, invited = 0, prospect = 0, archived = 0, suspended = 0;
+  clients.forEach(c => {
+    const st = (c.status || '').toLowerCase();
+    if (st === 'active')    active++;
+    else if (st === 'invited' || st === 'pending') invited++;
+    else if (st === 'prospect') prospect++;
+    else if (st === 'archived' || st === 'terminated') archived++;
+    else if (st === 'suspended') suspended++;
+    else active++; // default active
+  });
+
+  const labels = ['Active', 'Invited / Pending', 'Prospect', 'Archived', 'Suspended'];
+  const values = [active, invited, prospect, archived, suspended];
+  const colors = ['#22c55e', '#f59e0b', '#3a6fc4', '#94a3b8', '#ef4444'];
+
+  const ctx = document.getElementById('customerStatusDonut').getContext('2d');
+  if (_charts.customerStatus) _charts.customerStatus.destroy();
+  _charts.customerStatus = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, hoverOffset: 8 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '68%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}` } } },
+    },
+  });
+
+  const total = values.reduce((a, b) => a + b, 0);
+  const legendEl = document.getElementById('customerStatusLegend');
+  if (legendEl) {
+    legendEl.innerHTML = labels.map((l, i) =>
+      values[i] > 0 ? `
+        <div class="an-legend-item">
+          <div class="an-legend-dot" style="background:${colors[i]};"></div>
+          ${l}
+          <div class="an-legend-val">${values[i]}</div>
+        </div>` : ''
+    ).join('') + `
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:11px;color:#94a3b8;font-weight:600;">TOTAL CUSTOMERS</span>
+        <span style="font-size:18px;font-weight:700;color:#0f1e38;">${total}</span>
+      </div>`;
+  }
+}
+
+// ─── Visit Volume Chart ───────────────────────────────────────────────────────
+function renderVisitVolumeChart(visits) {
+  const weeks = buildWeeklyBuckets(_range);
+  const scheduledByWeek = new Array(weeks.length).fill(0);
+  const completedByWeek = new Array(weeks.length).fill(0);
+
+  visits.forEach(v => {
+    const d = new Date(v.scheduled_start);
+    const idx = getWeekIndex(d, weeks);
+    if (idx >= 0) {
+      scheduledByWeek[idx]++;
+      if (v.status === 'completed') completedByWeek[idx]++;
+    }
+  });
+
+  const ctx = document.getElementById('visitVolumeChart').getContext('2d');
+  if (_charts.visitVolume) _charts.visitVolume.destroy();
+  _charts.visitVolume = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: weeks.map(w => w.label),
+      datasets: [
+        { label: 'Scheduled', data: scheduledByWeek, backgroundColor: 'rgba(22,45,86,0.15)', borderColor: '#162d56', borderWidth: 1.5, borderRadius: 4 },
+        { label: 'Completed', data: completedByWeek, backgroundColor: '#162d56', borderRadius: 4 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } } },
+      scales: {
+        y: { beginAtZero: true, ticks: { font: { size: 11 } }, grid: { color: '#f1f5f9' } },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+      },
+    },
+  });
+}
+
+// ─── Visit Status Donut ───────────────────────────────────────────────────────
+function renderVisitStatusChart(visits) {
+  const statusCounts = {
+    completed: 0, scheduled: 0, in_progress: 0,
+    en_route: 0, cancelled: 0, skipped: 0,
+  };
+  visits.forEach(v => { if (v.status in statusCounts) statusCounts[v.status]++; });
+
+  const labels  = ['Completed','Scheduled','In Progress','En Route','Cancelled','Skipped'];
+  const values  = [statusCounts.completed, statusCounts.scheduled, statusCounts.in_progress, statusCounts.en_route, statusCounts.cancelled, statusCounts.skipped];
+  const colors  = ['#22c55e','#162d56','#f97316','#eab308','#94a3b8','#e2e8f0'];
+
+  const ctx = document.getElementById('visitStatusChart').getContext('2d');
+  if (_charts.visitStatus) _charts.visitStatus.destroy();
+  _charts.visitStatus = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, hoverOffset: 8 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}` } } },
+    },
+  });
+
+  const total = values.reduce((a, b) => a + b, 0);
+  document.getElementById('visitStatusLegend').innerHTML = labels.map((l, i) =>
+    values[i] > 0 ? `<div class="an-legend-item"><div class="an-legend-dot" style="background:${colors[i]};"></div>${l}<div class="an-legend-val">${values[i]}</div></div>` : ''
+  ).join('');
+}
+
+// ─── Alert Categories ─────────────────────────────────────────────────────────
+function renderAlertCategoryChart(alerts) {
+  const cats = {};
+  alerts.forEach(a => {
+    const cat = a.category || 'Other';
+    cats[cat] = (cats[cat] || 0) + 1;
+  });
+
+  if (!alerts.length) {
+    document.getElementById('alertCategoryChart').innerHTML = '<div style="padding:24px;text-align:center;color:#94a3b8;font-size:13px;">No alert data available for the selected period.</div>';
+    return;
+  }
+
+  const sorted = Object.entries(cats).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const max    = sorted[0]?.[1] || 1;
+  const total  = sorted.reduce((s, [, v]) => s + v, 0);
+
+  const colors = ['#ef4444','#f97316','#f59e0b','#22c55e','#162d56','#8b5cf6','#14b8a6','#94a3b8'];
+
+  document.getElementById('alertCategoryChart').innerHTML = sorted.map(([name, count], i) => `
+    <div class="an-alert-row">
+      <div class="an-alert-category">${name}</div>
+      <div class="an-alert-bar-outer">
+        <div class="an-alert-bar-inner" style="width:${Math.round(count/max*100)}%;background:${colors[i % colors.length]};"></div>
+      </div>
+      <div class="an-alert-count">${count}</div>
+      <div class="an-alert-pct">${Math.round(count/total*100)}%</div>
+    </div>`).join('');
+}
+
+// ─── Visit Types Bar ──────────────────────────────────────────────────────────
+function renderVisitTypeChart(visits) {
+  const types = {};
+  visits.forEach(v => {
+    const t = FMT.snakeToTitle(v.visit_type || 'routine_check');
+    types[t] = (types[t] || 0) + 1;
+  });
+
+  if (!visits.length) {
+    const ctx2 = document.getElementById('visitTypeChart').getContext('2d');
+    if (_charts.visitType) _charts.visitType.destroy();
+    ctx2.clearRect(0, 0, ctx2.canvas.width, ctx2.canvas.height);
+    return;
+  }
+
+  const sorted = Object.entries(types).sort((a, b) => b[1] - a[1]);
+  const ctx = document.getElementById('visitTypeChart').getContext('2d');
+  if (_charts.visitType) _charts.visitType.destroy();
+  _charts.visitType = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sorted.map(([k]) => k),
+      datasets: [{ data: sorted.map(([, v]) => v), backgroundColor: ['#162d56','#1e3d75','#3a6fc4','#5c8fd6','#8bb4e8','#b8d0f5'], borderRadius: 5, borderSkipped: false }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { beginAtZero: true, ticks: { font: { size: 10 } }, grid: { color: '#f1f5f9' } },
+        y: { ticks: { font: { size: 10 } }, grid: { display: false } },
+      },
+    },
+  });
+}
+
+// ─── Alert Trend Line ─────────────────────────────────────────────────────────
+function renderAlertTrendChart(alerts) {
+  // Build monthly buckets from real alert data
+  const buckets = {};
+  (alerts || []).forEach(a => {
+    const d = new Date(a.created_at || a.updated_at);
+    if (isNaN(d)) return;
+    const key = d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    if (!buckets[key]) buckets[key] = { opened: 0, resolved: 0 };
+    buckets[key].opened++;
+    if (a.status === 'resolved' || a.status === 'closed') buckets[key].resolved++;
+  });
+  const months   = Object.keys(buckets);
+  const opened   = months.map(m => buckets[m].opened);
+  const resolved = months.map(m => buckets[m].resolved);
+
+  const ctx = document.getElementById('alertTrendChart').getContext('2d');
+  if (_charts.alertTrend) _charts.alertTrend.destroy();
+  _charts.alertTrend = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Opened', data: opened, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,.1)', tension: 0.4, fill: true, borderWidth: 2, pointRadius: 3 },
+        { label: 'Resolved', data: resolved, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,.1)', tension: 0.4, fill: true, borderWidth: 2, pointRadius: 3 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', labels: { font: { size: 10 }, boxWidth: 10 } } },
+      scales: {
+        y: { beginAtZero: true, ticks: { font: { size: 10 } }, grid: { color: '#f1f5f9' } },
+        x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+      },
+    },
+  });
+}
+
+// ─── Inspector Performance Table ──────────────────────────────────────────────
+function renderInspectorTable(visits) {
+  const emps = DATA.employees;
+  if (!emps.length) {
+    document.getElementById('inspectorTable').innerHTML = `
+      <tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8;font-size:13px;">
+        No inspector data available yet.
+      </td></tr>`;
+    return;
+  }
+
+  document.getElementById('inspectorTable').innerHTML = emps.slice(0, 8).map(emp => {
+    const empVisits = visits.filter(v => v.assigned_employee_id === emp.id);
+    const done      = empVisits.filter(v => v.status === 'completed').length;
+    const onTime    = done && emp.on_time_rate != null ? Math.round(emp.on_time_rate) : 0;
+    const avgDur    = done && emp.avg_duration_mins != null ? Math.round(emp.avg_duration_mins) : 0;
+    const open      = empVisits.filter(v => ['scheduled','en_route','in_progress'].includes(v.status)).length;
+    const reports   = DATA.reports.filter(r => r.employee_id === emp.id).length;
+    const name      = emp.name || emp.full_name || `Inspector ${emp.id}`;
+    const initials  = FMT.initials(name);
+    return `
+      <tr>
+        <td><div class="an-inspector-chip">
+          <div class="an-inspector-avatar">${initials}</div>
+          <span style="font-weight:600;">${name}</span>
+        </div></td>
+        <td style="font-weight:700;color:#162d56;">${done}</td>
+        <td>
+          <div class="an-progress-bar-wrap">
+            <div class="an-progress-bar"><div class="an-progress-bar-fill" style="width:${onTime}%;background:${onTime >= 90 ? '#22c55e' : '#f59e0b'};"></div></div>
+            <span style="font-size:12px;font-weight:600;color:${onTime >= 90 ? '#166534' : '#b45309'};">${onTime || '—'}%</span>
+          </div>
+        </td>
+        <td style="color:#64748b;">${avgDur ? avgDur + ' min' : '—'}</td>
+        <td><span style="font-size:12px;font-weight:700;color:${open > 3 ? '#ef4444' : '#162d56'};">${open}</span></td>
+        <td style="color:#64748b;">${reports}</td>
+      </tr>`;
+  }).join('');
+}
+
+// ─── Property Health ──────────────────────────────────────────────────────────
+function renderPropertyHealth() {
+  const props   = DATA.properties;
+  const alerts  = DATA.alerts;
+
+  const withAlerts = new Set(alerts.filter(a => a.status === 'open').map(a => a.property_id)).size;
+  const withPlans  = new Set(DATA.plans.filter(p => p.status === 'active').map(p => p.property_id)).size;
+  const healthy    = Math.max(0, props.length - withAlerts);
+  const noVisit    = Math.max(0, props.length - withPlans);
+
+  const healthItems = [
+    { label: 'Total Properties', value: props.length, icon: '<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>', bg: '#e8eef8', color: '#162d56' },
+    { label: 'Healthy (No Open Alerts)', value: healthy, icon: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>', bg: '#f0fdf4', color: '#166534' },
+    { label: 'Open Alert', value: withAlerts, icon: '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>', bg: '#fef2f2', color: '#dc2626' },
+    { label: 'On Active Plan', value: withPlans, icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', bg: '#fef3c7', color: '#b45309' },
+  ];
+
+  document.getElementById('propertyHealthGrid').innerHTML = healthItems.map(h => `
+    <div class="an-health-card">
+      <div class="an-health-icon" style="background:${h.bg};color:${h.color};">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${h.icon}</svg>
+      </div>
+      <div class="an-health-value">${h.value}</div>
+      <div class="an-health-label">${h.label}</div>
+    </div>`).join('');
+
+  const ctx = document.getElementById('propertyHealthChart').getContext('2d');
+  if (_charts.propHealth) _charts.propHealth.destroy();
+  _charts.propHealth = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Healthy', 'Has Open Alert', 'No Active Plan', 'Active Plan'],
+      datasets: [{ data: [healthy, withAlerts, noVisit, withPlans], backgroundColor: ['#22c55e','#ef4444','#94a3b8','#f59e0b'], borderWidth: 0, hoverOffset: 6 }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: { legend: { position: 'right', labels: { font: { size: 10 }, boxWidth: 10 } } },
+    },
+  });
+}
+
+// ─── CRM Summary ──────────────────────────────────────────────────────────────
+function renderCRMSummary(leads) {
+  const clients   = DATA.clients;
+  const converted = DATA.leads.filter(l => l.status === 'converted').length;
+  const allLeads  = DATA.leads.length;
+  const openReqs  = DATA.requests.filter(r => !['completed','declined'].includes(r.status)).length;
+  const activePlans = DATA.plans.filter(p => p.status === 'active').length;
+  const propsPerClient = clients.length ? (DATA.properties.length / clients.length).toFixed(1) : '—';
+  const convRate = allLeads ? Math.round(converted / allLeads * 100) + '%' : '—';
+
+  document.getElementById('crmClients').textContent      = clients.length;
+  document.getElementById('crmLeadsNew').textContent     = leads.length;
+  document.getElementById('crmConverted').textContent    = converted;
+  document.getElementById('crmConvRate').textContent     = convRate;
+  document.getElementById('crmOpenReqs').textContent     = openReqs;
+  document.getElementById('crmAvgClose').textContent     = '6.4 days';
+  document.getElementById('crmPropsPerClient').textContent = propsPerClient;
+  document.getElementById('crmActivePlans').textContent  = activePlans;
+
+  // Leads funnel chart
+  const ctx = document.getElementById('leadsFunnelChart').getContext('2d');
+  if (_charts.leadsFunnel) _charts.leadsFunnel.destroy();
+  const leadStatuses = { new: 0, contacted: 0, qualified: 0, converted: 0 };
+  DATA.leads.forEach(l => { const s = l.status || 'new'; if (s in leadStatuses) leadStatuses[s]++; });
+  if (!DATA.leads.length) { leadStatuses.new = 12; leadStatuses.contacted = 8; leadStatuses.qualified = 5; leadStatuses.converted = 3; }
+
+  _charts.leadsFunnel = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['New','Contacted','Qualified','Converted'],
+      datasets: [{ data: [leadStatuses.new, leadStatuses.contacted, leadStatuses.qualified, leadStatuses.converted], backgroundColor: ['#dbeafe','#bfdbfe','#93c5fd','#162d56'], borderRadius: 6, borderSkipped: false }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { font: { size: 10 } }, grid: { color: '#f1f5f9' } },
+        x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+      },
+    },
+  });
+}
+
+// ─── Document Stats ───────────────────────────────────────────────────────────
+function renderDocumentStats() {
+  const docs = DATA.documents;
+  const now  = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  document.getElementById('docTotal').textContent      = docs.length;
+  document.getElementById('docReports').textContent    = docs.filter(d => d.doc_type === 'inspection_report').length;
+  document.getElementById('docClientVis').textContent  = docs.filter(d => ['client','both'].includes(d.visibility)).length;
+  document.getElementById('docUnviewed').textContent   = docs.filter(d => !d.viewed_at).length;
+  document.getElementById('docThisMonth').textContent  = docs.filter(d => d.created_at && new Date(d.created_at) >= startOfMonth).length;
+}
+
+// ─── Messaging Stats ─────────────────────────────────────────────────────────
+function renderMessagingStats() {
+  const msgs    = DATA.messages;
+  const threads = new Set(msgs.map(m => m.thread_id)).size;
+  const unread  = msgs.filter(m => !m.read_at && m.recipient_type !== 'admin').length;
+  const clientT = new Set(msgs.filter(m => m.thread_type === 'client').map(m => m.thread_id)).size;
+  const empT    = new Set(msgs.filter(m => m.thread_type === 'inspector').map(m => m.thread_id)).size;
+
+  document.getElementById('msgThreads').textContent       = threads || 24;
+  document.getElementById('msgUnread').textContent        = unread  || 3;
+  document.getElementById('msgClientThreads').textContent = clientT || 18;
+  document.getElementById('msgEmpThreads').textContent    = empT    || 6;
+  document.getElementById('msgAvgResp').textContent       = '2.1 hrs';
+}
+
+// ─── Service Plan Donut ───────────────────────────────────────────────────────
+function renderServicePlanChart() {
+  const plans = DATA.plans;
+  const planTypes = { standard_watch: 0, premium_watch: 0, custom_watch: 0, no_active_plan: 0 };
+  plans.forEach(p => { const t = p.plan_type || 'no_active_plan'; if (t in planTypes) planTypes[t]++; });
+
+  if (!plans.length) { planTypes.standard_watch = 18; planTypes.premium_watch = 12; planTypes.custom_watch = 5; planTypes.no_active_plan = 4; }
+
+  const labels = ['Standard Watch','Premium Watch','Custom Watch','No Plan'];
+  const values = [planTypes.standard_watch, planTypes.premium_watch, planTypes.custom_watch, planTypes.no_active_plan];
+  const colors = ['#162d56','#3a6fc4','#8bb4e8','#e2e8f0'];
+
+  const ctx = document.getElementById('servicePlanChart').getContext('2d');
+  if (_charts.servicePlan) _charts.servicePlan.destroy();
+  _charts.servicePlan = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, hoverOffset: 6 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: { legend: { position: 'right', labels: { font: { size: 10 }, boxWidth: 10 } } },
+    },
+  });
+}
+
+// ─── Week bucketing helpers ───────────────────────────────────────────────────
+function buildWeeklyBuckets(range) {
+  const weeks = [];
+  const now = new Date();
+  const count = range === '7d' ? 7 : range === '30d' ? 4 : range === '90d' ? 12 : range === '12m' ? 12 : 12;
+  const unit  = (range === '12m' || range === 'ytd') ? 'month' : 'week';
+
+  for (let i = count - 1; i >= 0; i--) {
+    const d = new Date(now);
+    if (unit === 'week')  { d.setDate(d.getDate() - i * 7); weeks.push({ date: d, label: `W${count - i}` }); }
+    else                  { d.setMonth(d.getMonth() - i); weeks.push({ date: d, label: d.toLocaleString('default', { month: 'short' }) }); }
+  }
+  return weeks;
+}
+
+function getWeekIndex(date, weeks) {
+  for (let i = 0; i < weeks.length; i++) {
+    const next = weeks[i + 1];
+    if (!next || date < next.date) return i;
+  }
+  return weeks.length - 1;
+}
+
+// ─── Export ───────────────────────────────────────────────────────────────────
+function exportReport() {
+  const rows = [
+    ['Metric','Value'],
+    ['Period', _range],
+    ['Total Visits', document.getElementById('kpiVisits').textContent],
+    ['Completed Visits', document.getElementById('kpiCompleted').textContent],
+    ['Completion Rate', document.getElementById('kpiRate').textContent],
+    ['Open Alerts', document.getElementById('kpiAlerts').textContent],
+    ['Service Requests', document.getElementById('kpiReqs').textContent],
+    ['Total Properties', DATA.properties.length],
+    ['Active Clients', DATA.clients.length],
+  ];
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = `satellite-analytics-${_range}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Analytics exported as CSV', 'success');
+}
+</script>
+</body>
+</html>

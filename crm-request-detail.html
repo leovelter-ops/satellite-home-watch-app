@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Request Details — CRM — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── CRM REQUEST DETAIL — MOBILE RESPONSIVE ────────────────────── */
+
+    body, .app-wrapper, .main-content, .dashboard-content {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    /* ── Main grid: sidebar below content on all non-desktop ── */
+    .crm-rd-main-grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 20px;
+    }
+
+    /* ── Breadcrumb overflow safe ── */
+    .crm-rd-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      max-width: 100%;
+    }
+    .crm-rd-breadcrumb span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 160px;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-content {
+        padding: 16px !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .crm-rd-main-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-content {
+        padding: 12px !important;
+      }
+
+      /* ── Breadcrumb ── */
+      .crm-rd-breadcrumb {
+        margin-bottom: 12px !important;
+      }
+
+      /* ── Request Hero ── */
+      .crm-request-hero {
+        padding: 18px 16px !important;
+        margin-bottom: 16px !important;
+        border-radius: 12px !important;
+      }
+      .crm-request-hero-top {
+        flex-direction: column !important;
+        gap: 14px !important;
+        margin-bottom: 14px !important;
+      }
+      .crm-profile-name {
+        font-size: 18px !important;
+      }
+
+      /* ── Hero action buttons: 2-up grid ── */
+      .crm-profile-actions {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        width: 100%;
+      }
+      .crm-action-btn {
+        justify-content: center;
+        text-align: center;
+        font-size: 12px !important;
+        padding: 9px 10px !important;
+      }
+
+      /* ── Meta row: wrap gracefully ── */
+      .crm-profile-meta-row {
+        gap: 16px !important;
+        padding-top: 12px !important;
+        flex-wrap: wrap !important;
+      }
+      .crm-profile-meta-item {
+        min-width: 80px;
+      }
+      .crm-profile-meta-val {
+        font-size: 13px !important;
+      }
+
+      /* ── Main grid: single column ── */
+      .crm-rd-main-grid {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+      }
+
+      /* ── Detail cards ── */
+      .crm-request-detail-card {
+        padding: 16px !important;
+        margin-bottom: 14px !important;
+        border-radius: 12px !important;
+      }
+
+      /* ── Detail rows: key-val safe on narrow screens ── */
+      .crm-detail-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 4px !important;
+        padding: 9px 0 !important;
+      }
+      .crm-detail-val {
+        text-align: left !important;
+        font-size: 13px !important;
+      }
+
+      /* ── Status control sidebar card ── */
+      .admin-summary-card {
+        border-radius: 12px !important;
+      }
+      .admin-summary-header {
+        padding: 12px 14px !important;
+        font-size: 13px !important;
+      }
+      .admin-summary-body {
+        padding: 12px 14px !important;
+      }
+      .admin-summary-row {
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .admin-summary-val {
+        font-size: 12px !important;
+        word-break: break-word;
+      }
+
+      /* ── Timeline ── */
+      .crm-timeline {
+        padding-left: 22px !important;
+      }
+      .crm-timeline-item {
+        margin-bottom: 16px !important;
+      }
+      .crm-timeline-title {
+        font-size: 13px !important;
+      }
+      .crm-timeline-body {
+        font-size: 12px !important;
+      }
+      .crm-timeline-dot {
+        left: -22px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .crm-profile-actions {
+        grid-template-columns: 1fr !important;
+      }
+      .crm-profile-meta-row {
+        gap: 12px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Request Details</span>
+          <span class="topbar-welcome">CRM System · Service Request</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Breadcrumb -->
+      <div class="crm-rd-breadcrumb">
+        <a href="crm-overview.html" style="color:#64748b;text-decoration:none;font-weight:500;">CRM System</a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <a href="crm-requests.html" onclick="event.preventDefault(); (typeof SHWNav !== 'undefined' ? SHWNav.back('crm-requests.html') : window.location.href='crm-requests.html')" style="color:#64748b;text-decoration:none;font-weight:500;">Requests</a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span style="color:#0f1e38;font-weight:600;" id="breadcrumbReqName">Request Detail</span>
+      </div>
+
+      <!-- Request Hero -->
+      <div class="crm-request-hero">
+        <div class="crm-request-hero-top">
+          <div>
+            <div class="crm-request-type-badge" id="heroTypeBadge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/></svg>
+              <span id="heroTypeLabel">—</span>
+            </div>
+            <div class="crm-profile-name" style="margin-bottom:5px;" id="heroTitle">Service Request</div>
+            <div style="font-size:13px;opacity:.75;display:flex;align-items:center;gap:6px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              <span id="heroClientName">—</span>
+            </div>
+            <div style="font-size:13px;opacity:.75;margin-top:4px;display:flex;align-items:center;gap:6px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+              <span id="heroProperty">—</span>
+            </div>
+          </div>
+          <div class="crm-profile-actions">
+            <button class="crm-action-btn" onclick="approveRequest()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Approve Request
+            </button>
+            <button class="crm-action-btn" onclick="window.location.href='admin-schedule.html'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Schedule Visit
+            </button>
+            <button class="crm-action-btn" onclick="showToast('Message thread opening…','info')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              Message Client
+            </button>
+            <button class="crm-action-btn" style="background:rgba(239,68,68,.25);border-color:rgba(239,68,68,.4);" onclick="declineRequest()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Decline Request
+            </button>
+          </div>
+        </div>
+        <div class="crm-profile-meta-row">
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Status</div>
+            <div class="crm-profile-meta-val" id="heroStatus">
+              <span style="display:inline-flex;align-items:center;gap:5px;">
+                <span id="heroStatusDot" style="width:8px;height:8px;border-radius:50%;background:#3b82f6;display:inline-block;"></span> <span id="heroStatusText">—</span>
+              </span>
+            </div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Submitted</div>
+            <div class="crm-profile-meta-val" id="heroSubmitted">—</div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Request ID</div>
+            <div class="crm-profile-meta-val" style="font-size:12px;opacity:.8;" id="heroReqId">—</div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Priority</div>
+            <div class="crm-profile-meta-val" id="heroPriority">—</div>
+          </div>
+          <div class="crm-profile-meta-item">
+            <div class="crm-profile-meta-label">Assigned To</div>
+            <div class="crm-profile-meta-val" id="heroAssigned">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="crm-rd-main-grid">
+
+        <!-- LEFT Column -->
+        <div>
+
+          <!-- Request Details -->
+          <div class="crm-request-detail-card">
+            <div class="crm-detail-section-title">Request Information</div>
+            <div class="crm-detail-row">
+              <span class="crm-detail-key">Client Name</span>
+              <span class="crm-detail-val" id="detailClient">—</span>
+            </div>
+            <div class="crm-detail-row">
+              <span class="crm-detail-key">Property</span>
+              <span class="crm-detail-val" id="detailProperty">—</span>
+            </div>
+            <div class="crm-detail-row">
+              <span class="crm-detail-key">Request Type</span>
+              <span class="crm-detail-val" id="detailType">—</span>
+            </div>
+            <div class="crm-detail-row">
+              <span class="crm-detail-key">Requested Date</span>
+              <span class="crm-detail-val" id="detailDate">—</span>
+            </div>
+            <div class="crm-detail-row">
+              <span class="crm-detail-key">Preferred Schedule</span>
+              <span class="crm-detail-val" id="detailSchedulePref">—</span>
+            </div>
+            <div class="crm-detail-row">
+              <span class="crm-detail-key">Current Status</span>
+              <span class="crm-detail-val">
+                <span class="tbl-status new-req" id="detailStatus">—</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Request Notes from Client -->
+          <div class="crm-request-detail-card" style="margin-top:20px;">
+            <div class="crm-detail-section-title">Client Request Notes</div>
+            <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:16px 18px;">
+              <div style="font-size:13px;color:#0f1e38;line-height:1.7;" id="detailNotes">—</div>
+              <div style="font-size:11px;color:#0369a1;margin-top:10px;font-weight:600;" id="detailNotesDate"></div>
+            </div>
+          </div>
+
+          <!-- Internal Notes -->
+          <div class="crm-request-detail-card" style="margin-top:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+              <div class="crm-detail-section-title" style="margin-bottom:0;">Internal Notes</div>
+              <button class="admin-add-btn" style="padding:6px 12px;font-size:12px;" onclick="openAddNoteModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Note
+              </button>
+            </div>
+            <div id="internalNotesList">
+              <div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">No internal notes yet.</div>
+            </div>
+          </div>
+
+          <!-- Activity Timeline -->
+          <div class="crm-request-detail-card" style="margin-top:20px;">
+            <div class="crm-detail-section-title">Request Activity</div>
+            <div class="crm-timeline" style="padding-top:8px;">
+
+              <div id="activityTimeline">
+                <div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT Column -->
+        <div>
+
+          <!-- Status Control -->
+          <div class="admin-summary-card">
+            <div class="admin-summary-header">Update Status</div>
+            <div class="admin-summary-body" style="padding:12px 16px;">
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="admin-add-btn" style="width:100%;justify-content:center;padding:11px;background:#22c55e;" onclick="approveRequest()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  Approve Request
+                </button>
+                <button class="admin-add-btn" style="width:100%;justify-content:center;padding:11px;background:#162d56;" onclick="window.location.href='admin-schedule.html'">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  Schedule Visit
+                </button>
+                <button class="admin-add-btn" style="width:100%;justify-content:center;padding:11px;background:#fff;color:#475569;border:1px solid #e2e8f0;" onclick="showToast('Message thread opening…','info')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                  Message Client
+                </button>
+                <button class="admin-add-btn" style="width:100%;justify-content:center;padding:11px;background:#dc2626;" onclick="declineRequest()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  Decline Request
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Client Info -->
+          <div class="admin-summary-card">
+            <div class="admin-summary-header">Client Information</div>
+            <div class="admin-summary-body">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;">
+                <div style="width:42px;height:42px;border-radius:50%;background:#162d56;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;" id="clientInfoAvatar">—</div>
+                <div>
+                  <div style="font-size:14px;font-weight:700;color:#0f1e38;" id="clientInfoName">—</div>
+                  <div style="font-size:12px;color:#64748b;" id="clientInfoSince">—</div>
+                </div>
+              </div>
+              <div class="admin-summary-list">
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Email</span>
+                  <span class="admin-summary-val" style="font-size:12px;" id="clientInfoEmail">—</span>
+                </div>
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Phone</span>
+                  <span class="admin-summary-val" id="clientInfoPhone">—</span>
+                </div>
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Properties</span>
+                  <span class="admin-summary-val" id="clientInfoProps">—</span>
+                </div>
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Plan</span>
+                  <span class="admin-summary-val" id="clientInfoPlan">—</span>
+                </div>
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Account Mgr</span>
+                  <span class="admin-summary-val" id="clientInfoMgr">—</span>
+                </div>
+              </div>
+              <div style="margin-top:14px;padding-top:14px;border-top:1px solid #f1f5f9;">
+                <a href="#" id="clientProfileLink" style="font-size:12px;font-weight:600;color:#162d56;text-decoration:none;display:flex;align-items:center;gap:5px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  View Full Customer File →
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Property Info -->
+          <div class="admin-summary-card">
+            <div class="admin-summary-header">Property Details</div>
+            <div class="admin-summary-body">
+              <div style="display:flex;align-items:flex-start;gap:12px;">
+                <div style="width:36px;height:36px;border-radius:10px;background:#e8eef8;color:#162d56;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                </div>
+                <div>
+                  <div style="font-size:14px;font-weight:700;color:#0f1e38;" id="propInfoName">—</div>
+                  <div style="font-size:12px;color:#64748b;" id="propInfoCity">—</div>
+                </div>
+              </div>
+              <div class="admin-summary-list" style="margin-top:14px;">
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Sq Ft</span>
+                  <span class="admin-summary-val" id="propInfoSqft">—</span>
+                </div>
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Last Visit</span>
+                  <span class="admin-summary-val" id="propInfoLastVisit">—</span>
+                </div>
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Open Alerts</span>
+                  <span class="admin-summary-val" id="propInfoAlerts">—</span>
+                </div>
+                <div class="admin-summary-row">
+                  <span class="admin-summary-key">Access</span>
+                  <span class="admin-summary-val" id="propInfoAccess">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+const TYPE_ICONS_RD = {
+  'AC Service':'❄️','Plumbing':'🔧','Electrical':'⚡','Landscaping':'🌿',
+  'Pest Control':'🐛','General Repair':'🔨','Other':'📋'
+};
+const STATUS_COLORS_RD = {
+  new:'#3b82f6', reviewing:'#f59e0b', scheduled:'#8b5cf6',
+  completed:'#22c55e', declined:'#ef4444'
+};
+const STATUS_CLS_RD = {
+  new:'new-req', reviewing:'in_progress', scheduled:'in_progress',
+  completed:'completed', declined:'lost'
+};
+
+let REQUEST_DATA = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderAdminSidebar('crm-requests');
+  const params = new URLSearchParams(window.location.search);
+  const reqId = params.get('id');
+  if (reqId) loadRequest(reqId); else renderRDEmpty();
+});
+
+async function loadRequest(id) {
+  try {
+    const res = await fetch('tables/service_requests/' + id);
+    if (!res.ok) throw new Error('not found');
+    const r = await res.json();
+    REQUEST_DATA = r;
+    populateRequest(r);
+    if (r.client_id) loadClientInfo(r.client_id);
+    if (r.property_id) loadPropInfo(r.property_id);
+  } catch(e) {
+    showToast('Could not load request.', 'error');
+    renderRDEmpty();
+  }
+}
+
+function fmtRD(ts) {
+  if (!ts) return '—';
+  const d = new Date(typeof ts==='number'?ts:Number(ts));
+  return isNaN(d)?String(ts):d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+function fmtRDT(ts) {
+  if (!ts) return '—';
+  const d = new Date(typeof ts==='number'?ts:Number(ts));
+  return isNaN(d)?String(ts):
+    d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+
+    ' at '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+function setRD(id, val) {
+  const el=document.getElementById(id); if(el) el.textContent=val||'—';
+}
+
+function populateRequest(r) {
+  const status = (r.status||'new').toLowerCase();
+  const type   = r.request_type||r.type||'Other';
+  const icon   = TYPE_ICONS_RD[type]||'📋';
+  const color  = STATUS_COLORS_RD[status]||'#3b82f6';
+  const cls    = STATUS_CLS_RD[status]||'new-req';
+  const client = r.client_name||r.full_name||'—';
+  const prop   = r.property_name||r.address||'—';
+  const label  = status.charAt(0).toUpperCase()+status.slice(1);
+
+  const bc = document.getElementById('breadcrumbReqName');
+  if(bc) bc.textContent = (type+' — '+(client||'Request'));
+  setRD('heroTypeLabel', type);
+  setRD('heroTitle', type+' Request');
+  setRD('heroClientName', client);
+  setRD('heroProperty', prop);
+  setRD('heroStatusText', label);
+  const dot=document.getElementById('heroStatusDot'); if(dot) dot.style.background=color;
+  setRD('heroSubmitted', fmtRD(r.created_at));
+  setRD('heroReqId', r.id?('REQ-'+r.id.slice(-8).toUpperCase()):'—');
+  setRD('heroPriority', r.priority||'Normal');
+  setRD('heroAssigned', r.assigned_to||'—');
+  setRD('detailClient', client);
+  setRD('detailProperty', prop);
+  setRD('detailType', icon+' '+type);
+  setRD('detailDate', fmtRDT(r.created_at));
+  setRD('detailSchedulePref', r.schedule_preference||'—');
+  const ds=document.getElementById('detailStatus');
+  if(ds){ds.textContent=label;ds.className='tbl-status '+cls;}
+  setRD('detailNotes', r.notes||r.message||'—');
+  if(r.created_at) setRD('detailNotesDate','Submitted via Client Portal · '+fmtRDT(r.created_at));
+
+  const tl=document.getElementById('activityTimeline');
+  if(tl){
+    tl.innerHTML=
+      `<div class="crm-timeline-item">
+        <div class="crm-timeline-dot blue"></div>
+        <div class="crm-timeline-date">${fmtRDT(r.created_at)}</div>
+        <div class="crm-timeline-title">Request Submitted</div>
+        <div class="crm-timeline-body">${type} request created via client portal.</div>
+      </div>`+
+      (r.updated_at&&r.updated_at!==r.created_at?
+        `<div class="crm-timeline-item">
+          <div class="crm-timeline-dot amber"></div>
+          <div class="crm-timeline-date">${fmtRDT(r.updated_at)}</div>
+          <div class="crm-timeline-title">Status Updated</div>
+          <div class="crm-timeline-body">Status changed to ${label}.</div>
+        </div>`:'')+
+      `<div class="crm-timeline-item">
+        <div class="crm-timeline-dot green" style="opacity:.3;"></div>
+        <div class="crm-timeline-date" style="opacity:.5;">Pending</div>
+        <div class="crm-timeline-title" style="opacity:.5;">Resolution</div>
+        <div class="crm-timeline-body" style="opacity:.4;">Awaiting final resolution.</div>
+      </div>`;
+  }
+}
+
+async function loadClientInfo(clientId) {
+  try {
+    const res=await fetch('tables/clients/'+clientId);
+    if(!res.ok) return;
+    const c=await res.json();
+    const name=c.full_name||c.name||'—';
+    const ini=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    setRD('clientInfoAvatar',ini);
+    setRD('clientInfoName',name);
+    setRD('clientInfoSince',c.member_since?'Customer since '+fmtRD(c.member_since):'—');
+    setRD('clientInfoEmail',c.email||'—');
+    setRD('clientInfoPhone',c.phone||'—');
+    setRD('clientInfoProps',c.property_count!=null?c.property_count+' enrolled':'—');
+    setRD('clientInfoPlan',c.plan||c.service_plan||'—');
+    setRD('clientInfoMgr',c.assigned_manager||c.account_manager||'—');
+    const link=document.getElementById('clientProfileLink');
+    if(link) link.href='crm-customer-profile.html?id='+clientId;
+  } catch(e){}
+}
+
+async function loadPropInfo(propId) {
+  try {
+    const res=await fetch('tables/properties/'+propId);
+    if(!res.ok) return;
+    const p=await res.json();
+    setRD('propInfoName',p.address||p.property_name||'—');
+    setRD('propInfoCity',(p.city||'')+(p.state?' '+p.state:'')+(p.property_type?' · '+p.property_type:''));
+    setRD('propInfoSqft',p.sq_ft?p.sq_ft.toLocaleString()+' sq ft':'—');
+    setRD('propInfoLastVisit',fmtRD(p.last_visit_date));
+    setRD('propInfoAlerts',p.open_alerts!=null?(p.open_alerts===0?'None':p.open_alerts+' open'):'—');
+    setRD('propInfoAccess',p.access_method||'—');
+  } catch(e){}
+}
+
+function renderRDEmpty() {
+  ['heroClientName','heroProperty','heroStatusText','heroSubmitted','heroReqId','heroPriority',
+   'heroAssigned','detailClient','detailProperty','detailType','detailDate','detailSchedulePref',
+   'detailNotes'].forEach(id=>setRD(id,'—'));
+  const tl=document.getElementById('activityTimeline');
+  if(tl) tl.innerHTML='<div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">No request data available.</div>';
+}
+
+function setRDStatus(status) {
+  const color=STATUS_COLORS_RD[status]||'#3b82f6';
+  const cls=STATUS_CLS_RD[status]||'new-req';
+  const label=status.charAt(0).toUpperCase()+status.slice(1);
+  setRD('heroStatusText',label);
+  const dot=document.getElementById('heroStatusDot'); if(dot) dot.style.background=color;
+  const ds=document.getElementById('detailStatus');
+  if(ds){ds.textContent=label;ds.className='tbl-status '+cls;}
+}
+
+function approveRequest() {
+  setRDStatus('reviewing');
+  if(REQUEST_DATA) fetch('tables/service_requests/'+REQUEST_DATA.id,{
+    method:'PATCH',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({status:'reviewing'})
+  }).catch(()=>{});
+  showToast('Request approved and moved to Reviewing', 'success');
+}
+
+function declineRequest() {
+  if(confirm('Are you sure you want to decline this request? The client will be notified.')) {
+    setRDStatus('declined');
+    if(REQUEST_DATA) fetch('tables/service_requests/'+REQUEST_DATA.id,{
+      method:'PATCH',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({status:'declined'})
+    }).catch(()=>{});
+    showToast('Request declined. Client will be notified.', 'error');
+  }
+}
+
+// ─── ADD NOTE MODAL ────────────────────────────────────────────────────────────
+function openAddNoteModal() {
+  document.getElementById('addNoteModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('noteTextInput').focus(), 80);
+}
+function closeAddNoteModal() {
+  document.getElementById('addNoteModal').style.display = 'none';
+  document.getElementById('noteTextInput').value = '';
+}
+async function submitNote(e) {
+  e.preventDefault();
+  const text = document.getElementById('noteTextInput').value.trim();
+  if (!text || !REQUEST_DATA) return;
+  try {
+    const existing = REQUEST_DATA.internal_notes ? REQUEST_DATA.internal_notes + '\n\n' : '';
+    const updated = existing + text;
+    const res = await fetch('tables/service_requests/' + REQUEST_DATA.id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ internal_notes: updated }),
+    });
+    if (!res.ok) throw new Error();
+    REQUEST_DATA.internal_notes = updated;
+    closeAddNoteModal();
+    const list = document.getElementById('internalNotesList');
+    if (list) {
+      const row = document.createElement('div');
+      row.style.cssText = 'background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;font-size:13px;color:#334155;line-height:1.5;white-space:pre-wrap;margin-bottom:8px;';
+      row.textContent = text;
+      if (list.querySelector('[style*="dashed"]')) list.innerHTML = '';
+      list.insertBefore(row, list.firstChild);
+    }
+    showToast('Note added', 'success');
+  } catch {
+    showToast('Could not save note — please try again', 'error');
+  }
+}
+</script>
+
+<!-- Add Note Modal -->
+<div id="addNoteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:16px;padding:28px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:15px;font-weight:700;color:#0f1e38;">Add Internal Note</div>
+      <button onclick="closeAddNoteModal()" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:20px;line-height:1;">×</button>
+    </div>
+    <form onsubmit="submitNote(event)">
+      <textarea id="noteTextInput" rows="4" placeholder="Add an internal note about this request…" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;margin-bottom:16px;"></textarea>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button type="button" onclick="closeAddNoteModal()" style="padding:9px 18px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#475569;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+        <button type="submit" style="padding:9px 18px;border-radius:8px;border:none;background:#162d56;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">Save Note</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

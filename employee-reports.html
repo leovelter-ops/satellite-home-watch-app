@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Reports — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/employee.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">My Reports</span>
+          <span class="topbar-welcome">Draft and publish inspection reports</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <!-- Messages notification icon -->
+        <button
+          class="topbar-icon-btn emp-msg-notif-btn"
+          id="empMsgNotifBtn"
+          aria-label="Message notifications"
+          title="Messages"
+          type="button"
+          onclick="openEmpMsgNotif(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span class="topbar-notif-badge" id="empMsgBadge" style="display:none;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="employee"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="role-chip inspector">Inspector</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Draft report from URL param (visitId) -->
+      <div id="reportBuilderSection" style="display:none;">
+        <div class="vd-completion-banner" style="margin-bottom:20px;">
+          <div>
+            <h3>📋 Report Builder</h3>
+            <p id="reportBuilderSubtitle">Creating report for selected visit</p>
+          </div>
+          <button class="emp-btn-secondary" onclick="hideBuilder()" style="color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.15);">✕ Close Builder</button>
+        </div>
+
+        <div class="vd-card" style="margin-bottom:20px;">
+          <div class="vd-card-header">
+            <div class="vd-card-title">Report Details</div>
+          </div>
+          <div class="vd-card-body">
+            <div class="vd-form-row">
+              <div class="vd-form-group">
+                <label class="vd-form-label">Report Title *</label>
+                <input type="text" class="vd-form-input" id="rptTitle" placeholder="e.g., Routine Inspection Report" />
+              </div>
+              <div class="vd-form-group">
+                <label class="vd-form-label">Overall Result *</label>
+                <select class="vd-form-select" id="rptResult">
+                  <option value="passed">Passed — No Issues</option>
+                  <option value="passed_with_notes">Passed with Notes</option>
+                  <option value="attention_required">Attention Required</option>
+                  <option value="failed">Failed — Issues Found</option>
+                </select>
+              </div>
+            </div>
+            <div class="vd-form-group" style="margin-top:12px;">
+              <label class="vd-form-label">Executive Summary *</label>
+              <textarea class="vd-notes-area" id="rptSummary" rows="4"
+                placeholder="Provide a comprehensive summary of the inspection findings..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inspection Sections -->
+        <div class="vd-card" style="margin-bottom:20px;">
+          <div class="vd-card-header">
+            <div class="vd-card-title">Inspection Sections</div>
+            <span style="font-size:12px;color:#64748b;" id="sectionProgress">0 / 0 sections complete</span>
+          </div>
+          <div class="vd-card-body">
+            <div class="rb-section-list" id="rbSectionList"></div>
+          </div>
+        </div>
+
+        <!-- Additional Notes -->
+        <div class="vd-card" style="margin-bottom:20px;">
+          <div class="vd-card-header">
+            <div class="vd-card-title">Additional Notes & Recommendations</div>
+          </div>
+          <div class="vd-card-body">
+            <textarea class="vd-notes-area" id="rptAdditionalNotes" rows="4"
+              placeholder="Any additional notes, recommendations, or follow-up actions..."></textarea>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap;">
+          <button class="emp-btn-start in-progress" onclick="publishReport()" style="padding:12px 28px;font-size:14px;">
+            ✓ Publish Report
+          </button>
+          <button class="emp-btn-secondary" onclick="saveDraft()" style="padding:12px 22px;font-size:14px;">
+            Save Draft
+          </button>
+          <button class="emp-btn-secondary" onclick="hideBuilder()" style="padding:12px 22px;font-size:14px;">
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Reports List -->
+      <div id="reportsListSection">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+          <div style="font-size:15px;font-weight:700;color:#0f1e38;">All Reports</div>
+          <div style="display:flex;gap:10px;">
+            <select id="rptStatusFilter" onchange="filterReports()"
+              style="border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;background:#f8fafc;outline:none;">
+              <option value="">All Statuses</option>
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
+        </div>
+        <div id="reportsList">
+          <div class="emp-empty-state"><div class="emp-empty-title">Loading reports…</div></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Report View Modal -->
+<div id="reportModal" class="emp-modal-overlay" style="display:none;">
+  <div class="emp-modal" style="max-width:700px;">
+    <div class="emp-modal-header">
+      <div class="emp-modal-title" id="modalReportTitle">Report</div>
+      <button class="emp-modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="emp-modal-body" id="modalReportBody"></div>
+    <div class="emp-modal-footer">
+      <button class="emp-btn-secondary" onclick="closeModal()">Close</button>
+      <button class="emp-btn-start in-progress" id="modalPublishBtn" onclick="publishFromModal()" style="display:none;">Publish Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- Message Notifications Panel -->
+<div id="empMsgNotifPanel" style="display:none;position:fixed;top:60px;right:16px;width:340px;max-width:calc(100vw - 32px);background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 32px rgba(22,45,86,.15);z-index:9999;">
+  <div style="padding:14px 16px 10px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:14px;font-weight:700;color:#0f1e38;">Message Notifications</div>
+    <button onclick="closeEmpMsgNotif()" style="background:none;border:none;font-size:18px;color:#94a3b8;cursor:pointer;line-height:1;">×</button>
+  </div>
+  <div id="empMsgNotifList" style="max-height:340px;overflow-y:auto;padding:8px 0;">
+    <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No new messages</div>
+  </div>
+  <div style="padding:10px 16px;border-top:1px solid #f1f5f9;text-align:center;">
+    <a href="employee-messages.html" style="font-size:13px;font-weight:600;color:#162d56;text-decoration:none;">View All Messages →</a>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/emp-msg-notif.js"></script>
+<script>
+// ─── NO PLACEHOLDER DATA ──────────────────────────────────────────────────────
+// All report data is loaded exclusively from the backend API.
+
+// Inspection sections template
+const INSPECTION_SECTIONS = [
+  { id: 'exterior',    label: 'Exterior', items: ['Roof condition', 'Gutters & downspouts', 'Siding/stucco', 'Windows & doors', 'Driveway & walkways', 'Landscaping condition'] },
+  { id: 'interior',    label: 'Interior', items: ['Entry/foyer', 'Living areas', 'Kitchen', 'Bedrooms', 'Bathrooms', 'Garage/storage'] },
+  { id: 'mechanical',  label: 'Mechanical & Utilities', items: ['HVAC system operational', 'Water heater checked', 'Electrical panel', 'Plumbing & fixtures', 'Pool/spa equipment'] },
+  { id: 'security',    label: 'Security & Safety', items: ['All entry points secured', 'Alarm system verified', 'Smoke/CO detectors', 'Fire extinguisher present'] },
+  { id: 'weather',     label: 'Weather/Environment', items: ['No water intrusion signs', 'No mold/mildew', 'No storm damage', 'Pest activity checked'] },
+];
+
+let _sectionResults = {}; // { sectionId: { itemIdx: { result, note } } }
+let _builderVisitId = null;
+let _builderVisit   = null;
+let _allReports     = [];
+let _propMap        = {};
+let _modalReportId  = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderEmpSidebar('emp-reports');
+  await loadReports();
+  initEmpMsgNotif();
+
+  // Check if opened from visit detail with visitId param
+  const params = new URLSearchParams(window.location.search);
+  const visitId = params.get('visitId');
+
+  if (visitId) {
+    await openBuilderForVisit(visitId);
+  }
+});
+
+
+async function loadReports() {
+  const [reportsRes, propsRes, empsRes, visitsRes] = await Promise.all([
+    empApiGetAll('visit_reports'),
+    empApiGetAll('properties'),
+    empApiGetAll('employees'),
+    empApiGetAll('visits'),
+  ]);
+
+  _propMap  = buildMap(propsRes.data  || []);
+  const empMap   = buildMap(empsRes.data   || []);
+  const visitMap = buildMap(visitsRes.data || []);
+  const myEmp    = (empsRes.data || []).find(e => e.user_id === EMP_SESSION.userId);
+  const myEmpId  = myEmp?.id;
+
+  const realReports = (reportsRes.data || [])
+    .filter(r => r.employee_id === myEmpId)
+    .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+  _allReports = realReports;
+
+  filterReports();
+}
+
+function filterReports() {
+  const statusF = document.getElementById('rptStatusFilter').value;
+  const filtered = _allReports.filter(r => !statusF || r.report_status === statusF);
+  renderReportsList(filtered);
+}
+
+function renderReportsList(reports) {
+  const container = document.getElementById('reportsList');
+  if (!reports.length) {
+    container.innerHTML = `
+      <div class="emp-empty-state">
+        <div class="emp-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div class="emp-empty-title">No reports yet</div>
+        <div class="emp-empty-text">Complete a visit to generate a report.</div>
+      </div>`;
+    return;
+  }
+
+  const resultColors = { passed:'#15803d', passed_with_notes:'#b45309', attention_required:'#c2410c', failed:'#dc2626' };
+  const statusChips  = { draft:'pill-scheduled', published:'pill-completed', archived:'pill-completed' };
+
+  container.innerHTML = reports.map(r => {
+    const prop = _propMap[r.property_id] || {};
+    const rColor = resultColors[r.overall_result] || '#64748b';
+    return `
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;margin-bottom:12px;cursor:pointer;transition:box-shadow .2s;"
+        onmouseenter="this.style.boxShadow='0 4px 14px rgba(22,45,86,.09)'" onmouseleave="this.style.boxShadow=''"
+        onclick="viewReport('${r.id}')">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#0f1e38;">${r.report_title || 'Inspection Report'}</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px;">${prop.property_name || '—'} · ${prop.address_line1 || ''}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-direction:column;align-items:flex-end;">
+            <span class="emp-status-pill ${statusChips[r.report_status] || 'pill-scheduled'}" style="font-size:10px;">${r.report_status}</span>
+            <span style="font-size:11px;font-weight:600;color:${rColor};">${FMT.snakeToTitle(r.overall_result)}</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:#94a3b8;">Created ${FMT.date(r.created_at)} · ${r.photo_count || 0} photos</div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="emp-btn-secondary" style="font-size:12px;padding:6px 14px;" onclick="event.stopPropagation();viewReport('${r.id}')">View Report</button>
+          ${r.report_status === 'draft' ? `<button class="emp-btn-start" style="font-size:12px;padding:6px 14px;" onclick="event.stopPropagation();confirmPublish('${r.id}')">Publish</button>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function openBuilderForVisit(visitId) {
+  const { data: visit } = await empApiGet(`visits/${visitId}`);
+  if (!visit) return;
+  _builderVisitId = visitId;
+  _builderVisit   = visit;
+
+  const prop = _propMap[visit.property_id] || {};
+  document.getElementById('reportBuilderSubtitle').textContent = `${prop.property_name || 'Property'} · ${FMT.date(visit.scheduled_start)}`;
+  document.getElementById('rptTitle').value = `${FMT.snakeToTitle(visit.visit_type)} Report — ${FMT.date(visit.scheduled_start)}`;
+  if (visit.inspector_notes) document.getElementById('rptSummary').value = visit.inspector_notes;
+
+  renderSectionBuilder();
+  document.getElementById('reportBuilderSection').style.display = '';
+}
+
+function hideBuilder() {
+  document.getElementById('reportBuilderSection').style.display = 'none';
+  _builderVisitId = null;
+  _builderVisit   = null;
+}
+
+function renderSectionBuilder() {
+  const list = document.getElementById('rbSectionList');
+  list.innerHTML = INSPECTION_SECTIONS.map(section => `
+    <div class="rb-section-card">
+      <div class="rb-section-header" onclick="toggleSection('${section.id}')">
+        <div class="rb-section-title">
+          <span class="rb-status-dot" id="dot-${section.id}"></span>
+          ${section.label}
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" id="chevron-${section.id}">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+      <div class="rb-section-body" id="section-body-${section.id}">
+        ${section.items.map((item, idx) => `
+          <div class="rb-item-row">
+            <div class="rb-item-name">${item}</div>
+            <div class="rb-item-result">
+              <button class="rb-result-btn" id="rbr-${section.id}-${idx}-pass" onclick="setItemResult('${section.id}', ${idx}, 'pass')">Pass</button>
+              <button class="rb-result-btn" id="rbr-${section.id}-${idx}-fail" onclick="setItemResult('${section.id}', ${idx}, 'fail')">Fail</button>
+              <button class="rb-result-btn" id="rbr-${section.id}-${idx}-na" onclick="setItemResult('${section.id}', ${idx}, 'na')">N/A</button>
+            </div>
+            <input class="rb-item-note" type="text" id="rbn-${section.id}-${idx}" placeholder="Note…"
+              onchange="setItemNote('${section.id}', ${idx}, this.value)" />
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+  updateSectionProgress();
+}
+
+function toggleSection(sectionId) {
+  const body = document.getElementById(`section-body-${sectionId}`);
+  const chev = document.getElementById(`chevron-${sectionId}`);
+  const hidden = body.style.display === 'none';
+  body.style.display = hidden ? '' : 'none';
+  chev.style.transform = hidden ? '' : 'rotate(-90deg)';
+}
+
+function setItemResult(sectionId, idx, result) {
+  if (!_sectionResults[sectionId]) _sectionResults[sectionId] = {};
+  if (!_sectionResults[sectionId][idx]) _sectionResults[sectionId][idx] = {};
+  _sectionResults[sectionId][idx].result = result;
+
+  // Update button styles
+  ['pass','fail','na'].forEach(r => {
+    const btn = document.getElementById(`rbr-${sectionId}-${idx}-${r}`);
+    if (btn) {
+      btn.className = `rb-result-btn${r === result ? ' ' + r : ''}`;
+    }
+  });
+
+  // Update section dot
+  const section = INSPECTION_SECTIONS.find(s => s.id === sectionId);
+  const sResults = _sectionResults[sectionId];
+  const dot = document.getElementById(`dot-${sectionId}`);
+  if (dot && section) {
+    const allSet = section.items.every((_, i) => sResults[i]?.result);
+    const hasFail = section.items.some((_, i) => sResults[i]?.result === 'fail');
+    dot.className = `rb-status-dot ${allSet ? (hasFail ? 'fail' : 'pass') : ''}`;
+  }
+  updateSectionProgress();
+}
+
+function setItemNote(sectionId, idx, note) {
+  if (!_sectionResults[sectionId]) _sectionResults[sectionId] = {};
+  if (!_sectionResults[sectionId][idx]) _sectionResults[sectionId][idx] = {};
+  _sectionResults[sectionId][idx].note = note;
+}
+
+function updateSectionProgress() {
+  let complete = 0;
+  INSPECTION_SECTIONS.forEach(section => {
+    const sResults = _sectionResults[section.id] || {};
+    if (section.items.every((_, i) => sResults[i]?.result)) complete++;
+  });
+  document.getElementById('sectionProgress').textContent = `${complete} / ${INSPECTION_SECTIONS.length} sections complete`;
+}
+
+async function saveDraft() {
+  if (!_builderVisitId) return;
+  const title   = document.getElementById('rptTitle').value.trim();
+  const result  = document.getElementById('rptResult').value;
+  const summary = document.getElementById('rptSummary').value.trim();
+  const extra   = document.getElementById('rptAdditionalNotes').value.trim();
+
+  if (!title) { showToast('Report title is required', 'error'); return; }
+
+  const sectionData = JSON.stringify(_sectionResults);
+  const now = new Date().toISOString();
+
+  const existing = _allReports.find(r => r.visit_id === _builderVisitId && r.report_status === 'draft');
+  let report;
+  if (existing) {
+    const { data } = await empApiPatch('visit_reports', existing.id, {
+      report_title:  title, overall_result: result,
+      summary_notes: summary, additional_notes: extra,
+      inspection_sections: sectionData, updated_at: now,
+    });
+    report = data;
+  } else {
+    const { data } = await empApiPost('visit_reports', {
+      visit_id:    _builderVisitId,
+      property_id: _builderVisit.property_id,
+      employee_id: EMP_SESSION.employeeId,
+      report_title: title, overall_result: result,
+      summary_notes: summary, additional_notes: extra,
+      inspection_sections: sectionData,
+      report_status: 'draft',
+      created_at: now, updated_at: now,
+    });
+    report = data;
+  }
+
+  showToast('Report draft saved', 'success');
+  await loadReports();
+}
+
+async function publishReport() {
+  await saveDraft(); // save first
+  const existing = _allReports.find(r => r.visit_id === _builderVisitId);
+  if (!existing) { showToast('Save draft first', 'error'); return; }
+  await confirmPublish(existing.id);
+}
+
+async function confirmPublish(reportId) {
+  const report = _allReports.find(r => r.id === reportId);
+
+  const now = new Date().toISOString();
+  const { error } = await empApiPatch('visit_reports', reportId, {
+    report_status: 'published',
+    published_at:  now,
+    updated_at:    now,
+  });
+  if (error) { showToast('Failed to publish: ' + error, 'error'); return; }
+  showToast('Report published successfully!', 'success');
+  hideBuilder();
+  await loadReports();
+}
+
+async function viewReport(reportId) {
+  const report = _allReports.find(r => r.id === reportId);
+  if (!report) return;
+  _modalReportId = reportId;
+  const prop = _propMap[report.property_id] || {};
+
+  document.getElementById('modalReportTitle').textContent = report.report_title || 'Inspection Report';
+  document.getElementById('modalPublishBtn').style.display = report.report_status === 'draft' ? '' : 'none';
+
+  const resultColors = { passed:'#15803d', passed_with_notes:'#b45309', attention_required:'#c2410c', failed:'#dc2626' };
+  const rColor = resultColors[report.overall_result] || '#64748b';
+
+  document.getElementById('modalReportBody').innerHTML = `
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#0f1e38;">${prop.property_name || '—'}</div>
+          <div style="font-size:12px;color:#64748b;">${prop.address_line1 || ''} ${prop.city || ''}, ${prop.state || ''}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:13px;font-weight:700;color:${rColor};">${FMT.snakeToTitle(report.overall_result)}</div>
+          <div style="font-size:11px;color:#94a3b8;">${FMT.date(report.created_at)}</div>
+        </div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;font-size:13px;color:#334155;line-height:1.6;">
+        ${report.summary_notes || '<em style="color:#94a3b8;">No summary provided</em>'}
+      </div>
+    </div>
+    ${report.additional_notes ? `
+    <div style="margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Additional Notes</div>
+      <div style="font-size:13px;color:#334155;">${report.additional_notes}</div>
+    </div>` : ''}
+    <div style="font-size:12px;color:#94a3b8;border-top:1px solid #f1f5f9;padding-top:12px;">
+      Report ID: ${report.id.slice(0,8)}… · Status: ${report.report_status} · Photos: ${report.photo_count || 0}
+    </div>`;
+
+  document.getElementById('reportModal').style.display = 'flex';
+}
+
+async function publishFromModal() {
+  if (!_modalReportId) return;
+  await confirmPublish(_modalReportId);
+  closeModal();
+}
+function closeModal() {
+  document.getElementById('reportModal').style.display = 'none';
+}
+</script>
+</body>
+</html>

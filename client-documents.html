@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Documents — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/documents.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+<div class="app-wrapper">
+
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar (rendered dynamically by app.js) -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Client navigation"></aside>
+
+  <div class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">All Documents</span>
+          <span class="topbar-welcome">Secure document vault &amp; downloads</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-client-msg-trigger="client"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Messages"
+          type="button"
+          onclick="SHWClientMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span data-client-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="client"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <div class="topbar-avatar" id="topbarAvatar" onclick="window.location.href='client-account.html'" role="button" aria-label="My account"></div>
+      </div>
+    </header>
+
+    <main class="dashboard-content">
+      <div class="docs-page">
+
+        <!-- ══════════════════════════════
+             SUMMARY BAR
+        ══════════════════════════════ -->
+        <div class="docs-summary-bar" role="region" aria-label="Document vault overview">
+          <div class="docs-summary-item total">
+            <div class="docs-summary-top">
+              <svg class="docs-summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+              </svg>
+              <span class="docs-summary-count" id="docTotalCount">—</span>
+            </div>
+            <span class="docs-summary-label">Total Documents</span>
+          </div>
+          <div class="docs-summary-item unread">
+            <div class="docs-summary-top">
+              <svg class="docs-summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 01-3.46 0"/>
+              </svg>
+              <span class="docs-summary-count" id="docUnreadCount">—</span>
+            </div>
+            <span class="docs-summary-label">Unread</span>
+          </div>
+          <div class="docs-summary-item recent">
+            <div class="docs-summary-top">
+              <svg class="docs-summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span class="docs-summary-count" id="docRecentCount">—</span>
+            </div>
+            <span class="docs-summary-label">Recent Uploads</span>
+          </div>
+          <div class="docs-summary-item props">
+            <div class="docs-summary-top">
+              <svg class="docs-summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              <span class="docs-summary-count" id="docPropsCount">—</span>
+            </div>
+            <span class="docs-summary-label">Properties</span>
+          </div>
+        </div>
+        <div class="docs-summary-caption">
+          <span>Past 90 days across all properties</span>
+        </div>
+
+        <!-- ══════════════════════════════
+             FILTER / SEARCH BAR
+        ══════════════════════════════ -->
+        <div class="docs-filter-bar" role="search" aria-label="Filter documents">
+          <div class="docs-filter-row">
+            <div class="docs-search-wrap">
+              <svg class="docs-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input class="docs-search-input" type="text" id="docsSearch" placeholder="Search documents..." aria-label="Search documents" autocomplete="off" />
+            </div>
+            <select class="docs-filter-select" id="filterProperty" aria-label="Filter by property">
+              <option value="">All Properties</option>
+            </select>
+            <select class="docs-filter-select" id="filterType" aria-label="Filter by document type">
+              <option value="">All Document Types</option>
+              <option value="agreement">Service Agreement</option>
+              <option value="authorization">Authorization</option>
+              <option value="invoice">Invoice</option>
+              <option value="attachment">Inspection Attachment</option>
+              <option value="other">Other</option>
+            </select>
+            <select class="docs-filter-select" id="filterStatus" aria-label="Filter by read status">
+              <option value="">All Statuses</option>
+              <option value="unread">Unread</option>
+              <option value="read">Read</option>
+            </select>
+            <div class="docs-filter-divider" aria-hidden="true"></div>
+            <select class="docs-filter-select" id="filterDate" aria-label="Filter by date range">
+              <option value="3m" selected>Last 3 Months</option>
+              <option value="1m">Last Month</option>
+              <option value="6m">Last 6 Months</option>
+              <option value="1y">Last Year</option>
+              <option value="all">All Time</option>
+            </select>
+            <div class="docs-filter-actions">
+              <button class="docs-filter-reset-btn" onclick="resetFilters()" aria-label="Clear all filters">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                Clear filters
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════
+             LIST HEADER
+        ══════════════════════════════ -->
+        <div class="docs-list-header">
+          <span class="docs-list-title">
+            Showing <span id="visibleCount">0</span> documents
+          </span>
+          <span class="docs-sort-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+              <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+            Sorted: Most Recent First
+          </span>
+        </div>
+
+        <!-- ══════════════════════════════
+             DOCUMENT TABLE
+        ══════════════════════════════ -->
+        <div class="docs-table-wrap" role="list" aria-label="Document vault">
+          <!-- Column headers -->
+          <div class="docs-col-header" role="row" aria-hidden="true">
+            <span class="docs-col-label">Document</span>
+            <span class="docs-col-label">Property</span>
+            <span class="docs-col-label">Type</span>
+            <span class="docs-col-label">Date</span>
+            <span class="docs-col-label" style="text-align:right;">Status &amp; Actions</span>
+          </div>
+
+          <!-- Documents rendered dynamically by documents-data.js -->
+          <div id="documentsContainer">
+            <div style="padding:48px 24px;text-align:center;color:#94a3b8;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 16px;display:block;"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+              <div style="font-size:15px;font-weight:600;color:#475569;margin-bottom:6px;">No documents yet</div>
+              <div style="font-size:13px;">Documents shared by your property manager will appear here.</div>
+            </div>
+          </div>
+
+        </div><!-- /docs-table-wrap -->
+
+        <!-- ══════════════════════════════
+             EMPTY STATE (filter no-match)
+        ══════════════════════════════ -->
+        <div class="docs-empty-state" id="docsEmptyState" style="display:none;" role="status" aria-live="polite">
+          <div class="docs-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+            </svg>
+          </div>
+          <h3 class="docs-empty-title">No documents found.</h3>
+          <p class="docs-empty-desc">Try adjusting your filters or selecting a different property.</p>
+        </div>
+
+        <!-- ══════════════════════════════
+             VAULT NOTICE
+        ══════════════════════════════ -->
+        <div class="docs-vault-notice" role="note" aria-label="Vault security notice">
+          <div class="docs-vault-notice-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+          </div>
+          <div class="docs-vault-notice-text">
+            <div class="docs-vault-notice-title">Secure Document Vault</div>
+            <div class="docs-vault-notice-desc">
+              All documents are stored with end-to-end encryption. PDFs are available for download at any time. Contact your property manager if you believe a document is missing.
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /docs-page -->
+    </main>
+  </div><!-- /main-content -->
+</div><!-- /app-wrapper -->
+
+<script src="js/nav.js"></script>
+<script src="js/app.js"></script>
+<script src="js/sidebar.js"></script>
+<script>
+  renderSidebar('documents');
+
+  function openDocument(docId) {
+    // Document viewer — to be implemented with backend integration
+  }
+
+  function downloadDocument(docId) {
+    // PDF download — to be implemented with backend integration
+  }
+
+  function resetFilters() {
+    const search = document.getElementById('docsSearch');
+    const prop   = document.getElementById('filterProperty');
+    const type   = document.getElementById('filterType');
+    const status = document.getElementById('filterStatus');
+    const date   = document.getElementById('filterDate');
+    if (search) search.value = '';
+    if (prop)   prop.value   = '';
+    if (type)   type.value   = '';
+    if (status) status.value = '';
+    if (date)   date.value   = '3m';
+  }
+</script>
+
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/documents-data.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/client-msg-panel.js"></script>
+
+</body>
+</html>

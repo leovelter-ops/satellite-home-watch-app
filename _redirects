@@ -1,0 +1,8 @@
+# Satellite Home Watch — Static Site Deployment Config
+# This file ensures all static assets are served correctly.
+
+# Default: serve index.html for root
+/  /index.html  200
+
+# Ensure 404 fallback
+/*  /index.html  404

@@ -1,0 +1,465 @@
+/* ═══════════════════════════════════════════════════════════════════
+   SERVICE PLAN — Shared Component Styles
+   service-plan.css
+   Imported by admin pages that display or manage service plans.
+   v2 — deployment bundle refresh
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Plan Summary Card ──────────────────────────────────────────────── */
+.sp-plan-card {
+  background: #fff;
+  border: 1px solid #c0d0ea;
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+}
+
+.sp-plan-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sp-plan-card-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sp-plan-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #e8eef8;
+  color: #162d56;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sp-plan-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sp-plan-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f1e38;
+  line-height: 1.2;
+}
+
+.sp-plan-freq {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+/* ── Plan Detail Grid ───────────────────────────────────────────────── */
+.sp-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 860px) {
+  .sp-plan-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 500px) {
+  .sp-plan-grid { grid-template-columns: 1fr; }
+}
+
+.sp-plan-field {}
+.sp-plan-field-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  margin-bottom: 3px;
+}
+.sp-plan-field-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* ── Plan Notice Banners ────────────────────────────────────────────── */
+.sp-plan-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+.sp-plan-notice.warning {
+  background: #fef9ec;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+.sp-plan-notice.danger {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+.sp-plan-notice.info {
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+/* ── Plan Action Row ────────────────────────────────────────────────── */
+.sp-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.sp-btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #334155;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.sp-btn-action svg {
+  width: 12px;
+  height: 12px;
+}
+.sp-btn-action:hover {
+  background: #e8eef8;
+  border-color: #162d56;
+  color: #162d56;
+}
+.sp-btn-action.warning {
+  background: #fef9ec;
+  border-color: #fde68a;
+  color: #92400e;
+}
+.sp-btn-action.warning:hover {
+  background: #fde68a;
+}
+.sp-btn-action.success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+.sp-btn-action.success:hover {
+  background: #bbf7d0;
+}
+.sp-btn-action.danger {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+.sp-btn-action.danger:hover {
+  background: #fecaca;
+}
+
+/* ── No Plan State ──────────────────────────────────────────────────── */
+.sp-no-plan-card {
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 28px 24px;
+  text-align: center;
+}
+.sp-no-plan-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+.sp-no-plan-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.sp-no-plan-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+}
+.sp-no-plan-sub {
+  font-size: 12px;
+  color: #94a3b8;
+  max-width: 280px;
+  margin: 0 auto 16px;
+  line-height: 1.5;
+}
+.sp-btn-assign {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  background: #162d56;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+.sp-btn-assign:hover { background: #1e3a6a; }
+
+/* ── Section Header with Plan Badge ────────────────────────────────── */
+.sp-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.sp-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f1e38;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sp-section-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 12px;
+  background: #e8eef8;
+  color: #162d56;
+}
+
+/* ── Visit Origin Pill ──────────────────────────────────────────────── */
+.visit-origin-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 20px;
+  padding: 1px 9px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .3px;
+}
+.visit-origin-pill.plan {
+  background: #e8eef8;
+  color: #162d56;
+}
+.visit-origin-pill.oneoff {
+  background: #f0fdf4;
+  color: #166534;
+}
+.visit-origin-pill.virtual {
+  background: #fdf4ff;
+  color: #7e22ce;
+}
+
+/* ── Plan Auto-Generate Info Banner ────────────────────────────────── */
+.sp-auto-info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: linear-gradient(135deg, #e8eef8 0%, #f0f9ff 100%);
+  border: 1px solid #c0d0ea;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: #1e3a6a;
+  line-height: 1.5;
+}
+.sp-auto-info-banner svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Schedule Board Plan-Source Row ────────────────────────────────── */
+.sp-board-section-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #162d56;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: 8px 0 6px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 12px;
+}
+.sp-board-section-label svg {
+  width: 13px;
+  height: 13px;
+}
+.sp-board-section-count {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* ── Schedule Board Virtual Visit Indicator ────────────────────────── */
+.dispatch-card.virtual-visit {
+  border-style: dashed;
+  border-color: #c0d0ea;
+  opacity: .88;
+}
+.dispatch-card.virtual-visit:hover {
+  opacity: 1;
+  border-color: #162d56;
+}
+.virtual-visit-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #7e22ce;
+  background: #fdf4ff;
+  border: 1px solid #e9d5ff;
+  border-radius: 12px;
+  padding: 1px 8px;
+}
+
+/* ── Plan Modal ─────────────────────────────────────────────────────── */
+.sp-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,30,56,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 16px;
+}
+.sp-modal {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(15,30,56,.25);
+}
+.sp-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+  margin-bottom: 16px;
+}
+.sp-modal-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f1e38;
+}
+.sp-modal-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  transition: background .15s;
+}
+.sp-modal-close:hover { background: #e2e8f0; }
+.sp-modal-body {
+  padding: 0 24px 16px;
+}
+.sp-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* ── Inline Plan Widget in Property Row / CRM ───────────────────────── */
+.sp-inline-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 3px 10px;
+  border: 1px solid transparent;
+}
+.sp-inline-pill.active  { background:#dcfce7; color:#166534; border-color:#bbf7d0; }
+.sp-inline-pill.paused  { background:#fef9ec; color:#92400e; border-color:#fde68a; }
+.sp-inline-pill.none    { background:#f1f5f9; color:#64748b; border-color:#e2e8f0; }
+.sp-inline-pill.cancelled { background:#fee2e2; color:#991b1b; border-color:#fecaca; }
+
+.sp-inline-pill svg {
+  width: 9px;
+  height: 9px;
+}
+
+/* ── Upcoming Visit from Plan card ──────────────────────────────────── */
+.sp-next-visit-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, #162d56 0%, #1e3a6a 100%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+}
+.sp-next-visit-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sp-next-visit-icon svg { width: 18px; height: 18px; }
+.sp-next-visit-body {}
+.sp-next-visit-label {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: .7;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  margin-bottom: 3px;
+}
+.sp-next-visit-date {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.sp-next-visit-sub {
+  font-size: 11px;
+  opacity: .75;
+  margin-top: 2px;
+}

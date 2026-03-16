@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documents — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── Document Type Icons ── */
+    .doc-type-icon {
+      width: 38px; height: 44px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      flex-shrink: 0; position: relative; letter-spacing: .3px;
+    }
+    .doc-type-icon.pdf    { background: #fee2e2; color: #dc2626; }
+    .doc-type-icon.docx   { background: #dbeafe; color: #1d4ed8; }
+    .doc-type-icon.xlsx   { background: #dcfce7; color: #15803d; }
+    .doc-type-icon.img    { background: #fef3c7; color: #b45309; }
+    .doc-type-icon.other  { background: #f1f5f9; color: #475569; }
+
+    /* ── Stats strip ── */
+    .docs-admin-stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    @media (max-width: 1100px) { .docs-admin-stats { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 640px)  { .docs-admin-stats { grid-template-columns: repeat(2,1fr); } }
+
+    /* ── Filters bar ── */
+    .docs-filter-bar {
+      background: #fff; border: 1px solid #e2e8f0;
+      border-radius: 12px; padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    }
+
+    /* ── Document table card ── */
+    .docs-table-outer {
+      background: #fff; border: 1px solid #e2e8f0;
+      border-radius: 14px; overflow: hidden;
+    }
+    .docs-table-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      flex-wrap: wrap;
+    }
+    .docs-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+    }
+    .docs-table th {
+      padding: 10px 16px; text-align: left;
+      font-size: 11px; font-weight: 600; color: #64748b;
+      text-transform: uppercase; letter-spacing: .5px;
+      border-bottom: 1px solid #f1f5f9; background: #fafafa;
+      white-space: nowrap;
+    }
+    .docs-table td {
+      padding: 13px 16px; border-bottom: 1px solid #f8f9fa;
+      vertical-align: middle;
+    }
+    .docs-table tr:last-child td { border-bottom: none; }
+    .docs-table tr:hover td { background: #f8faff; cursor: pointer; }
+    .docs-table tr.doc-unread td:first-child { border-left: 3px solid #162d56; }
+
+    .doc-name-cell { display: flex; align-items: center; gap: 12px; }
+    .doc-name-text { font-weight: 600; color: #0f1e38; }
+    .doc-name-sub  { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .doc-unread-pip {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #162d56; flex-shrink: 0;
+    }
+
+    .doc-visibility-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+    }
+    .doc-visibility-badge.client   { background: #dbeafe; color: #1d4ed8; }
+    .doc-visibility-badge.internal { background: #fef3c7; color: #b45309; }
+    .doc-visibility-badge.both     { background: #dcfce7; color: #15803d; }
+
+    /* ── Upload Modal ── */
+    .upload-drop-zone {
+      border: 2px dashed #cbd5e1; border-radius: 10px;
+      padding: 28px; text-align: center; cursor: pointer;
+      transition: border-color .2s, background .2s;
+      margin-bottom: 16px;
+    }
+    .upload-drop-zone:hover, .upload-drop-zone.drag-over {
+      border-color: #162d56; background: #f0f4ff;
+    }
+    .upload-drop-zone input[type=file] { display: none; }
+
+    /* ── Pagination ── */
+    .docs-pagination {
+      padding: 14px 20px;
+      border-top: 1px solid #f1f5f9;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      flex-wrap: wrap;
+    }
+    .docs-page-btn {
+      width: 32px; height: 32px; border: 1px solid #e2e8f0;
+      border-radius: 8px; background: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: #475569;
+      transition: all .15s;
+    }
+    .docs-page-btn:hover { border-color: #162d56; color: #162d56; }
+    .docs-page-btn.active { background: #162d56; border-color: #162d56; color: #fff; }
+    .docs-page-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── Document detail slide-over ── */
+    .doc-detail-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,.3); display: none;
+    }
+    .doc-detail-overlay.open { display: block; }
+    .doc-detail-panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 420px; max-width: 100vw;
+      background: #fff; box-shadow: -4px 0 30px rgba(0,0,0,.15);
+      display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform .3s;
+    }
+    .doc-detail-overlay.open .doc-detail-panel { transform: translateX(0); }
+    .doc-detail-header {
+      padding: 20px 22px; border-bottom: 1px solid #f1f5f9;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .doc-detail-body { flex: 1; overflow-y: auto; padding: 22px; }
+    .doc-detail-section { margin-bottom: 20px; }
+    .doc-detail-section-title {
+      font-size: 10px; font-weight: 700; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: .8px;
+      margin-bottom: 10px;
+    }
+    .doc-detail-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 8px 0; border-bottom: 1px solid #f8f9fa; font-size: 13px;
+    }
+    .doc-detail-row:last-child { border-bottom: none; }
+    .doc-detail-key   { color: #94a3b8; font-size: 12px; }
+    .doc-detail-value { color: #334155; font-weight: 500; text-align: right; max-width: 60%; }
+    .doc-detail-footer {
+      padding: 16px 22px; border-top: 1px solid #f1f5f9;
+      display: flex; gap: 10px;
+    }
+
+    @media (max-width: 900px) { .docs-table th:nth-child(4), .docs-table td:nth-child(4) { display: none; } }
+    @media (max-width: 700px) { .docs-table th:nth-child(3), .docs-table td:nth-child(3),
+                                .docs-table th:nth-child(5), .docs-table td:nth-child(5) { display: none; } }
+
+    /* ════════════════════════════════════════
+       ADMIN DOCUMENTS — MOBILE RESPONSIVE
+    ════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      /* Table → card layout */
+      .docs-table-wrap { display: none !important; }
+      .docs-mobile-cards { display: flex !important; flex-direction: column; gap: 12px; }
+
+      /* Filter row stacks */
+      .docs-filter-row { flex-direction: column !important; gap: 8px !important; }
+      .docs-search { width: 100% !important; }
+      .docs-filter-select { width: 100% !important; }
+
+      /* Upload area */
+      .docs-upload-zone { padding: 20px 16px !important; }
+
+      /* Stats row */
+      .docs-stats { grid-template-columns: repeat(2, 1fr) !important; }
+
+      /* Folder filter chips: horizontal scroll */
+      .docs-folder-filter { overflow-x: auto; flex-wrap: nowrap !important; padding-bottom: 4px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Documents</span>
+          <span class="topbar-welcome">Manage all client documents and inspection reports</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="admin-add-btn" onclick="openUploadModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+            <path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/>
+          </svg>
+          Upload Document
+        </button>
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Header Banner -->
+      <div class="admin-header-banner">
+        <div>
+          <div class="admin-header-title">Document Vault</div>
+          <div class="admin-header-sub" id="docsBannerSub">Loading document summary…</div>
+        </div>
+        <div class="admin-header-actions">
+          <button class="admin-btn-primary" onclick="openUploadModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+            </svg>
+            Upload
+          </button>
+          <button class="admin-btn-solid" onclick="exportDocumentList()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export List
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="docs-admin-stats" id="docsStatsRow">
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div>
+          <div class="admin-stat-value" id="statTotal">—</div>
+          <div class="admin-stat-label">Total Documents</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+          <div class="admin-stat-value" id="statUnread">—</div>
+          <div class="admin-stat-label">Not Viewed by Client</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="admin-stat-value" id="statRecent">—</div>
+          <div class="admin-stat-label">Uploaded This Month</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="admin-stat-value" id="statReports">—</div>
+          <div class="admin-stat-label">Inspection Reports</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+          <div class="admin-stat-value" id="statProperties">—</div>
+          <div class="admin-stat-label">Properties Covered</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="docs-filter-bar">
+        <div class="admin-search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" class="admin-search-input" id="docsSearch"
+            placeholder="Search documents…" oninput="filterDocs()" style="width:220px;" />
+        </div>
+        <select class="admin-filter-select" id="filterCustomer" onchange="filterDocs()">
+          <option value="">All Customers</option>
+        </select>
+        <select class="admin-filter-select" id="filterType" onchange="filterDocs()">
+          <option value="">All Types</option>
+          <option value="inspection_report">Inspection Report</option>
+          <option value="service_agreement">Service Agreement</option>
+          <option value="invoice">Invoice</option>
+          <option value="photo_gallery">Photo Gallery</option>
+          <option value="alert_documentation">Alert Documentation</option>
+          <option value="property_record">Property Record</option>
+          <option value="other">Other</option>
+        </select>
+        <select class="admin-filter-select" id="filterVisibility" onchange="filterDocs()">
+          <option value="">All Visibility</option>
+          <option value="client">Client Visible</option>
+          <option value="internal">Internal Only</option>
+        </select>
+        <select class="admin-filter-select" id="filterStatus" onchange="filterDocs()">
+          <option value="">All Status</option>
+          <option value="unread">Not Viewed</option>
+          <option value="read">Viewed</option>
+        </select>
+        <!-- Date range filter -->
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <input type="date" class="admin-filter-select" id="docsDateFrom" onchange="filterDocs()"
+            title="Uploaded from date" style="max-width:150px;" />
+          <span style="font-size:12px;color:#94a3b8;">to</span>
+          <input type="date" class="admin-filter-select" id="docsDateTo" onchange="filterDocs()"
+            title="Uploaded to date" style="max-width:150px;" />
+          <button onclick="clearDateRange()" title="Clear date filter"
+            style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;line-height:1;padding:0 2px;"
+            id="docsDateClearBtn">×</button>
+        </div>
+        <div style="margin-left:auto;font-size:13px;color:#64748b;" id="docsCount"></div>
+      </div>
+
+      <!-- Documents Table -->
+      <div class="docs-table-outer">
+        <div class="docs-table-header">
+          <div class="admin-table-title">All Documents</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="tbl-action-btn" onclick="setView('table')" id="viewTableBtn" style="background:#e8eef8;border-color:#c0d0ea;color:#162d56;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              Table
+            </button>
+            <button class="tbl-action-btn" onclick="setView('grid')" id="viewGridBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              Grid
+            </button>
+          </div>
+        </div>
+
+        <!-- Table View -->
+        <div id="docsTableView">
+          <table class="docs-table" id="docsTable">
+            <thead>
+              <tr>
+                <th>Document</th>
+                <th>Customer / Property</th>
+                <th>Type</th>
+                <th>Visibility</th>
+                <th>Uploaded</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="docsTableBody">
+              <tr><td colspan="6" style="text-align:center;padding:30px;color:#94a3b8;">Loading documents…</td></tr>
+            </tbody>
+          </table>
+          <!-- Mobile cards (shown only on mobile, hidden on desktop) -->
+          <div class="admin-mobile-cards-list" id="docsMobileCards" style="padding:12px;"></div>
+        </div>
+
+        <!-- Grid View -->
+        <div id="docsGridView" style="display:none;padding:20px;">
+          <div id="docsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;"></div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="docs-pagination" id="docsPagination"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ── Document Detail Slide-Over ── -->
+<div class="doc-detail-overlay" id="docDetailOverlay" onclick="closeDocDetail(event)">
+  <div class="doc-detail-panel" id="docDetailPanel">
+    <div class="doc-detail-header">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#0f1e38;" id="detailDocName">—</div>
+        <div style="font-size:12px;color:#64748b;margin-top:3px;" id="detailDocSub">—</div>
+      </div>
+      <button class="admin-modal-close" onclick="closeDocDetail()">✕</button>
+    </div>
+    <div class="doc-detail-body" id="docDetailBody">—</div>
+    <div class="doc-detail-footer">
+      <button class="btn-primary" style="flex:1;" onclick="downloadDoc()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download
+      </button>
+      <button class="btn-secondary-outline" onclick="editDocVisibility()">Edit Visibility</button>
+      <button class="btn-secondary-outline tbl-action-btn danger" onclick="deleteDoc()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Upload Document Modal ── -->
+<div id="uploadModal" class="admin-modal-overlay" style="display:none;">
+  <div class="admin-modal wide">
+    <div class="admin-modal-header">
+      <div class="admin-modal-title">Upload Document</div>
+      <button class="admin-modal-close" onclick="closeUploadModal()">✕</button>
+    </div>
+    <div class="admin-modal-body">
+      <div class="upload-drop-zone" id="uploadDropZone"
+           onclick="document.getElementById('fileInput').click()"
+           ondragover="handleDragOver(event)"
+           ondragleave="handleDragLeave(event)"
+           ondrop="handleFileDrop(event)">
+        <input type="file" id="fileInput" multiple
+               accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.txt,.csv"
+               onchange="handleFileSelect(event)" />
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="margin:0 auto 12px;display:block;">
+          <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+          <path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/>
+        </svg>
+        <div style="font-size:14px;font-weight:600;color:#475569;margin-bottom:4px;">
+          Drop files here or click to browse
+        </div>
+        <div style="font-size:12px;color:#94a3b8;">
+          PDF, Word, Excel, Images — max 25 MB each
+        </div>
+        <div id="selectedFilesLabel" style="margin-top:10px;font-size:12px;color:#162d56;font-weight:600;"></div>
+      </div>
+
+      <div class="admin-form-grid">
+        <div class="admin-form-group">
+          <label class="admin-form-label">Customer *</label>
+          <select class="admin-form-select" id="uploadCustomer" onchange="loadPropertiesForCustomer()">
+            <option value="">Select customer…</option>
+          </select>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Property</label>
+          <select class="admin-form-select" id="uploadProperty">
+            <option value="">All properties / General</option>
+          </select>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Document Type *</label>
+          <select class="admin-form-select" id="uploadType">
+            <option value="inspection_report">Inspection Report</option>
+            <option value="service_agreement">Service Agreement</option>
+            <option value="invoice">Invoice</option>
+            <option value="photo_gallery">Photo Gallery</option>
+            <option value="alert_documentation">Alert Documentation</option>
+            <option value="property_record">Property Record</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Visibility</label>
+          <select class="admin-form-select" id="uploadVisibility">
+            <option value="client">Client Visible</option>
+            <option value="internal">Internal Only</option>
+            <option value="both">Both</option>
+          </select>
+        </div>
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Document Title</label>
+          <input type="text" class="admin-form-input" id="uploadTitle"
+            placeholder="e.g. Q1 2025 Inspection Report — 4528 Palm Drive" />
+        </div>
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Notes (internal)</label>
+          <textarea class="admin-form-textarea" id="uploadNotes"
+            placeholder="Any internal notes about this document…" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="admin-modal-footer">
+      <button class="btn-secondary-outline" onclick="closeUploadModal()">Cancel</button>
+      <button class="btn-primary" id="uploadSubmitBtn" onclick="submitUpload()">Upload Document</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Visibility Modal -->
+<div id="visibilityModal" class="admin-modal-overlay" style="display:none;">
+  <div class="admin-modal" style="max-width:420px;">
+    <div class="admin-modal-header">
+      <div class="admin-modal-title">Edit Document Visibility</div>
+      <button class="admin-modal-close" onclick="closeVisibilityModal()">✕</button>
+    </div>
+    <div class="admin-modal-body">
+      <p style="font-size:13px;color:#475569;margin:0 0 16px;">Choose who can see this document in their portal.</p>
+      <div class="admin-form-group">
+        <label class="admin-form-label">Visibility</label>
+        <select class="admin-form-select" id="editVisibilitySelect">
+          <option value="client">Client Visible</option>
+          <option value="internal">Internal Only</option>
+          <option value="both">Both</option>
+        </select>
+      </div>
+    </div>
+    <div class="admin-modal-footer">
+      <button class="btn-secondary-outline" onclick="closeVisibilityModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveVisibility()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script>
+// ─── SESSION ─────────────────────────────────────────────────────────────────
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let _allDocs       = [];
+let _filteredDocs  = [];
+let _customers     = [];
+let _properties    = [];
+let _selectedDocId = null;
+let _currentPage   = 1;
+const PAGE_SIZE    = 20;
+let _viewMode      = 'table';
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  renderAdminSidebar('admin-documents');
+  document.getElementById('topbarAvatar').textContent = ADMIN_SESSION.initials;
+  // Init date clear button as hidden
+  const clBtn = document.getElementById('docsDateClearBtn');
+  if (clBtn) clBtn.style.visibility = 'hidden';
+  await loadData();
+
+  // URL params
+  const p = new URLSearchParams(window.location.search);
+  const docId = p.get('docId');
+  if (docId) openDocDetail(docId);
+});
+
+async function loadData() {
+  const [docsRes, custRes, propRes] = await Promise.all([
+    empApiGetAll('documents'),
+    empApiGetAll('customers'),
+    empApiGetAll('properties'),
+  ]);
+
+  _allDocs      = docsRes.data  || [];
+  _customers    = custRes.data  || [];
+  _properties   = propRes.data  || [];
+
+  // Enrich docs
+  _allDocs = _allDocs.map(d => ({
+    ...d,
+    _customer: _customers.find(c => c.id === d.customer_id) || null,
+    _property: _properties.find(p => p.id === d.property_id) || null,
+  }));
+
+  // Sort by upload date desc
+  _allDocs.sort((a,b) => new Date(b.uploaded_at || b.created_at || 0) - new Date(a.uploaded_at || a.created_at || 0));
+
+  updateStats();
+  populateCustomerFilter();
+  populateUploadCustomerDropdown();
+  filterDocs();
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function updateStats() {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  document.getElementById('statTotal').textContent     = _allDocs.length;
+  document.getElementById('statUnread').textContent    = _allDocs.filter(d => d.read_status === 'unread').length;
+  document.getElementById('statRecent').textContent    = _allDocs.filter(d => new Date(d.uploaded_at || d.created_at || 0) >= monthStart).length;
+  document.getElementById('statReports').textContent   = _allDocs.filter(d => d.document_type === 'inspection_report').length;
+
+  const propIds = new Set(_allDocs.map(d => d.property_id).filter(Boolean));
+  document.getElementById('statProperties').textContent = propIds.size;
+
+  const total = _allDocs.length;
+  document.getElementById('docsBannerSub').textContent =
+    `${total} document${total !== 1 ? 's' : ''} across ${_customers.length} customers and ${_properties.length} properties.`;
+}
+
+// ─── FILTERS ─────────────────────────────────────────────────────────────────
+function populateCustomerFilter() {
+  const sel = document.getElementById('filterCustomer');
+  const existing = sel.options[0];
+  sel.innerHTML = '';
+  sel.appendChild(existing);
+  _customers.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.full_name || c.company_name || '—';
+    sel.appendChild(opt);
+  });
+}
+
+function filterDocs() {
+  const q        = (document.getElementById('docsSearch').value || '').toLowerCase();
+  const cust     = document.getElementById('filterCustomer').value;
+  const type     = document.getElementById('filterType').value;
+  const vis      = document.getElementById('filterVisibility').value;
+  const stat     = document.getElementById('filterStatus').value;
+  const dateFrom = document.getElementById('docsDateFrom').value;
+  const dateTo   = document.getElementById('docsDateTo').value;
+
+  // Show/hide the clear button
+  const clearBtn = document.getElementById('docsDateClearBtn');
+  if (clearBtn) clearBtn.style.visibility = (dateFrom || dateTo) ? 'visible' : 'hidden';
+
+  _filteredDocs = _allDocs.filter(d => {
+    const name     = (d.document_title || d.file_name || '').toLowerCase();
+    const custName = (d._customer?.full_name || d._customer?.company_name || '').toLowerCase();
+    const propName = (d._property?.property_name || '').toLowerCase();
+    const docDate  = d.uploaded_at ? d.uploaded_at.slice(0, 10) : (d.created_at ? d.created_at.slice(0, 10) : '');
+
+    const matchQ    = !q    || name.includes(q) || custName.includes(q) || propName.includes(q);
+    const matchCust = !cust || d.customer_id === cust;
+    const matchType = !type || d.document_type === type;
+    const matchVis  = !vis  || d.visibility === vis;
+    const matchStat = !stat || d.read_status === stat;
+    const matchFrom = !dateFrom || docDate >= dateFrom;
+    const matchTo   = !dateTo   || docDate <= dateTo;
+    return matchQ && matchCust && matchType && matchVis && matchStat && matchFrom && matchTo;
+  });
+
+  _currentPage = 1;
+  document.getElementById('docsCount').textContent = `${_filteredDocs.length} document${_filteredDocs.length !== 1 ? 's' : ''}`;
+  renderDocs();
+}
+
+function clearDateRange() {
+  document.getElementById('docsDateFrom').value = '';
+  document.getElementById('docsDateTo').value = '';
+  filterDocs();
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderDocs() {
+  if (_viewMode === 'table') renderTableView();
+  else renderGridView();
+  renderPagination();
+}
+
+function getPageDocs() {
+  const start = (_currentPage - 1) * PAGE_SIZE;
+  return _filteredDocs.slice(start, start + PAGE_SIZE);
+}
+
+function renderTableView() {
+  const tbody = document.getElementById('docsTableBody');
+  const mobileCards = document.getElementById('docsMobileCards');
+  const docs  = getPageDocs();
+
+  if (!docs.length) {
+    tbody.innerHTML = `
+      <tr><td colspan="6">
+        <div style="padding:40px;text-align:center;color:#94a3b8;">
+          <div style="font-size:32px;margin-bottom:12px;">📂</div>
+          <div style="font-size:15px;font-weight:600;color:#475569;margin-bottom:4px;">No documents found</div>
+          <div style="font-size:13px;">Try adjusting your filters or upload a document.</div>
+        </div>
+      </td></tr>`;
+    if (mobileCards) mobileCards.innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = docs.map(d => {
+    const title    = d.document_title || d.file_name || 'Untitled Document';
+    const custName = d._customer ? (d._customer.full_name || d._customer.company_name || '—') : '—';
+    const propName = d._property ? (d._property.property_name || '—') : '—';
+    const ext      = getFileExt(d.file_name || d.file_url || '');
+    const typeLabel = FMT.snakeToTitle(d.document_type || 'other');
+    const vis      = d.visibility || 'client';
+    const isUnread = d.read_status === 'unread';
+    const uploadDate = FMT.date(d.uploaded_at || d.created_at);
+
+    return `
+      <tr class="${isUnread ? 'doc-unread' : ''}" onclick="openDocDetail('${d.id}')">
+        <td>
+          <div class="doc-name-cell">
+            <div class="doc-type-icon ${extClass(ext)}">${ext || 'FILE'}</div>
+            <div>
+              <div class="doc-name-text">${escHtml(title)}${isUnread ? ' <span style="color:#162d56;font-size:11px;font-weight:600;">● NEW</span>' : ''}</div>
+              <div class="doc-name-sub">${escHtml(d.file_name || '')}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div style="font-weight:600;color:#0f1e38;">${escHtml(custName)}</div>
+          <div style="font-size:12px;color:#94a3b8;">${escHtml(propName)}</div>
+        </td>
+        <td><span class="tbl-status scheduled">${typeLabel}</span></td>
+        <td>
+          <span class="doc-visibility-badge ${vis}">
+            ${vis === 'client' ? '👤 Client' : vis === 'internal' ? '🔒 Internal' : '🌐 Both'}
+          </span>
+        </td>
+        <td style="color:#64748b;font-size:12px;">${uploadDate}</td>
+        <td>
+          <div class="cell-actions">
+            <button class="tbl-action-btn" onclick="event.stopPropagation();openDocDetail('${d.id}')">View</button>
+            <button class="tbl-action-btn" onclick="event.stopPropagation();editDocVisibilityById('${d.id}')">Visibility</button>
+            <button class="tbl-action-btn danger" onclick="event.stopPropagation();deleteDocById('${d.id}')">Delete</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+
+  // ── Mobile cards ──────────────────────────────────────────────────────────
+  if (mobileCards) {
+    mobileCards.innerHTML = docs.map(d => {
+      const title    = d.document_title || d.file_name || 'Untitled Document';
+      const custName = d._customer ? (d._customer.full_name || d._customer.company_name || '—') : '—';
+      const propName = d._property ? (d._property.property_name || '—') : '—';
+      const ext      = getFileExt(d.file_name || d.file_url || '');
+      const typeLabel = FMT.snakeToTitle(d.document_type || 'other');
+      const vis      = d.visibility || 'client';
+      const visLabel = vis === 'client' ? '👤 Client' : vis === 'internal' ? '🔒 Internal' : '🌐 Both';
+      const isUnread = d.read_status === 'unread';
+      const uploadDate = FMT.date(d.uploaded_at || d.created_at);
+      return `
+        <div class="admin-mobile-card" onclick="openDocDetail('${d.id}')" style="cursor:pointer;${isUnread ? 'border-top:3px solid #162d56;' : ''}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+              <div class="doc-type-icon ${extClass(ext)}" style="flex-shrink:0;">${ext || 'FILE'}</div>
+              <div style="min-width:0;">
+                <div style="font-size:13px;font-weight:700;color:#0f1e38;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                  ${escHtml(title)}${isUnread ? ' <span style="color:#162d56;font-size:10px;font-weight:700;">● NEW</span>' : ''}
+                </div>
+                <div style="font-size:11px;color:#94a3b8;margin-top:1px;">${escHtml(d.file_name || '')}</div>
+              </div>
+            </div>
+            <span class="doc-visibility-badge ${vis}" style="flex-shrink:0;">${visLabel}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;margin-top:10px;">
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#475569;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              ${escHtml(custName)}
+              ${propName !== '—' ? `<span style="color:#94a3b8;">· ${escHtml(propName)}</span>` : ''}
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span class="tbl-status scheduled" style="font-size:11px;">${typeLabel}</span>
+              <span style="font-size:11px;color:#64748b;">Uploaded ${uploadDate}</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;" onclick="event.stopPropagation()">
+            <button class="tbl-action-btn" style="flex:1;justify-content:center;" onclick="openDocDetail('${d.id}')">View</button>
+            <button class="tbl-action-btn" style="flex:1;justify-content:center;" onclick="editDocVisibilityById('${d.id}')">Visibility</button>
+            <button class="tbl-action-btn danger" style="flex:1;justify-content:center;" onclick="deleteDocById('${d.id}')">Delete</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+}
+
+function renderGridView() {
+  const grid = document.getElementById('docsGrid');
+  const docs = getPageDocs();
+
+  if (!docs.length) {
+    grid.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8;">
+        <div style="font-size:32px;margin-bottom:12px;">📂</div>
+        <div style="font-size:15px;font-weight:600;color:#475569;">No documents found</div>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = docs.map(d => {
+    const title    = d.document_title || d.file_name || 'Untitled';
+    const custName = d._customer ? (d._customer.full_name || d._customer.company_name || '—') : '—';
+    const ext      = getFileExt(d.file_name || d.file_url || '');
+    const isUnread = d.read_status === 'unread';
+
+    return `
+      <div onclick="openDocDetail('${d.id}')" style="
+        background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;
+        cursor:pointer;transition:all .2s;
+        ${isUnread ? 'border-top:3px solid #162d56;' : ''}
+      " onmouseover="this.style.boxShadow='0 4px 16px rgba(22,45,86,.1)'"
+         onmouseout="this.style.boxShadow='none'">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div class="doc-type-icon ${extClass(ext)}" style="width:44px;height:50px;font-size:11px;">${ext||'FILE'}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:600;color:#0f1e38;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(title)}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px;">${escHtml(custName)}</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#94a3b8;">
+          <span>${FMT.snakeToTitle(d.document_type || 'other')}</span>
+          <span>${FMT.date(d.uploaded_at || d.created_at)}</span>
+        </div>
+        ${isUnread ? '<div style="margin-top:8px;font-size:10px;font-weight:700;color:#162d56;">● NOT VIEWED</div>' : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderPagination() {
+  const total = _filteredDocs.length;
+  const pages = Math.ceil(total / PAGE_SIZE);
+  const el    = document.getElementById('docsPagination');
+
+  if (pages <= 1) { el.innerHTML = ''; return; }
+
+  const start = (_currentPage - 1) * PAGE_SIZE + 1;
+  const end   = Math.min(_currentPage * PAGE_SIZE, total);
+
+  let btns = '';
+  for (let i = 1; i <= pages; i++) {
+    if (i === 1 || i === pages || Math.abs(i - _currentPage) <= 1) {
+      btns += `<button class="docs-page-btn${i === _currentPage ? ' active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+    } else if (Math.abs(i - _currentPage) === 2) {
+      btns += `<span style="padding:0 4px;color:#94a3b8;">…</span>`;
+    }
+  }
+
+  el.innerHTML = `
+    <div style="font-size:13px;color:#64748b;">Showing ${start}–${end} of ${total}</div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button class="docs-page-btn" onclick="goToPage(${_currentPage-1})" ${_currentPage<=1?'disabled':''}>‹</button>
+      ${btns}
+      <button class="docs-page-btn" onclick="goToPage(${_currentPage+1})" ${_currentPage>=pages?'disabled':''}>›</button>
+    </div>`;
+}
+
+function goToPage(p) {
+  const pages = Math.ceil(_filteredDocs.length / PAGE_SIZE);
+  if (p < 1 || p > pages) return;
+  _currentPage = p;
+  renderDocs();
+  document.querySelector('.docs-table-outer')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function setView(mode) {
+  _viewMode = mode;
+  document.getElementById('docsTableView').style.display = mode === 'table' ? 'block' : 'none';
+  document.getElementById('docsGridView').style.display  = mode === 'grid'  ? 'block' : 'none';
+  document.getElementById('viewTableBtn').style.background = mode === 'table' ? '#e8eef8' : '';
+  document.getElementById('viewTableBtn').style.borderColor = mode === 'table' ? '#c0d0ea' : '';
+  document.getElementById('viewTableBtn').style.color = mode === 'table' ? '#162d56' : '';
+  document.getElementById('viewGridBtn').style.background = mode === 'grid' ? '#e8eef8' : '';
+  document.getElementById('viewGridBtn').style.borderColor = mode === 'grid' ? '#c0d0ea' : '';
+  document.getElementById('viewGridBtn').style.color = mode === 'grid' ? '#162d56' : '';
+  renderDocs();
+}
+
+// ─── DOCUMENT DETAIL ──────────────────────────────────────────────────────────
+function openDocDetail(docId) {
+  const doc = _allDocs.find(d => d.id === docId);
+  if (!doc) return;
+  _selectedDocId = docId;
+
+  const title    = doc.document_title || doc.file_name || 'Untitled Document';
+  const custName = doc._customer ? (doc._customer.full_name || doc._customer.company_name || '—') : '—';
+  const propName = doc._property ? (doc._property.property_name || '—') : '—';
+  const vis      = doc.visibility || 'client';
+  const ext      = getFileExt(doc.file_name || doc.file_url || '');
+
+  document.getElementById('detailDocName').textContent = title;
+  document.getElementById('detailDocSub').textContent  = `${FMT.snakeToTitle(doc.document_type || 'other')} · ${custName}`;
+
+  document.getElementById('docDetailBody').innerHTML = `
+    <div class="doc-detail-section">
+      <div style="display:flex;justify-content:center;margin-bottom:20px;">
+        <div class="doc-type-icon ${extClass(ext)}" style="width:64px;height:74px;font-size:14px;border-radius:10px;">${ext||'FILE'}</div>
+      </div>
+      <div class="doc-detail-section-title">Document Details</div>
+      ${detailRow('Title', title)}
+      ${detailRow('File', doc.file_name || '—')}
+      ${detailRow('Type', FMT.snakeToTitle(doc.document_type || 'other'))}
+      ${detailRow('Visibility', vis === 'client' ? '👤 Client Visible' : vis === 'internal' ? '🔒 Internal Only' : '🌐 Both')}
+      ${detailRow('Status', doc.read_status === 'unread' ? '● Not viewed by client' : '✓ Viewed by client')}
+    </div>
+    <div class="doc-detail-section">
+      <div class="doc-detail-section-title">Customer & Property</div>
+      ${detailRow('Customer', custName)}
+      ${detailRow('Property', propName)}
+    </div>
+    <div class="doc-detail-section">
+      <div class="doc-detail-section-title">Timeline</div>
+      ${detailRow('Uploaded', FMT.dateTime(doc.uploaded_at || doc.created_at))}
+      ${detailRow('Uploaded By', doc.uploaded_by_name || ADMIN_SESSION.name)}
+      ${doc.description ? detailRow('Notes', doc.description) : ''}
+    </div>`;
+
+  document.getElementById('docDetailOverlay').classList.add('open');
+
+  // Mark as read if unread
+  if (doc.read_status === 'unread') {
+    empApiPatch('documents', docId, { read_status: 'read' }).then(() => {
+      const idx = _allDocs.findIndex(d => d.id === docId);
+      if (idx !== -1) _allDocs[idx].read_status = 'read';
+      updateStats();
+    });
+  }
+}
+
+function detailRow(key, val) {
+  return `
+    <div class="doc-detail-row">
+      <span class="doc-detail-key">${key}</span>
+      <span class="doc-detail-value">${escHtml(String(val))}</span>
+    </div>`;
+}
+
+function closeDocDetail(e) {
+  if (e && e.target !== document.getElementById('docDetailOverlay')) return;
+  document.getElementById('docDetailOverlay').classList.remove('open');
+  _selectedDocId = null;
+}
+
+function downloadDoc() {
+  const doc = _allDocs.find(d => d.id === _selectedDocId);
+  if (!doc) return;
+  if (doc.file_url) {
+    window.open(doc.file_url, '_blank');
+  } else {
+    showToast('No download URL available for this document.', 'info');
+  }
+}
+
+function editDocVisibility() {
+  if (!_selectedDocId) return;
+  const doc = _allDocs.find(d => d.id === _selectedDocId);
+  if (!doc) return;
+  document.getElementById('editVisibilitySelect').value = doc.visibility || 'client';
+  document.getElementById('visibilityModal').style.display = 'flex';
+}
+
+function editDocVisibilityById(docId) {
+  _selectedDocId = docId;
+  const doc = _allDocs.find(d => d.id === docId);
+  if (!doc) return;
+  document.getElementById('editVisibilitySelect').value = doc.visibility || 'client';
+  document.getElementById('visibilityModal').style.display = 'flex';
+}
+
+function closeVisibilityModal() {
+  document.getElementById('visibilityModal').style.display = 'none';
+}
+
+async function saveVisibility() {
+  if (!_selectedDocId) return;
+  const vis = document.getElementById('editVisibilitySelect').value;
+  try {
+    await empApiPatch('documents', _selectedDocId, { visibility: vis });
+    const idx = _allDocs.findIndex(d => d.id === _selectedDocId);
+    if (idx !== -1) _allDocs[idx].visibility = vis;
+    closeVisibilityModal();
+    filterDocs();
+    showToast('Visibility updated.', 'success');
+  } catch (err) {
+    showToast('Failed to update visibility.', 'error');
+  }
+}
+
+async function deleteDocById(docId) {
+  if (!confirm('Delete this document? This cannot be undone.')) return;
+  try {
+    await empApiDelete('documents', docId);
+    _allDocs = _allDocs.filter(d => d.id !== docId);
+    updateStats();
+    filterDocs();
+    showToast('Document deleted.', 'success');
+    if (_selectedDocId === docId) {
+      document.getElementById('docDetailOverlay').classList.remove('open');
+      _selectedDocId = null;
+    }
+  } catch (err) {
+    showToast('Failed to delete document.', 'error');
+  }
+}
+
+function deleteDoc() {
+  if (_selectedDocId) deleteDocById(_selectedDocId);
+}
+
+// ─── UPLOAD MODAL ─────────────────────────────────────────────────────────────
+let _pendingFiles = [];
+
+function openUploadModal() {
+  _pendingFiles = [];
+  document.getElementById('uploadModal').style.display = 'flex';
+  document.getElementById('selectedFilesLabel').textContent = '';
+  document.getElementById('uploadTitle').value = '';
+  document.getElementById('uploadNotes').value = '';
+  document.getElementById('fileInput').value = '';
+}
+
+function closeUploadModal() {
+  document.getElementById('uploadModal').style.display = 'none';
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('uploadDropZone').classList.add('drag-over');
+}
+function handleDragLeave(e) {
+  document.getElementById('uploadDropZone').classList.remove('drag-over');
+}
+function handleFileDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadDropZone').classList.remove('drag-over');
+  _pendingFiles = Array.from(e.dataTransfer.files);
+  updateFileLabel();
+}
+function handleFileSelect(e) {
+  _pendingFiles = Array.from(e.target.files);
+  updateFileLabel();
+}
+function updateFileLabel() {
+  const lbl = document.getElementById('selectedFilesLabel');
+  if (_pendingFiles.length === 0) { lbl.textContent = ''; return; }
+  lbl.textContent = _pendingFiles.length === 1
+    ? `Selected: ${_pendingFiles[0].name}`
+    : `Selected: ${_pendingFiles.length} files`;
+}
+
+function populateUploadCustomerDropdown() {
+  const sel = document.getElementById('uploadCustomer');
+  sel.innerHTML = '<option value="">Select customer…</option>';
+  _customers.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.full_name || c.company_name || '—';
+    sel.appendChild(opt);
+  });
+}
+
+function loadPropertiesForCustomer() {
+  const custId = document.getElementById('uploadCustomer').value;
+  const sel    = document.getElementById('uploadProperty');
+  const props  = _properties.filter(p => p.customer_id === custId || p.owner_customer_id === custId);
+  sel.innerHTML = '<option value="">All properties / General</option>';
+  props.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.property_name || p.address_line1 || '—';
+    sel.appendChild(opt);
+  });
+}
+
+async function submitUpload() {
+  const custId  = document.getElementById('uploadCustomer').value;
+  const propId  = document.getElementById('uploadProperty').value;
+  const type    = document.getElementById('uploadType').value;
+  const vis     = document.getElementById('uploadVisibility').value;
+  const title   = document.getElementById('uploadTitle').value.trim();
+  const notes   = document.getElementById('uploadNotes').value.trim();
+
+  if (!custId) { showToast('Please select a customer.', 'error'); return; }
+
+  const customer = _customers.find(c => c.id === custId);
+  const property = _properties.find(p => p.id === propId);
+
+  // Simulate file upload (in production would upload to file storage)
+  const fileNames = _pendingFiles.length
+    ? _pendingFiles.map(f => f.name)
+    : ['document.pdf'];
+
+  const btn = document.getElementById('uploadSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Uploading…';
+
+  try {
+    for (const fileName of fileNames) {
+      await empApiPost('documents', {
+        document_title: title || fileName,
+        file_name: fileName,
+        file_url: null, // would be set by file storage service
+        document_type: type,
+        visibility: vis,
+        customer_id: custId,
+        customer_name: customer?.full_name || customer?.company_name || '',
+        property_id: propId || null,
+        property_name: property?.property_name || null,
+        uploaded_by_id: ADMIN_SESSION.userId,
+        uploaded_by_name: ADMIN_SESSION.name,
+        uploaded_at: new Date().toISOString(),
+        read_status: 'unread',
+        description: notes,
+      });
+    }
+    showToast(`${fileNames.length} document${fileNames.length !== 1 ? 's' : ''} uploaded successfully.`, 'success');
+    closeUploadModal();
+    await loadData();
+  } catch (err) {
+    showToast('Upload failed. Please try again.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Upload Document';
+  }
+}
+
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
+function exportDocumentList() {
+  const rows = [['Title','Type','Customer','Property','Visibility','Status','Uploaded']];
+  _filteredDocs.forEach(d => {
+    rows.push([
+      d.document_title || d.file_name || '',
+      FMT.snakeToTitle(d.document_type || ''),
+      d._customer?.full_name || d._customer?.company_name || '',
+      d._property?.property_name || '',
+      d.visibility || '',
+      d.read_status || '',
+      FMT.date(d.uploaded_at || d.created_at),
+    ]);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'documents-export.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Document list exported.', 'success');
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function getFileExt(name) {
+  const m = name.match(/\.([a-zA-Z0-9]+)$/);
+  return m ? m[1].toLowerCase() : '';
+}
+function extClass(ext) {
+  if (['pdf'].includes(ext)) return 'pdf';
+  if (['doc','docx'].includes(ext)) return 'docx';
+  if (['xls','xlsx','csv'].includes(ext)) return 'xlsx';
+  if (['jpg','jpeg','png','gif','webp','bmp'].includes(ext)) return 'img';
+  return 'other';
+}
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function empApiPatch(table, id, body) {
+  try {
+    const res = await fetch(`tables/${table}/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json();
+    return { data: json, error: null };
+  } catch (e) { return { data: null, error: e.message }; }
+}
+
+async function empApiDelete(table, id) {
+  try {
+    await fetch(`tables/${table}/${id}`, { method: 'DELETE' });
+    return { error: null };
+  } catch (e) { return { error: e.message }; }
+}
+</script>
+</body>
+</html>

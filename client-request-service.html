@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Request a Service — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/request-service.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+<div class="app-wrapper">
+
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar (rendered by JS) -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Client navigation"></aside>
+
+  <!-- ════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════ -->
+  <div class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Request a Service</span>
+          <span class="topbar-welcome">Schedule or request assistance from your Satellite Home Watch team</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-client-msg-trigger="client"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Messages"
+          type="button"
+          onclick="SHWClientMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span data-client-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="client"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <div class="topbar-avatar" onclick="window.location.href='client-account.html'" role="button" aria-label="My account">JM</div>
+      </div>
+    </header>
+
+    <!-- ════════════════════════════════════════
+         PAGE BODY
+    ════════════════════════════════════════ -->
+    <main class="dashboard-content">
+      <div class="rs-page">
+
+        <!-- ══════════════════════════════
+             PAGE HEADER
+        ══════════════════════════════ -->
+        <div class="rs-page-header">
+          <h1 class="rs-page-title">Request a Service</h1>
+          <p class="rs-page-subtitle">Schedule or request assistance from your Satellite Home Watch team</p>
+        </div>
+
+        <!-- ══════════════════════════════
+             TWO-COLUMN LAYOUT
+        ══════════════════════════════ -->
+        <div class="rs-layout">
+
+          <!-- ════════════════════════
+               LEFT — REQUEST FORM
+          ════════════════════════ -->
+          <div class="rs-form-panel">
+
+            <!-- Helper Banner -->
+            <div class="rs-helper-banner" role="note">
+              <div class="rs-helper-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+              </div>
+              <div class="rs-helper-text">
+                <p class="rs-helper-title">Need something checked while you're away?</p>
+                <p class="rs-helper-desc">Send a request directly to your Satellite Home Watch team. We'll review it promptly and keep you updated every step of the way.</p>
+              </div>
+            </div>
+
+            <!-- ── Success Toast (shown after submit) ── -->
+            <div class="rs-toast" id="rsToast" role="alert" aria-live="polite">
+              <div class="rs-toast-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <div class="rs-toast-body">
+                <p class="rs-toast-title">Request submitted successfully!</p>
+                <p class="rs-toast-desc">Your team has been notified and will respond within 12 hours.</p>
+              </div>
+            </div>
+
+            <!-- ── Main Form Card ── -->
+            <div class="rs-form-card" id="rsFormCard">
+
+              <!-- ── 1. PROPERTY SELECTOR ── -->
+              <div class="rs-field-group">
+                <label class="rs-label" for="rsProperty">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                  Property
+                  <span class="rs-label-required">· required</span>
+                </label>
+                <select class="rs-select" id="rsProperty" aria-label="Select property" required>
+                  <option value="" disabled selected>Loading your properties…</option>
+                </select>
+                <p class="rs-field-hint">Select the property this request applies to.</p>
+              </div>
+
+              <hr class="rs-divider" />
+
+              <!-- ── 2. SERVICE TYPE ── -->
+              <div class="rs-field-group">
+                <label class="rs-label" id="rsServiceTypeLabel">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                  Service Type
+                  <span class="rs-label-required">· required</span>
+                </label>
+                <div class="rs-service-grid" role="group" aria-labelledby="rsServiceTypeLabel" id="rsServiceGrid">
+
+                  <div class="rs-service-card" role="button" tabindex="0" data-service="routine-inspection" aria-pressed="false" onclick="selectService(this)" onkeydown="if(event.key==='Enter'||event.key===' ')selectService(this)">
+                    <span class="rs-service-emoji" aria-hidden="true">🔍</span>
+                    <p class="rs-service-name">Routine Inspection</p>
+                    <div class="rs-service-check" aria-hidden="true">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+
+                  <div class="rs-service-card" role="button" tabindex="0" data-service="storm-prep" aria-pressed="false" onclick="selectService(this)" onkeydown="if(event.key==='Enter'||event.key===' ')selectService(this)">
+                    <span class="rs-service-emoji" aria-hidden="true">🌩️</span>
+                    <p class="rs-service-name">Storm Preparation</p>
+                    <div class="rs-service-check" aria-hidden="true">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+
+                  <div class="rs-service-card" role="button" tabindex="0" data-service="vendor-supervision" aria-pressed="false" onclick="selectService(this)" onkeydown="if(event.key==='Enter'||event.key===' ')selectService(this)">
+                    <span class="rs-service-emoji" aria-hidden="true">🔧</span>
+                    <p class="rs-service-name">Vendor Supervision</p>
+                    <div class="rs-service-check" aria-hidden="true">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+
+                  <div class="rs-service-card" role="button" tabindex="0" data-service="concierge" aria-pressed="false" onclick="selectService(this)" onkeydown="if(event.key==='Enter'||event.key===' ')selectService(this)">
+                    <span class="rs-service-emoji" aria-hidden="true">⭐</span>
+                    <p class="rs-service-name">Concierge Service</p>
+                    <div class="rs-service-check" aria-hidden="true">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+
+                  <div class="rs-service-card" role="button" tabindex="0" data-service="move-in" aria-pressed="false" onclick="selectService(this)" onkeydown="if(event.key==='Enter'||event.key===' ')selectService(this)">
+                    <span class="rs-service-emoji" aria-hidden="true">🏠</span>
+                    <p class="rs-service-name">Moving In Preparation</p>
+                    <div class="rs-service-check" aria-hidden="true">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+
+                  <div class="rs-service-card" role="button" tabindex="0" data-service="leaving-town" aria-pressed="false" onclick="selectService(this)" onkeydown="if(event.key==='Enter'||event.key===' ')selectService(this)">
+                    <span class="rs-service-emoji" aria-hidden="true">✈️</span>
+                    <p class="rs-service-name">Leaving Town Check</p>
+                    <div class="rs-service-check" aria-hidden="true">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+
+                  <div class="rs-service-card" role="button" tabindex="0" data-service="other" aria-pressed="false" onclick="selectService(this)" onkeydown="if(event.key==='Enter'||event.key===' ')selectService(this)">
+                    <span class="rs-service-emoji" aria-hidden="true">💬</span>
+                    <p class="rs-service-name">Other</p>
+                    <div class="rs-service-check" aria-hidden="true">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <hr class="rs-divider" />
+
+              <!-- ── 3. URGENCY LEVEL ── -->
+              <div class="rs-field-group">
+                <label class="rs-label" id="rsUrgencyLabel">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  Urgency Level
+                </label>
+                <div class="rs-urgency-group" role="group" aria-labelledby="rsUrgencyLabel" id="rsUrgencyGroup">
+                  <button type="button" class="rs-urgency-btn normal selected" data-urgency="normal" onclick="selectUrgency(this)" aria-pressed="true">
+                    <span class="rs-urgency-dot" aria-hidden="true"></span>
+                    Normal
+                  </button>
+                  <button type="button" class="rs-urgency-btn important" data-urgency="important" onclick="selectUrgency(this)" aria-pressed="false">
+                    <span class="rs-urgency-dot" aria-hidden="true"></span>
+                    Important
+                  </button>
+                  <button type="button" class="rs-urgency-btn urgent" data-urgency="urgent" onclick="selectUrgency(this)" aria-pressed="false">
+                    <span class="rs-urgency-dot" aria-hidden="true"></span>
+                    Urgent
+                  </button>
+                </div>
+              </div>
+
+              <hr class="rs-divider" />
+
+              <!-- ── 4. PREFERRED TIMING ── -->
+              <div class="rs-field-group">
+                <label class="rs-label" id="rsTimingLabel">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Preferred Timing
+                </label>
+                <div class="rs-timing-options" role="radiogroup" aria-labelledby="rsTimingLabel" id="rsTimingGroup">
+
+                  <div class="rs-timing-option selected" role="radio" tabindex="0" data-timing="asap" aria-checked="true" onclick="selectTiming(this)" onkeydown="if(event.key==='Enter'||event.key===' ')selectTiming(this)">
+                    <div class="rs-timing-radio" aria-hidden="true">
+                      <div class="rs-timing-radio-dot"></div>
+                    </div>
+                    <span class="rs-timing-icon" aria-hidden="true">⚡</span>
+                    <span class="rs-timing-label">As soon as possible</span>
+                  </div>
+
+                  <div class="rs-timing-option" role="radio" tabindex="0" data-timing="this-week" aria-checked="false" onclick="selectTiming(this)" onkeydown="if(event.key==='Enter'||event.key===' ')selectTiming(this)">
+                    <div class="rs-timing-radio" aria-hidden="true">
+                      <div class="rs-timing-radio-dot"></div>
+                    </div>
+                    <span class="rs-timing-icon" aria-hidden="true">📅</span>
+                    <span class="rs-timing-label">This week</span>
+                  </div>
+
+                  <div class="rs-timing-option" role="radio" tabindex="0" data-timing="specific-date" aria-checked="false" onclick="selectTiming(this)" onkeydown="if(event.key==='Enter'||event.key===' ')selectTiming(this)">
+                    <div class="rs-timing-radio" aria-hidden="true">
+                      <div class="rs-timing-radio-dot"></div>
+                    </div>
+                    <span class="rs-timing-icon" aria-hidden="true">🗓️</span>
+                    <span class="rs-timing-label">Select a specific date</span>
+                  </div>
+
+                  <div class="rs-timing-option" role="radio" tabindex="0" data-timing="flexible" aria-checked="false" onclick="selectTiming(this)" onkeydown="if(event.key==='Enter'||event.key===' ')selectTiming(this)">
+                    <div class="rs-timing-radio" aria-hidden="true">
+                      <div class="rs-timing-radio-dot"></div>
+                    </div>
+                    <span class="rs-timing-icon" aria-hidden="true">🌿</span>
+                    <span class="rs-timing-label">Flexible</span>
+                  </div>
+
+                </div>
+
+                <!-- Date picker — revealed when "specific date" is chosen -->
+                <div class="rs-date-picker-wrap" id="rsDatePickerWrap">
+                  <input
+                    type="date"
+                    class="rs-date-input"
+                    id="rsDateInput"
+                    aria-label="Select preferred date"
+                  />
+                </div>
+              </div>
+
+              <hr class="rs-divider" />
+
+              <!-- ── 5. REQUEST DETAILS ── -->
+              <div class="rs-field-group">
+                <label class="rs-label" for="rsDetails">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <line x1="17" y1="10" x2="3" y2="10"/>
+                    <line x1="21" y1="6" x2="3" y2="6"/>
+                    <line x1="21" y1="14" x2="3" y2="14"/>
+                    <line x1="17" y1="18" x2="3" y2="18"/>
+                  </svg>
+                  Request Details
+                </label>
+                <textarea
+                  class="rs-textarea"
+                  id="rsDetails"
+                  placeholder="Describe what you would like us to check or assist with…&#10;&#10;You may include vendor information, gate codes, areas of concern, or any special instructions."
+                  aria-label="Describe your request"
+                  rows="6"
+                ></textarea>
+                <p class="rs-field-hint">Include as much detail as possible — vendor info, gate codes, specific concerns, or areas to focus on.</p>
+              </div>
+
+              <hr class="rs-divider" />
+
+              <!-- ── 6. FILE ATTACHMENTS ── -->
+              <div class="rs-field-group">
+                <label class="rs-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+                  </svg>
+                  Attachments
+                  <span class="rs-label-required">· optional</span>
+                </label>
+                <div class="rs-attach-row">
+                  <button type="button" class="rs-attach-btn" onclick="handleAttachImage()" aria-label="Attach image">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                    Attach Image
+                  </button>
+                  <button type="button" class="rs-attach-btn" onclick="handleAttachFile()" aria-label="Attach file">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="12" y1="18" x2="12" y2="12"/>
+                      <line x1="9" y1="15" x2="15" y2="15"/>
+                    </svg>
+                    Attach File
+                  </button>
+                </div>
+                <p class="rs-attach-note">Supported: JPG, PNG, PDF, DOC · Max 10MB per file</p>
+              </div>
+
+              <!-- ── 7. SUBMIT ── -->
+              <div class="rs-submit-section">
+                <button type="button" class="rs-submit-btn" id="rsSubmitBtn" onclick="handleSubmit()" aria-label="Submit service request">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                  </svg>
+                  Submit Request
+                </button>
+                <div class="rs-submit-helper" aria-live="polite">
+                  <p><strong>Our team receives your request immediately.</strong></p>
+                  <p>We may take up to 12 hours to respond during busy periods.</p>
+                </div>
+              </div>
+
+            </div><!-- /.rs-form-card -->
+          </div><!-- /.rs-form-panel -->
+
+          <!-- ════════════════════════
+               RIGHT — VIDEO PANEL
+          ════════════════════════ -->
+          <div class="rs-right-panel">
+
+            <!-- Video Card -->
+            <div class="rs-video-card">
+              <div class="rs-video-header">
+                <h2 class="rs-video-title">How Service Requests Work</h2>
+                <p class="rs-video-subtitle">A quick walkthrough of the request process</p>
+              </div>
+
+              <!-- How Service Requests Work video -->
+              <div class="rs-video-placeholder" role="img" aria-label="Video: How service requests work — click to play" title="How Service Requests Work">
+                <div class="rs-video-play-wrap">
+                  <div class="rs-video-play-btn" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white" stroke="none">
+                      <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                  </div>
+                  <span class="rs-video-duration">2:45</span>
+                </div>
+                <div class="rs-video-label">How Service Requests Work · Satellite Home Watch</div>
+              </div>
+
+              <!-- Video explanation -->
+              <div class="rs-video-body">
+                <p class="rs-video-desc">
+                  Submit requests for inspections, vendor visits, or property concerns directly through this page.
+                  Our team reviews every request and schedules the appropriate action.
+                </p>
+                <div class="rs-video-note" role="note">
+                  <svg class="rs-video-note-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  <p class="rs-video-note-text">Typical response time: within 12 hours during operations.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reassurance Card -->
+            <div class="rs-reassurance-card" role="complementary" aria-label="What to expect">
+              <p class="rs-reassurance-title">What happens after you submit</p>
+              <ul class="rs-reassurance-list">
+                <li class="rs-reassurance-item">
+                  <span class="rs-reassurance-dot" aria-hidden="true"></span>
+                  Your team is notified immediately and your request is logged.
+                </li>
+                <li class="rs-reassurance-item">
+                  <span class="rs-reassurance-dot" aria-hidden="true"></span>
+                  A coordinator reviews the details and confirms scheduling.
+                </li>
+                <li class="rs-reassurance-item">
+                  <span class="rs-reassurance-dot" aria-hidden="true"></span>
+                  You'll receive a confirmation message with your visit details.
+                </li>
+                <li class="rs-reassurance-item">
+                  <span class="rs-reassurance-dot" aria-hidden="true"></span>
+                  After the visit, a report is posted to your Documents page.
+                </li>
+              </ul>
+            </div>
+
+          </div><!-- /.rs-right-panel -->
+
+        </div><!-- /.rs-layout -->
+      </div><!-- /.rs-page -->
+    </main>
+  </div><!-- /.main-content -->
+</div><!-- /.app-wrapper -->
+
+<script src="js/nav.js"></script>
+<script src="js/app.js"></script>
+<script src="js/sidebar.js"></script>
+<script>renderSidebar('request-service');</script>
+
+<script>
+/* =====================================================
+   Request a Service — UI interactions
+===================================================== */
+
+// ── Load properties from API ──
+document.addEventListener('DOMContentLoaded', async () => {
+  const sel = document.getElementById('rsProperty');
+  try {
+    const res = await fetch('tables/properties?limit=50');
+    if (res.ok) {
+      const json = await res.json();
+      const props = (json.data || []);
+      sel.innerHTML = '<option value="" disabled selected>Select a property\u2026</option>';
+      if (props.length === 0) {
+        sel.innerHTML = '<option value="" disabled selected>No properties on file</option>';
+      } else {
+        props.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.property_name || p.address || p.id;
+          sel.appendChild(opt);
+        });
+      }
+    } else {
+      sel.innerHTML = '<option value="" disabled selected>Select a property\u2026</option>';
+    }
+  } catch(e) {
+    sel.innerHTML = '<option value="" disabled selected>Select a property\u2026</option>';
+  }
+});
+
+// ── Service Type Selection ──
+function selectService(card) {
+  const grid = document.getElementById('rsServiceGrid');
+  const cards = grid.querySelectorAll('.rs-service-card');
+  cards.forEach(c => {
+    c.classList.remove('selected');
+    c.setAttribute('aria-pressed', 'false');
+  });
+  card.classList.add('selected');
+  card.setAttribute('aria-pressed', 'true');
+}
+
+// ── Urgency Selection ──
+function selectUrgency(btn) {
+  const group = document.getElementById('rsUrgencyGroup');
+  const btns = group.querySelectorAll('.rs-urgency-btn');
+  btns.forEach(b => {
+    b.classList.remove('selected');
+    b.setAttribute('aria-pressed', 'false');
+  });
+  btn.classList.add('selected');
+  btn.setAttribute('aria-pressed', 'true');
+}
+
+// ── Timing Selection ──
+function selectTiming(option) {
+  const group = document.getElementById('rsTimingGroup');
+  const options = group.querySelectorAll('.rs-timing-option');
+  options.forEach(o => {
+    o.classList.remove('selected');
+    o.setAttribute('aria-checked', 'false');
+  });
+  option.classList.add('selected');
+  option.setAttribute('aria-checked', 'true');
+
+  // Reveal date picker when "specific date" is chosen
+  const dateWrap = document.getElementById('rsDatePickerWrap');
+  const isSpecific = option.getAttribute('data-timing') === 'specific-date';
+  if (isSpecific) {
+    dateWrap.classList.add('visible');
+    // Set min date to today
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm   = String(today.getMonth() + 1).padStart(2, '0');
+    const dd   = String(today.getDate()).padStart(2, '0');
+    document.getElementById('rsDateInput').min = `${yyyy}-${mm}-${dd}`;
+    setTimeout(() => document.getElementById('rsDateInput').focus(), 50);
+  } else {
+    dateWrap.classList.remove('visible');
+  }
+}
+
+// ── Attachment handlers ──
+function handleAttachImage() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.style.display = 'none';
+  document.body.appendChild(input);
+  input.click();
+  input.addEventListener('change', () => {
+    if (input.files.length > 0) {
+      showAttachFeedback('Image attached: ' + input.files[0].name);
+    }
+    document.body.removeChild(input);
+  });
+}
+
+function handleAttachFile() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.pdf,.doc,.docx,.txt';
+  input.style.display = 'none';
+  document.body.appendChild(input);
+  input.click();
+  input.addEventListener('change', () => {
+    if (input.files.length > 0) {
+      showAttachFeedback('File attached: ' + input.files[0].name);
+    }
+    document.body.removeChild(input);
+  });
+}
+
+function showAttachFeedback(msg) {
+  const note = document.querySelector('.rs-attach-note');
+  const original = note.textContent;
+  note.textContent = '✓ ' + msg;
+  note.style.color = 'var(--status-completed-text)';
+  note.style.fontWeight = '600';
+  setTimeout(() => {
+    note.textContent = original;
+    note.style.color = '';
+    note.style.fontWeight = '';
+  }, 3500);
+}
+
+// ── Submit handler ──
+function handleSubmit() {
+  const property = document.getElementById('rsProperty').value;
+  const selectedService = document.querySelector('.rs-service-card.selected');
+  const details = document.getElementById('rsDetails').value.trim();
+
+  // Basic validation feedback
+  if (!property) {
+    pulseField(document.getElementById('rsProperty'));
+    document.getElementById('rsProperty').focus();
+    return;
+  }
+  if (!selectedService) {
+    const grid = document.getElementById('rsServiceGrid');
+    grid.style.transition = 'all 0.2s ease';
+    grid.style.outline = '2px solid var(--navy-300)';
+    grid.style.outlineOffset = '4px';
+    grid.style.borderRadius = '8px';
+    setTimeout(() => { grid.style.outline = ''; grid.style.outlineOffset = ''; }, 1200);
+    return;
+  }
+
+  // Simulate loading state
+  const btn = document.getElementById('rsSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = `
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 0.8s linear infinite">
+      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+    </svg>
+    Submitting…`;
+
+  setTimeout(() => {
+    // Show toast
+    const toast = document.getElementById('rsToast');
+    toast.classList.add('visible');
+    toast.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Reset button
+    btn.disabled = false;
+    btn.innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      Request Submitted`;
+    btn.style.background = 'var(--status-completed-text)';
+
+    // Auto-hide toast after 8 seconds
+    setTimeout(() => {
+      toast.classList.remove('visible');
+      // Reset button
+      btn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+        Submit Request`;
+      btn.style.background = '';
+    }, 8000);
+  }, 1200);
+}
+
+function pulseField(el) {
+  el.style.borderColor = 'var(--status-open-text)';
+  el.style.boxShadow = '0 0 0 3px rgba(185, 28, 28, 0.12)';
+  setTimeout(() => {
+    el.style.borderColor = '';
+    el.style.boxShadow = '';
+  }, 1500);
+}
+
+// ── Spin animation for loading state ──
+const spinStyle = document.createElement('style');
+spinStyle.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+document.head.appendChild(spinStyle);
+</script>
+
+<!-- ═══════════════════════════════════════════
+     BACKEND DATA LAYER
+════════════════════════════════════════════ -->
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/request-service-data.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/client-msg-panel.js"></script>
+
+</body>
+</html>

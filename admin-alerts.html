@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Alerts — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">All Alerts</span>
+          <span class="topbar-welcome">Review, escalate, and resolve property alerts</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-msg-trigger="admin"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          title="Messages"
+          type="button"
+          onclick="SHWMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="admin"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Stats Row -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;" id="alertStatsRow">
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#dc2626;" id="statUrgent">—</div>
+          <div style="font-size:11px;color:#64748b;">Urgent</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#f97316;" id="statHigh">—</div>
+          <div style="font-size:11px;color:#64748b;">High</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#eab308;" id="statMedium">—</div>
+          <div style="font-size:11px;color:#64748b;">Medium</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#22c55e;" id="statLow">—</div>
+          <div style="font-size:11px;color:#64748b;">Low</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <div style="position:relative;">
+          <svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#94a3b8;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="alertSearch" placeholder="Search alerts…" oninput="filterAlerts()"
+            style="padding:8px 12px 8px 30px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;width:220px;outline:none;" />
+        </div>
+        <select id="sevFilter" onchange="filterAlerts()" style="border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;background:#f8fafc;outline:none;">
+          <option value="">All Severities</option>
+          <option value="urgent">Urgent</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <select id="statusFilter" onchange="filterAlerts()" style="border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;background:#f8fafc;outline:none;">
+          <option value="">All Statuses</option>
+          <option value="open">Open</option>
+          <option value="in_progress">In Progress</option>
+          <option value="pending_client_decision">Pending Decision</option>
+          <option value="scheduled_for_repair">Scheduled for Repair</option>
+          <option value="resolved">Resolved</option>
+          <option value="closed">Closed</option>
+        </select>
+        <select id="catFilter" onchange="filterAlerts()" style="border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;background:#f8fafc;outline:none;">
+          <option value="">All Categories</option>
+          <option value="water_damage">Water Damage</option>
+          <option value="structural">Structural</option>
+          <option value="security">Security</option>
+          <option value="hvac">HVAC</option>
+          <option value="pest">Pest</option>
+          <option value="electrical">Electrical</option>
+          <option value="general_maintenance">General Maintenance</option>
+        </select>
+        <div style="margin-left:auto;font-size:13px;color:#64748b;" id="alertCount"></div>
+      </div>
+
+      <!-- Alerts List -->
+      <div id="alertList">
+        <div style="padding:30px;text-align:center;color:#94a3b8;font-size:13px;">Loading alerts…</div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Alert Resolution Modal -->
+<div id="alertModal" class="admin-modal-overlay" style="display:none;">
+  <div class="admin-modal wide">
+    <div class="admin-modal-header">
+      <div class="admin-modal-title" id="alertModalTitle">Manage Alert</div>
+      <button class="admin-modal-close" onclick="closeAlertModal()">✕</button>
+    </div>
+    <div class="admin-modal-body" id="alertModalBody"></div>
+    <div class="admin-modal-footer">
+      <button class="btn-secondary-outline" onclick="closeAlertModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveAlertChanges()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+let _alerts  = [];
+let _propMap = {};
+let _userMap = {};
+let _empMap  = {};
+let _editing = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderAdminSidebar('admin-alerts');
+  await loadAlerts();
+
+  // Check if opening specific alert from URL
+  const params = new URLSearchParams(window.location.search);
+  const alertId = params.get('alertId');
+  if (alertId) openAlertModal(alertId);
+
+  // Pre-filter if status param provided (e.g., ?status=open from dashboard)
+  const statusParam = params.get('status');
+  if (statusParam) {
+    const statusSel = document.getElementById('statusFilter');
+    if (statusSel) { statusSel.value = statusParam; filterAlerts(); }
+  }
+});
+
+async function loadAlerts() {
+  const [alertsRes, propsRes, empsRes, usersRes] = await Promise.all([
+    empApiGetAll('alerts'),
+    empApiGetAll('properties'),
+    empApiGetAll('employees'),
+    empApiGetAll('users'),
+  ]);
+
+  _alerts  = alertsRes.data || [];
+  _propMap = buildMap(propsRes.data  || []);
+  _empMap  = buildMap(empsRes.data   || []);
+  _userMap = buildMap(usersRes.data  || []);
+
+  // Stats
+  const open = _alerts.filter(a => !['resolved','closed'].includes(a.status));
+  document.getElementById('statUrgent').textContent = open.filter(a => a.severity === 'urgent').length;
+  document.getElementById('statHigh').textContent   = open.filter(a => a.severity === 'high').length;
+  document.getElementById('statMedium').textContent = open.filter(a => a.severity === 'medium').length;
+  document.getElementById('statLow').textContent    = open.filter(a => a.severity === 'low').length;
+
+  filterAlerts();
+}
+
+function filterAlerts() {
+  const q      = (document.getElementById('alertSearch').value || '').toLowerCase();
+  const sev    = document.getElementById('sevFilter').value;
+  const status = document.getElementById('statusFilter').value;
+  const cat    = document.getElementById('catFilter').value;
+
+  const filtered = _alerts.filter(a => {
+    const prop = _propMap[a.property_id] || {};
+    const matchQ = !q ||
+      (a.alert_title || '').toLowerCase().includes(q) ||
+      (prop.property_name || '').toLowerCase().includes(q) ||
+      (a.description || '').toLowerCase().includes(q);
+    const matchSev  = !sev    || a.severity === sev;
+    const matchStat = !status || a.status   === status;
+    const matchCat  = !cat    || a.category === cat;
+    return matchQ && matchSev && matchStat && matchCat;
+  }).sort((a,b) => {
+    const sOrder = { urgent:0, high:1, medium:2, low:3 };
+    return (sOrder[a.severity] ?? 4) - (sOrder[b.severity] ?? 4) || new Date(b.date_created) - new Date(a.date_created);
+  });
+
+  document.getElementById('alertCount').textContent = `${filtered.length} alert${filtered.length !== 1 ? 's' : ''}`;
+  renderAlertList(filtered);
+}
+
+function renderAlertList(alerts) {
+  const container = document.getElementById('alertList');
+  if (!alerts.length) {
+    container.innerHTML = `
+      <div class="admin-empty-state">
+        <div class="admin-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div>
+        <div class="admin-empty-title">No alerts match your filters 🎉</div>
+        <div class="admin-empty-text">Try adjusting filters or check back later.</div>
+      </div>`;
+    return;
+  }
+
+  const sevColors = { urgent:'#dc2626', high:'#f97316', medium:'#eab308', low:'#22c55e' };
+  const sevBg     = { urgent:'#fee2e2', high:'#fff7ed', medium:'#fef9c3', low:'#f0fdf4' };
+
+  container.innerHTML = alerts.map(a => {
+    const prop = _propMap[a.property_id] || {};
+    const emp  = _empMap[a.created_by_employee_id] || {};
+    const user = _userMap[emp.user_id] || {};
+    const age  = Math.floor((Date.now() - new Date(a.date_created).getTime()) / 86400000);
+    const ageLabel = age === 0 ? 'Today' : age === 1 ? '1 day' : `${age} days`;
+
+    return `
+      <div class="admin-alert-detail-card" style="cursor:pointer;" onclick="openAlertModal('${a.id}')">
+        <div class="admin-alert-severity-band ${a.severity}"></div>
+        <div style="padding:18px 20px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:12px;">
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:700;color:#0f1e38;margin-bottom:4px;">${a.alert_title || '—'}</div>
+              <div style="font-size:13px;color:#64748b;">${prop.property_name || '—'} · ${prop.address_line1 || ''}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+              <span style="background:${sevBg[a.severity]};color:${sevColors[a.severity]};font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">${a.severity?.toUpperCase()}</span>
+              <span class="tbl-status ${a.status === 'open' ? 'open' : a.status === 'resolved' || a.status === 'closed' ? 'resolved' : 'pending'}">${FMT.snakeToTitle(a.status)}</span>
+            </div>
+          </div>
+          <div style="font-size:13px;color:#475569;margin-bottom:12px;line-height:1.5;">${a.description || ''}</div>
+          <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+            <div style="font-size:12px;color:#94a3b8;display:flex;gap:6px;align-items:center;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/></svg>
+              ${FMT.date(a.date_created)} · ${ageLabel} ago
+            </div>
+            <div style="font-size:12px;color:#94a3b8;">${FMT.snakeToTitle(a.category)}</div>
+            ${user.full_name ? `<div style="font-size:12px;color:#94a3b8;">By ${user.full_name}</div>` : ''}
+            <div style="margin-left:auto;display:flex;gap:8px;">
+              <button class="tbl-action-btn" onclick="event.stopPropagation();resolveAlert('${a.id}')">✓ Resolve</button>
+              <button class="tbl-action-btn" onclick="event.stopPropagation();openAlertModal('${a.id}')">Manage</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function openAlertModal(alertId) {
+  const alert = _alerts.find(a => a.id === alertId);
+  if (!alert) return;
+  _editing = alertId;
+
+  const prop = _propMap[alert.property_id] || {};
+  const emp  = _empMap[alert.created_by_employee_id] || {};
+  const user = _userMap[emp.user_id] || {};
+
+  document.getElementById('alertModalTitle').textContent = alert.alert_title || 'Manage Alert';
+
+  // Load timeline
+  const { data: timelineData } = await empApiGetAll('alert_timeline_events');
+  const timeline = (timelineData || []).filter(e => e.alert_id === alertId).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+
+  document.getElementById('alertModalBody').innerHTML = `
+    <div style="margin-bottom:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        ${[
+          ['Property', prop.property_name || '—'],
+          ['Category', FMT.snakeToTitle(alert.category)],
+          ['Severity', alert.severity?.toUpperCase()],
+          ['Created By', user.full_name || '—'],
+          ['Date Created', FMT.date(alert.date_created)],
+        ].map(([k,v]) => `<div><div style="font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;">${k}</div><div style="font-size:13px;font-weight:600;color:#0f1e38;margin-top:2px;">${v}</div></div>`).join('')}
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Description</div>
+      <div style="font-size:13px;color:#334155;line-height:1.6;">${alert.description || '—'}</div>
+    </div>
+
+    ${alert.recommended_action ? `
+    <div style="margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Recommended Action</div>
+      <div style="font-size:13px;color:#334155;">${alert.recommended_action}</div>
+    </div>` : ''}
+
+    <div class="admin-form-section"><div class="admin-form-section-title">Update Alert</div></div>
+    <div class="admin-form-grid">
+      <div class="admin-form-group">
+        <label class="admin-form-label">Status</label>
+        <select class="admin-form-select" id="editAlertStatus">
+          <option value="open" ${alert.status==='open'?'selected':''}>Open</option>
+          <option value="in_progress" ${alert.status==='in_progress'?'selected':''}>In Progress</option>
+          <option value="pending_client_decision" ${alert.status==='pending_client_decision'?'selected':''}>Pending Client Decision</option>
+          <option value="scheduled_for_repair" ${alert.status==='scheduled_for_repair'?'selected':''}>Scheduled for Repair</option>
+          <option value="resolved" ${alert.status==='resolved'?'selected':''}>Resolved</option>
+          <option value="closed" ${alert.status==='closed'?'selected':''}>Closed</option>
+        </select>
+      </div>
+      <div class="admin-form-group">
+        <label class="admin-form-label">Client Decision</label>
+        <select class="admin-form-select" id="editAlertDecision">
+          <option value="pending" ${alert.client_decision==='pending'?'selected':''}>Pending</option>
+          <option value="approved" ${alert.client_decision==='approved'?'selected':''}>Approved</option>
+          <option value="declined" ${alert.client_decision==='declined'?'selected':''}>Declined</option>
+          <option value="deferred" ${alert.client_decision==='deferred'?'selected':''}>Deferred</option>
+        </select>
+      </div>
+      <div class="admin-form-group admin-form-full">
+        <label class="admin-form-label">Resolution Notes</label>
+        <textarea class="admin-form-textarea" id="editAlertNotes" rows="3" placeholder="Describe how this alert was handled…">${alert.resolution_notes || ''}</textarea>
+      </div>
+      <div class="admin-form-group">
+        <label class="admin-form-label">Resolved By</label>
+        <input type="text" class="admin-form-input" id="editAlertResolvedBy" placeholder="Name of resolver" value="${alert.resolved_by || ''}" />
+      </div>
+    </div>
+
+    <div class="admin-form-section"><div class="admin-form-section-title">Add Timeline Note</div></div>
+    <div class="admin-form-grid">
+      <div class="admin-form-group admin-form-full">
+        <label class="admin-form-label">Note</label>
+        <textarea class="admin-form-textarea" id="editAlertTimelineNote" rows="2" placeholder="Add a note to the alert timeline…"></textarea>
+      </div>
+    </div>
+
+    <!-- Schedule Solving Visit -->
+    <div class="admin-form-section" style="margin-top:18px;">
+      <div class="admin-form-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Schedule Solving Visit</span>
+        <button type="button" onclick="toggleSolvingVisitSection()" id="toggleSolvingVisitBtn"
+          style="font-size:11px;font-weight:600;color:#162d56;background:#f0f5ff;border:1px solid #c7d8f5;border-radius:7px;padding:4px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="solvingVisitChevron"><polyline points="6 9 12 15 18 9"/></svg>
+          Add Visit
+        </button>
+      </div>
+    </div>
+    <div id="solvingVisitSection" style="display:none;">
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-top:2px;">
+        <div style="font-size:12px;color:#475569;margin-bottom:14px;line-height:1.5;">
+          Create a property visit directly linked to this alert. The visit will appear on the schedule and can be assigned to an inspector for resolution.
+        </div>
+        <div class="admin-form-grid">
+          <div class="admin-form-group">
+            <label class="admin-form-label">Visit Type</label>
+            <select class="admin-form-select" id="svVisitType">
+              <option value="alert_followup">Alert Follow-Up</option>
+              <option value="repair_inspection">Repair Inspection</option>
+              <option value="emergency">Emergency Visit</option>
+              <option value="routine">Routine Visit</option>
+            </select>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Scheduled Date</label>
+            <input type="date" class="admin-form-input" id="svVisitDate" />
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Scheduled Time</label>
+            <input type="time" class="admin-form-input" id="svVisitTime" value="09:00" />
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Assign Inspector (optional)</label>
+            <select class="admin-form-select" id="svAssignedInspector">
+              <option value="">— Unassigned —</option>
+            </select>
+          </div>
+          <div class="admin-form-group admin-form-full">
+            <label class="admin-form-label">Visit Notes</label>
+            <textarea class="admin-form-textarea" id="svVisitNotes" rows="2" placeholder="Add notes about the purpose of this visit…"></textarea>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;justify-content:flex-end;">
+          <button type="button" onclick="createSolvingVisit()" style="background:#162d56;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+            Schedule Visit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    ${timeline.length ? `
+    <div style="margin-top:16px;">
+      <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Timeline</div>
+      ${timeline.reverse().map(e => `
+        <div style="display:flex;gap:10px;padding-bottom:10px;border-bottom:1px solid #f1f5f9;margin-bottom:10px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#162d56;flex-shrink:0;margin-top:5px;"></div>
+          <div>
+            <div style="font-size:12px;color:#334155;">${e.event_description || FMT.snakeToTitle(e.event_type)}</div>
+            <div style="font-size:11px;color:#94a3b8;">${FMT.relTime(e.created_at)}</div>
+          </div>
+        </div>`).join('')}
+    </div>` : ''}`;
+
+  document.getElementById('alertModal').style.display = 'flex';
+}
+function closeAlertModal() { document.getElementById('alertModal').style.display = 'none'; _editing = null; }
+
+// ── Toggle solving visit section ───────────────────────────────────────────────
+function toggleSolvingVisitSection() {
+  const section = document.getElementById('solvingVisitSection');
+  const chevron = document.getElementById('solvingVisitChevron');
+  const btn     = document.getElementById('toggleSolvingVisitBtn');
+  if (!section) return;
+  const isOpen = section.style.display !== 'none';
+  section.style.display = isOpen ? 'none' : 'block';
+  if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+  if (btn) btn.style.background = isOpen ? '#f0f5ff' : '#162d56';
+  if (btn) btn.style.color      = isOpen ? '#162d56' : '#fff';
+
+  // Pre-populate inspector dropdown when opening
+  if (!isOpen) {
+    const sel = document.getElementById('svAssignedInspector');
+    if (sel && sel.options.length <= 1) {
+      Object.values(_empMap).forEach(emp => {
+        const user = _userMap[emp.user_id] || {};
+        const name = user.full_name || emp.employee_id || 'Inspector';
+        const opt  = document.createElement('option');
+        opt.value = emp.id;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      });
+    }
+    // Default date to tomorrow
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateInput = document.getElementById('svVisitDate');
+    if (dateInput && !dateInput.value) {
+      dateInput.value = tomorrow.toISOString().slice(0, 10);
+    }
+  }
+}
+
+// ── Create solving visit ───────────────────────────────────────────────────────
+async function createSolvingVisit() {
+  if (!_editing) return;
+  const alert = _alerts.find(a => a.id === _editing);
+  if (!alert) return;
+
+  const visitDate  = document.getElementById('svVisitDate').value;
+  const visitTime  = document.getElementById('svVisitTime').value || '09:00';
+  const visitType  = document.getElementById('svVisitType').value;
+  const empId      = document.getElementById('svAssignedInspector').value || null;
+  const notes      = document.getElementById('svVisitNotes').value.trim();
+
+  if (!visitDate) { showToast('Please select a scheduled date', 'error'); return; }
+
+  const now = new Date().toISOString();
+  const scheduledStart = new Date(`${visitDate}T${visitTime}:00`).toISOString();
+
+  const visitPayload = {
+    property_id:           alert.property_id,
+    visit_type:            visitType,
+    status:                'scheduled',
+    scheduled_start:       scheduledStart,
+    assigned_employee_id:  empId,
+    notes:                 notes || `Solving visit for alert: ${alert.alert_title}`,
+    linked_alert_id:       alert.id,
+    created_by_user_id:    ADMIN_SESSION.userId,
+    created_at:            now,
+    updated_at:            now,
+  };
+
+  const { data: newVisit, error: visitErr } = await empApiPost('visits', visitPayload);
+  if (visitErr) { showToast('Failed to create visit', 'error'); return; }
+
+  // Update alert status to scheduled_for_repair if still open
+  if (['open', 'in_progress'].includes(alert.status)) {
+    await empApiPatch('alerts', alert.id, {
+      status: 'scheduled_for_repair',
+      updated_at: now,
+    });
+  }
+
+  // Add timeline event
+  await empApiPost('alert_timeline_events', {
+    alert_id:           alert.id,
+    event_type:         'visit_scheduled',
+    event_description:  `Solving visit scheduled for ${new Date(scheduledStart).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}${empId ? ' — assigned to inspector' : ''}`,
+    created_by_user_id: ADMIN_SESSION.userId,
+    created_at:         now,
+  });
+
+  showToast('Solving visit scheduled successfully', 'success');
+  closeAlertModal();
+  await loadAlerts();
+}
+
+async function saveAlertChanges() {
+  if (!_editing) return;
+  const status     = document.getElementById('editAlertStatus').value;
+  const decision   = document.getElementById('editAlertDecision').value;
+  const notes      = document.getElementById('editAlertNotes').value.trim();
+  const resolvedBy = document.getElementById('editAlertResolvedBy').value.trim();
+  const timeNote   = document.getElementById('editAlertTimelineNote').value.trim();
+
+  const now = new Date().toISOString();
+  const updates = {
+    status, client_decision: decision,
+    resolution_notes: notes,
+    updated_at: now,
+  };
+  if (['resolved','closed'].includes(status)) {
+    updates.resolved_at = now;
+    if (resolvedBy) updates.resolved_by = resolvedBy;
+  }
+
+  const { error } = await empApiPatch('alerts', _editing, updates);
+  if (error) { showToast('Failed to update alert', 'error'); return; }
+
+  if (timeNote) {
+    await empApiPost('alert_timeline_events', {
+      alert_id:           _editing,
+      event_type:         'status_update',
+      event_description:  timeNote,
+      created_by_user_id: ADMIN_SESSION.userId,
+      created_at:         now,
+    });
+  }
+
+  showToast('Alert updated', 'success');
+  closeAlertModal();
+  await loadAlerts();
+}
+
+async function resolveAlert(alertId) {
+  const now = new Date().toISOString();
+  const { error } = await empApiPatch('alerts', alertId, {
+    status: 'resolved', resolved_at: now,
+    resolved_by: ADMIN_SESSION.name,
+    updated_at: now,
+  });
+  if (error) { showToast('Failed to resolve', 'error'); return; }
+
+  await empApiPost('alert_timeline_events', {
+    alert_id:           alertId,
+    event_type:         'resolved',
+    event_description:  `Marked resolved by ${ADMIN_SESSION.name}`,
+    created_by_user_id: ADMIN_SESSION.userId,
+    created_at:         now,
+  });
+
+  showToast('Alert resolved', 'success');
+  await loadAlerts();
+}
+</script>
+</body>
+</html>

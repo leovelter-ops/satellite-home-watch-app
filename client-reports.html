@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Reports — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/reports.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+<div class="app-wrapper">
+
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar (rendered by JS) -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Client navigation"></aside>
+
+  <!-- ════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════ -->
+  <div class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">All Reports</span>
+          <span class="topbar-welcome">Inspection reports and visit summaries</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-client-msg-trigger="client"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Messages"
+          type="button"
+          onclick="SHWClientMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span data-client-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="client"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <div class="topbar-avatar" onclick="window.location.href='client-account.html'" role="button" aria-label="My account">JM</div>
+      </div>
+    </header>
+
+    <!-- ════════════════════════════════════════
+         PAGE BODY
+    ════════════════════════════════════════ -->
+    <main class="dashboard-content">
+      <div class="reports-page">
+
+        <!-- ── SUMMARY BAR ── -->
+        <div class="reports-summary-bar" role="region" aria-label="Report library summary">
+          <div class="reports-summary-stats">
+            <div class="reports-summary-stat">
+              <span class="reports-summary-stat-value">12</span>
+              <span class="reports-summary-stat-label">Reports</span>
+            </div>
+            <div class="reports-summary-divider" aria-hidden="true"></div>
+            <div class="reports-summary-stat">
+              <span class="reports-summary-stat-value accent-new">3</span>
+              <span class="reports-summary-stat-label">New</span>
+            </div>
+            <div class="reports-summary-divider" aria-hidden="true"></div>
+            <div class="reports-summary-stat">
+              <span class="reports-summary-stat-value">3</span>
+              <span class="reports-summary-stat-label">Properties</span>
+            </div>
+          </div>
+          <div class="reports-summary-updated" aria-label="Last updated Dec 7, 2025">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Last Updated Dec 7, 2025
+          </div>
+        </div>
+
+        <!-- ── FILTER / SEARCH BAR ── -->
+        <div class="reports-filter-bar" role="search" aria-label="Filter and search reports">
+          <div class="reports-filter-row">
+
+            <!-- Search -->
+            <div class="reports-search-wrap">
+              <svg class="reports-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                class="reports-search-input"
+                type="text"
+                id="reportsSearch"
+                placeholder="Search inspection reports..."
+                aria-label="Search inspection reports"
+                autocomplete="off"
+                oninput="filterReports()"
+              />
+            </div>
+
+            <!-- Property Filter (populated dynamically) -->
+            <select class="reports-filter-select" id="filterProperty" aria-label="Filter by property" onchange="filterReports()">
+              <option value="">All Properties</option>
+            </select>
+
+            <!-- Visit Type Filter -->
+            <select class="reports-filter-select" id="filterType" aria-label="Filter by visit type" onchange="filterReports()">
+              <option value="">All Visit Types</option>
+              <option value="routine">Routine Inspection</option>
+              <option value="storm">Storm Prep</option>
+              <option value="vendor">Vendor Supervision</option>
+              <option value="concierge">Concierge Visit</option>
+            </select>
+
+            <!-- Inspector Filter -->
+            <select class="reports-filter-select" id="filterInspector" aria-label="Filter by inspector" onchange="filterReports()">
+              <option value="">All Inspectors</option>
+            </select>
+
+            <div class="reports-filter-divider" aria-hidden="true"></div>
+
+            <!-- Date Range Filter -->
+            <select class="reports-filter-select" id="filterDate" aria-label="Filter by date range" onchange="filterReports()">
+              <option value="3m" selected>Last 3 Months</option>
+              <option value="1m">Last Month</option>
+              <option value="6m">Last 6 Months</option>
+              <option value="1y">Last Year</option>
+              <option value="all">All Time</option>
+            </select>
+
+            <!-- Reset Filters -->
+            <div class="reports-filter-actions">
+              <button class="reports-filter-reset-btn" onclick="resetFilters()" aria-label="Clear all filters">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                Clear filters
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── LIST HEADER ── -->
+        <div class="reports-list-header" role="status" aria-live="polite">
+          <span class="reports-list-title">
+            Showing <strong id="visibleCount">12</strong> reports
+            <span id="filterLabel" style="color:var(--color-text-light);margin-left:4px;"></span>
+          </span>
+        </div>
+
+        <!-- ── REPORTS LIST ── -->
+        <div class="reports-list" id="reportsList" role="list" aria-label="Inspection report entries"></div>
+
+        <!-- ── EMPTY STATE (hidden by default) ── -->
+        <div class="reports-empty-state" id="reportsEmpty" style="display:none;" role="status" aria-live="polite">
+          <div class="reports-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <h3 class="reports-empty-title">No inspection reports found</h3>
+          <p class="reports-empty-desc">No inspection reports found for this time period. Try adjusting your filters or selecting a different property.</p>
+          <button class="reports-empty-reset-btn" onclick="resetFilters()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true">
+              <polyline points="1 4 1 10 7 10"/>
+              <path d="M3.51 15a9 9 0 1 0 .49-3.61"/>
+            </svg>
+            Clear all filters
+          </button>
+        </div>
+
+      </div><!-- /.reports-page -->
+    </main>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     REPORT PREVIEW MODAL
+════════════════════════════════════════ -->
+<div class="report-modal-overlay" id="reportModalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalReportTitle" onclick="handleModalOverlayClick(event)">
+  <div class="report-modal" id="reportModal">
+
+    <div class="report-modal-header">
+      <div class="report-modal-title-group">
+        <h2 class="report-modal-title" id="modalReportTitle">Report Preview</h2>
+        <div class="report-modal-badges" id="modalBadges"></div>
+      </div>
+      <button class="report-modal-close" onclick="closeReportModal()" aria-label="Close report preview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="report-modal-body" id="reportModalBody">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="report-modal-footer">
+      <button class="report-modal-btn report-modal-btn-close" onclick="closeReportModal()">
+        Close
+      </button>
+      <button class="report-modal-btn report-modal-btn-download" onclick="handleDownload()" aria-label="Download PDF">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download PDF
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/app.js"></script>
+<script src="js/sidebar.js"></script>
+<script>renderSidebar('reports');</script>
+<script>
+/* ── Reports page helper functions used by reports-data.js ── */
+
+/* ── Badge HTML helpers ── */
+function typeClass(key) {
+  const map = { routine: 'report-badge-routine', storm: 'report-badge-storm', vendor: 'report-badge-vendor', concierge: 'report-badge-concierge' };
+  return map[key] || 'report-badge-routine';
+}
+
+function iconSVG(key) {
+  if (key === 'routine')    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg>`;
+  if (key === 'storm')      return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M19 16.9A5 5 0 0018 7h-1.26A8 8 0 104 15.25"/><polyline points="16 17 11 22 13 17 8 17 13 12 11 12"/></svg>`;
+  if (key === 'vendor')     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>`;
+  if (key === 'concierge')  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>`;
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/></svg>`;
+}
+
+function iconClass(key) {
+  const map = { routine: 'report-icon-routine', storm: 'report-icon-storm', vendor: 'report-icon-vendor', concierge: 'report-icon-concierge' };
+  return map[key] || 'report-icon-routine';
+}
+
+/* ── Render a single report card ── */
+function renderCard(r) {
+  return `
+  <article
+    class="report-card${r.isNew ? ' report-new' : ''}"
+    role="listitem"
+    tabindex="0"
+    onclick="openReportModal('${r.id}')"
+    onkeydown="if(event.key==='Enter'||event.key===' ')openReportModal('${r.id}')"
+    aria-label="${r.title} — ${r.property}"
+    data-property="${r.propertyKey}"
+    data-type="${r.typeKey}"
+    data-inspector="${r.inspectorKey}"
+    data-title="${r.title.toLowerCase()} ${r.property.toLowerCase()} ${r.address.toLowerCase()} ${r.inspector.toLowerCase()}"
+    data-date-sort="${r.dateSort}"
+  >
+    <!-- Icon -->
+    <div class="report-card-icon ${iconClass(r.typeKey)}" aria-hidden="true">
+      ${iconSVG(r.typeKey)}
+    </div>
+
+    <!-- Body -->
+    <div class="report-card-body">
+      <div class="report-card-top">
+        <span class="report-title">${r.title}</span>
+        ${r.isNew ? `<span class="report-badge report-badge-new" aria-label="New report">New</span>` : ''}
+      </div>
+      <div class="report-card-meta">
+        <!-- Badges row -->
+        <div class="report-meta-row" style="gap:var(--space-2);">
+          <span class="report-badge report-badge-property" aria-label="Property: ${r.property}">${r.property}</span>
+          <span class="report-badge ${typeClass(r.typeKey)}" aria-label="Visit type: ${r.type}">${r.type}</span>
+        </div>
+        <!-- Address -->
+        <div class="report-meta-row" style="margin-top:2px;">
+          <span class="report-address">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            ${r.address}
+          </span>
+        </div>
+        <!-- Date, Inspector, Photos -->
+        <div class="report-meta-row" style="margin-top:4px; gap:var(--space-3);">
+          <span class="report-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            ${r.date}
+          </span>
+          <span class="report-meta-dot" aria-hidden="true"></span>
+          <span class="report-inspector-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            ${r.inspector}
+          </span>
+          <span class="report-photo-count">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            ${r.photos} Photos
+          </span>
+        </div>
+        <!-- Status -->
+        <div class="report-meta-row" style="margin-top:4px;">
+          <span class="report-status-summary ${r.statusClass}" aria-label="Status: ${r.statusText}">
+            <span class="status-dot" aria-hidden="true"></span>
+            ${r.statusText}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Date + Actions -->
+    <div class="report-card-right" onclick="event.stopPropagation()">
+      <div class="report-date-display">
+        <span class="date-day">${r.date}</span>
+      </div>
+      <div class="report-card-actions">
+        <button
+          class="report-btn report-btn-preview"
+          onclick="openReportModal('${r.id}')"
+          aria-label="Preview report: ${r.title}"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          Preview Report
+        </button>
+        <button
+          class="report-btn report-btn-download"
+          onclick="handleDownloadById('${r.id}')"
+          aria-label="Download PDF: ${r.title}"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download PDF
+        </button>
+      </div>
+    </div>
+  </article>`;
+}
+
+/* ── Render all cards initially ── */
+function renderAllCards(data) {
+  const list = document.getElementById('reportsList');
+  const empty = document.getElementById('reportsEmpty');
+  const countEl = document.getElementById('visibleCount');
+  if (!data.length) {
+    list.innerHTML = '';
+    empty.style.display = 'flex';
+    countEl.textContent = '0';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = data.map(renderCard).join('');
+  countEl.textContent = data.length;
+}
+
+/* ── Filter logic ── */
+function filterReports() {
+  const search   = (document.getElementById('reportsSearch').value || '').toLowerCase();
+  const property = document.getElementById('filterProperty').value;
+  const type     = document.getElementById('filterType').value;
+  const inspector = document.getElementById('filterInspector').value;
+
+  const allData = (window._allReports || []);
+  const filtered = allData.filter(r => {
+    const matchSearch   = !search   || r.title.toLowerCase().includes(search) || r.property.toLowerCase().includes(search) || r.address.toLowerCase().includes(search) || r.inspector.toLowerCase().includes(search);
+    const matchProperty = !property || r.propertyKey === property;
+    const matchType     = !type     || r.typeKey === type;
+    const matchInspector = !inspector || r.inspectorKey === inspector;
+    return matchSearch && matchProperty && matchType && matchInspector;
+  });
+
+  // Update filter label
+  const label = document.getElementById('filterLabel');
+  const hasFilters = search || property || type || inspector;
+  label.textContent = hasFilters ? '— filtered' : '';
+
+  renderAllCards(filtered);
+}
+
+/* ── Reset all filters ── */
+function resetFilters() {
+  document.getElementById('reportsSearch').value = '';
+  document.getElementById('filterProperty').value = '';
+  document.getElementById('filterType').value = '';
+  document.getElementById('filterInspector').value = '';
+  document.getElementById('filterDate').value = '3m';
+  document.getElementById('filterLabel').textContent = '';
+  renderAllCards(window._allReports || []);
+}
+
+/* ════════════════════════════════════════
+   MODAL LOGIC
+════════════════════════════════════════ */
+let currentModalReport = null;
+
+function openReportModal(id) {
+  const r = (window._allReports || []).find(x => x.id === id);
+  if (!r) return;
+  currentModalReport = r;
+
+  document.getElementById('modalReportTitle').textContent = r.title;
+
+  // Badges
+  document.getElementById('modalBadges').innerHTML = `
+    <span class="report-badge report-badge-property">${r.property}</span>
+    <span class="report-badge ${typeClass(r.typeKey)}">${r.type}</span>
+    ${r.isNew ? `<span class="report-badge report-badge-new">New</span>` : ''}
+  `;
+
+  // Generate photo thumbs
+  const photoThumbsHTML = Array.from({ length: Math.min(r.photos, 8) }, (_, i) => `
+    <div class="report-modal-photo-thumb" aria-label="Inspection photo ${i + 1}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/>
+        <polyline points="21 15 16 10 5 21"/>
+      </svg>
+      <span class="photo-label">Photo ${i + 1}</span>
+    </div>
+  `).join('');
+
+  const morePhotos = r.photos > 8 ? `<p style="font-size:var(--text-xs);color:var(--color-text-light);margin:var(--space-2) 0 0;text-align:center;">+${r.photos - 8} more photos in full PDF report</p>` : '';
+
+  // Issues HTML
+  const issueIcons = {
+    low:    `<svg class="issue-icon severity-low" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/></svg>`,
+    medium: `<svg class="issue-icon severity-medium" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    high:   `<svg class="issue-icon severity-high" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
+  };
+
+  const issuesHTML = r.issues.length
+    ? `<div class="reports-modal-section">
+        <p class="report-modal-section-title" style="margin-bottom:var(--space-2);">Flagged Items</p>
+        <div class="report-modal-issues">
+          ${r.issues.map(issue => `
+            <div class="report-modal-issue-item severity-${issue.severity}">
+              ${issueIcons[issue.severity] || issueIcons.medium}
+              <div class="issue-text">
+                <strong>${issue.title}</strong>
+                ${issue.desc}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`
+    : '';
+
+  document.getElementById('reportModalBody').innerHTML = `
+    <!-- Info Grid -->
+    <div class="report-modal-info-grid">
+      <div class="report-modal-info-item">
+        <span class="report-modal-info-label">Property</span>
+        <span class="report-modal-info-value">${r.property}</span>
+      </div>
+      <div class="report-modal-info-item">
+        <span class="report-modal-info-label">Visit Type</span>
+        <span class="report-modal-info-value">${r.type}</span>
+      </div>
+      <div class="report-modal-info-item">
+        <span class="report-modal-info-label">Inspection Date</span>
+        <span class="report-modal-info-value">${r.date}</span>
+      </div>
+      <div class="report-modal-info-item">
+        <span class="report-modal-info-label">Inspector</span>
+        <span class="report-modal-info-value">${r.inspector}</span>
+      </div>
+      <div class="report-modal-info-item" style="grid-column:1/-1;">
+        <span class="report-modal-info-label">Address</span>
+        <span class="report-modal-info-value">${r.address}</span>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div>
+      <p class="report-modal-section-title" style="margin-bottom:var(--space-2);">Overall Status</p>
+      <span class="report-status-summary ${r.statusClass}" style="font-size:var(--text-sm);padding:6px 14px 6px 10px;">
+        <span class="status-dot"></span>
+        ${r.statusText}
+      </span>
+    </div>
+
+    <!-- Inspector Notes -->
+    <div>
+      <p class="report-modal-section-title" style="margin-bottom:var(--space-2);">Inspector Notes</p>
+      <div class="report-modal-notes">
+        <p class="report-modal-notes-text">${r.notes}</p>
+      </div>
+    </div>
+
+    ${issuesHTML}
+
+    <!-- Photos -->
+    <div class="report-modal-photos-section">
+      <p class="report-modal-section-title">${r.photos} Photos Included</p>
+      <div class="report-modal-photo-grid">
+        ${photoThumbsHTML}
+      </div>
+      ${morePhotos}
+    </div>
+  `;
+
+  document.getElementById('reportModalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeReportModal() {
+  document.getElementById('reportModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  currentModalReport = null;
+}
+
+function handleModalOverlayClick(e) {
+  if (e.target === document.getElementById('reportModalOverlay')) closeReportModal();
+}
+
+function handleDownload() {
+  if (currentModalReport) handleDownloadById(currentModalReport.id);
+}
+
+function handleDownloadById(id) {
+  const r = (window._allReports || []).find(x => x.id === id);
+  if (!r) return;
+  // Placeholder: show a subtle toast or confirmation
+  showToast(`PDF download for "${r.title}" will be available when reports are live.`);
+}
+
+/* ── Simple toast notification ── */
+function showToast(msg) {
+  const existing = document.getElementById('reportToast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'reportToast';
+  toast.setAttribute('role', 'status');
+  toast.setAttribute('aria-live', 'polite');
+  toast.style.cssText = `
+    position:fixed; bottom:28px; left:50%; transform:translateX(-50%);
+    background:var(--navy-800); color:white; font-size:0.82rem; font-family:var(--font-sans);
+    padding:10px 20px; border-radius:var(--radius-lg); box-shadow:var(--shadow-lg);
+    z-index:9999; white-space:nowrap; max-width:90vw; white-space:normal; text-align:center;
+    animation: toastIn 0.25s ease;
+  `;
+
+  const style = document.createElement('style');
+  style.textContent = '@keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(8px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }';
+  document.head.appendChild(style);
+
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 350); }, 3200);
+}
+
+/* ── Keyboard: Esc closes modal ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeReportModal();
+});
+
+/* ── Initial render: handled by reports-data.js ── */
+</script>
+
+<!-- ═══════════════════════════════════════════
+     BACKEND DATA LAYER
+════════════════════════════════════════════ -->
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/reports-data.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/client-msg-panel.js"></script>
+
+</body>
+</html>

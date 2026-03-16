@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invitations — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── Invitation-specific styles ──────────────────────────────────── */
+    .inv-stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px; margin-bottom: 24px;
+    }
+    @media (max-width: 900px) { .inv-stats-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .inv-stats-row { grid-template-columns: 1fr 1fr; } }
+
+    /* Status chips */
+    .inv-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
+      white-space: nowrap;
+    }
+    .inv-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+    .inv-status.pending  { background: #fff7ed; color: #c2410c; }
+    .inv-status.pending::before  { background: #fb923c; }
+    .inv-status.accepted { background: #dcfce7; color: #166534; }
+    .inv-status.accepted::before { background: #22c55e; }
+    .inv-status.expired  { background: #f1f5f9; color: #475569; }
+    .inv-status.expired::before  { background: #94a3b8; }
+    .inv-status.revoked  { background: #fee2e2; color: #dc2626; }
+    .inv-status.revoked::before  { background: #ef4444; }
+
+    /* Role pill */
+    .role-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .role-pill.executive { background: #fce7f3; color: #9d174d; }
+    .role-pill.manager   { background: #dcfce7; color: #166534; }
+    .role-pill.inspector { background: #ede9fe; color: #6d28d9; }
+    .role-pill.client    { background: #e8eef8; color: #162d56; }
+
+    /* Modal */
+    .inv-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 1000; display: none; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .inv-modal-overlay.open { display: flex; }
+    .inv-modal {
+      background: #fff; border-radius: 16px; width: 100%; max-width: 560px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2); max-height: calc(100vh - 40px);
+      overflow-y: auto;
+    }
+    .inv-modal-header {
+      padding: 22px 24px 18px; border-bottom: 1px solid #f1f5f9;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .inv-modal-title { font-size: 18px; font-weight: 700; color: #0f1e38; }
+    .inv-modal-close {
+      width: 32px; height: 32px; border-radius: 8px;
+      border: 1px solid #e2e8f0; background: #f8fafc;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: #64748b; transition: all .15s;
+    }
+    .inv-modal-close:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
+    .inv-modal-body { padding: 24px; }
+    .inv-modal-footer {
+      padding: 16px 24px; border-top: 1px solid #f1f5f9;
+      display: flex; justify-content: flex-end; gap: 10px;
+    }
+
+    .inv-form-group { margin-bottom: 16px; }
+    .inv-form-label {
+      display: block; font-size: 12px; font-weight: 600; color: #374151;
+      margin-bottom: 6px; letter-spacing: .3px;
+    }
+    .inv-form-input {
+      width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0;
+      border-radius: 8px; font-size: 13px; font-family: inherit;
+      color: #334155; background: #fff; outline: none;
+      transition: border-color .2s; box-sizing: border-box;
+    }
+    .inv-form-input:focus { border-color: #162d56; }
+
+    .inv-cancel-btn {
+      background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
+      border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all .15s;
+    }
+    .inv-cancel-btn:hover { background: #e2e8f0; }
+    .inv-send-btn {
+      background: #162d56; color: #fff; border: none;
+      border-radius: 8px; padding: 10px 24px; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: background .2s; display: flex; align-items: center; gap: 7px;
+    }
+    .inv-send-btn:hover { background: #1e3d73; }
+    .inv-send-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* Info banner */
+    .inv-info-banner {
+      background: #f0f6ff; border: 1px solid #bfdbfe;
+      border-radius: 10px; padding: 12px 16px;
+      display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px;
+    }
+    .inv-info-banner svg { width: 16px; height: 16px; color: #2563eb; flex-shrink: 0; margin-top: 1px; }
+    .inv-info-banner p { font-size: 12px; color: #1e40af; margin: 0; line-height: 1.5; }
+
+    /* Link copy row */
+    .inv-link-row {
+      display: flex; align-items: center; gap: 8px;
+      background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 8px; padding: 10px 12px; font-size: 12px;
+      color: #475569; margin-top: 12px;
+    }
+    .inv-link-row input {
+      flex: 1; background: none; border: none; outline: none;
+      font-size: 12px; color: #475569; font-family: monospace;
+    }
+    .inv-copy-btn {
+      background: #162d56; color: #fff; border: none;
+      border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+    }
+    .inv-copy-btn:hover { background: #1e3d73; }
+
+    /* Table empty state */
+    .table-empty {
+      padding: 48px 24px; text-align: center;
+    }
+    .table-empty-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #f1f5f9; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; color: #94a3b8;
+    }
+    .table-empty-icon svg { width: 24px; height: 24px; }
+    .table-empty-title { font-size: 16px; font-weight: 700; color: #0f1e38; margin-bottom: 6px; }
+    .table-empty-desc  { font-size: 13px; color: #64748b; }
+
+    /* Filters row */
+    .inv-filters-row {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    }
+
+    .expire-warning { color: #c2410c; font-weight: 600; }
+    .expire-ok { color: #64748b; }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Invitations</span>
+          <span class="topbar-welcome">Manage all platform invitations</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-msg-trigger="admin"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          title="Messages"
+          type="button"
+          onclick="SHWMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="admin"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Header Banner -->
+      <div class="admin-header-banner">
+        <div>
+          <div class="admin-header-title">Invitation Management System</div>
+          <div class="admin-header-sub">Track and manage all platform invitations · Invitation-only access model</div>
+        </div>
+        <div class="admin-header-actions">
+          <button class="admin-btn-primary" onclick="openSendModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Send Invitation
+          </button>
+          <button class="admin-btn-solid" onclick="loadInvitations()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#162d56" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="inv-stats-row" id="invStatsRow">
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div class="admin-stat-value" id="statPending">—</div>
+          <div class="admin-stat-label">Pending</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="admin-stat-value" id="statAccepted">—</div>
+          <div class="admin-stat-label">Accepted</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+          <div class="admin-stat-value" id="statExpired">—</div>
+          <div class="admin-stat-label">Expired / Revoked</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+          <div class="admin-stat-value" id="statTotal">—</div>
+          <div class="admin-stat-label">Total Sent</div>
+        </div>
+      </div>
+
+      <!-- Table Card -->
+      <div class="admin-table-card">
+        <div class="admin-table-header">
+          <div class="admin-table-title">All Invitations</div>
+          <div class="admin-table-actions">
+            <div class="inv-filters-row">
+              <!-- Search -->
+              <div class="admin-search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="admin-search-input" placeholder="Search email, name…" id="searchInput" oninput="filterInvitations()" />
+              </div>
+              <!-- Status filter -->
+              <select class="admin-filter-select" id="statusFilter" onchange="filterInvitations()">
+                <option value="">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="expired">Expired</option>
+                <option value="revoked">Revoked</option>
+              </select>
+              <!-- Role filter -->
+              <select class="admin-filter-select" id="roleFilter" onchange="filterInvitations()">
+                <option value="">All Roles</option>
+                <option value="executive">Executive</option>
+                <option value="manager">Manager</option>
+                <option value="inspector">Inspector</option>
+                <option value="client">Client</option>
+              </select>
+              <!-- Send button (mobile) -->
+              <button class="admin-add-btn" onclick="openSendModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Send Invitation
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="invTableContainer">
+          <div style="padding:40px;text-align:center;color:#94a3b8;font-size:13px;">Loading invitations…</div>
+        </div>
+
+        <!-- Pagination -->
+        <div id="invPagination" style="padding:14px 20px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#64748b;"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ════ SEND INVITATION MODAL ════ -->
+<div class="inv-modal-overlay" id="sendModal">
+  <div class="inv-modal">
+    <div class="inv-modal-header">
+      <div class="inv-modal-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;color:#162d56;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Send New Invitation
+      </div>
+      <button class="inv-modal-close" onclick="closeSendModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="inv-modal-body">
+      <div class="inv-info-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p>This is an <strong>invitation-only platform</strong>. The user will receive a secure link to activate their account. They cannot sign up on their own.</p>
+      </div>
+
+      <div class="inv-form-group">
+        <label class="inv-form-label">Recipient Full Name</label>
+        <input type="text" class="inv-form-input" id="newInvName" placeholder="First and last name" />
+      </div>
+      <div class="inv-form-group">
+        <label class="inv-form-label">Email Address <span style="color:#dc2626;">*</span></label>
+        <input type="email" class="inv-form-input" id="newInvEmail" placeholder="user@example.com" required />
+      </div>
+      <div class="inv-form-group">
+        <label class="inv-form-label">Role <span style="color:#dc2626;">*</span></label>
+        <select class="inv-form-input" id="newInvRole" onchange="toggleCustomerField()" required>
+          <option value="">Select a role…</option>
+          <option value="executive">Executive</option>
+          <option value="manager">Manager / Admin</option>
+          <option value="inspector">Inspector</option>
+          <option value="client">Client</option>
+        </select>
+        <div style="font-size:11px;color:#94a3b8;margin-top:5px;" id="roleHelpText">Select a role to see requirements.</div>
+      </div>
+
+      <!-- Customer field (shown only for client role) -->
+      <div class="inv-form-group" id="customerFieldWrap" style="display:none;">
+        <label class="inv-form-label">Related Customer Record <span style="color:#dc2626;">*</span></label>
+        <input type="text" class="inv-form-input" id="newInvCustomer" placeholder="Customer name or ID" />
+        <div style="font-size:11px;color:#94a3b8;margin-top:5px;">Properties must already be linked to this customer record before sending.</div>
+      </div>
+
+      <div class="inv-form-group">
+        <label class="inv-form-label">Expiration</label>
+        <select class="inv-form-input" id="newInvExpiry">
+          <option value="7">7 days (recommended)</option>
+          <option value="3">3 days</option>
+          <option value="14">14 days</option>
+          <option value="30">30 days</option>
+        </select>
+      </div>
+
+      <div class="inv-form-group">
+        <label class="inv-form-label">Internal Note <span style="color:#94a3b8;font-weight:400;">(optional)</span></label>
+        <textarea class="inv-form-input" id="newInvNote" rows="2" placeholder="Add an internal note for this invitation…" style="resize:vertical;"></textarea>
+      </div>
+
+      <!-- Activation link preview -->
+      <div id="linkPreviewWrap" style="display:none;">
+        <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">Activation Link Preview</div>
+        <div class="inv-link-row">
+          <input type="text" id="linkPreviewInput" readonly value="" />
+          <button class="inv-copy-btn" onclick="copyLink()">Copy</button>
+        </div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:5px;">This link will be emailed to the recipient automatically.</div>
+      </div>
+
+    </div>
+    <div class="inv-modal-footer">
+      <button class="inv-cancel-btn" onclick="closeSendModal()">Cancel</button>
+      <button class="inv-send-btn" id="sendBtn" onclick="sendInvitation()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Send Invitation
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ REVOKE CONFIRM MODAL ════ -->
+<div class="inv-modal-overlay" id="revokeModal">
+  <div class="inv-modal" style="max-width:420px;">
+    <div class="inv-modal-header">
+      <div class="inv-modal-title" style="color:#dc2626;">Revoke Invitation</div>
+      <button class="inv-modal-close" onclick="closeRevokeModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="inv-modal-body">
+      <div style="text-align:center;padding:8px 0;">
+        <div style="width:56px;height:56px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#dc2626;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+        <div style="font-size:16px;font-weight:700;color:#0f1e38;margin-bottom:8px;">Revoke this invitation?</div>
+        <p style="font-size:13px;color:#64748b;line-height:1.6;margin:0 0 4px;" id="revokeModalDesc">
+          The invitation sent to <strong id="revokeEmailLabel">—</strong> will be revoked. The activation link will no longer work.
+        </p>
+      </div>
+    </div>
+    <div class="inv-modal-footer">
+      <button class="inv-cancel-btn" onclick="closeRevokeModal()">Cancel</button>
+      <button class="inv-send-btn" style="background:#dc2626;" id="revokeConfirmBtn" onclick="confirmRevoke()">
+        Revoke Invitation
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TOAST ════ -->
+<div id="toastContainer" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;"></div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+// ── Session ───────────────────────────────────────────────────────────────────
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'executive', name: '', initials: '' };
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let allInvitations  = [];
+let filteredInvitations = [];
+let currentPage     = 1;
+const PAGE_SIZE     = 10;
+let revokeTargetId  = null;
+let revokeTargetEmail = null;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  updateTopbarRole();
+  renderAdminSidebar('admin-invitations');
+  loadInvitations();
+});
+
+function updateTopbarRole() {
+  const badge  = document.getElementById('topbarRoleBadge');
+  const avatar = document.getElementById('topbarAvatar');
+  if (badge) {
+    badge.textContent = ADMIN_SESSION.role === 'executive' ? 'Executive' : 'Manager';
+    badge.className   = 'admin-badge ' + (ADMIN_SESSION.role === 'executive' ? 'corporate' : 'manager');
+  }
+  if (avatar) avatar.textContent = ADMIN_SESSION.initials;
+}
+
+// ── Data loading ──────────────────────────────────────────────────────────────
+async function loadInvitations() {
+  try {
+    const res  = await fetch('tables/invitations?limit=100&sort=created_at');
+    const data = await res.json();
+    allInvitations = (data.data || []).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+    filteredInvitations = [...allInvitations];
+    renderStats();
+    filterInvitations();
+  } catch (err) {
+    document.getElementById('invTableContainer').innerHTML =
+      `<div style="padding:40px;text-align:center;color:#dc2626;font-size:13px;">Failed to load invitations. Please refresh.</div>`;
+  }
+}
+
+function renderStats() {
+  const pending  = allInvitations.filter(i => i.status === 'pending').length;
+  const accepted = allInvitations.filter(i => i.status === 'accepted').length;
+  const expired  = allInvitations.filter(i => i.status === 'expired' || i.status === 'revoked').length;
+  document.getElementById('statPending').textContent  = pending;
+  document.getElementById('statAccepted').textContent = accepted;
+  document.getElementById('statExpired').textContent  = expired;
+  document.getElementById('statTotal').textContent    = allInvitations.length;
+}
+
+// ── Filtering ─────────────────────────────────────────────────────────────────
+function filterInvitations() {
+  const search = (document.getElementById('searchInput').value || '').toLowerCase();
+  const status = document.getElementById('statusFilter').value;
+  const role   = document.getElementById('roleFilter').value;
+
+  filteredInvitations = allInvitations.filter(inv => {
+    const matchSearch = !search ||
+      (inv.email || '').toLowerCase().includes(search) ||
+      (inv.invited_name || '').toLowerCase().includes(search) ||
+      (inv.related_customer_name || '').toLowerCase().includes(search);
+    const matchStatus = !status || inv.status === status;
+    const matchRole   = !role   || inv.role === role;
+    return matchSearch && matchStatus && matchRole;
+  });
+
+  currentPage = 1;
+  renderTable();
+}
+
+// ── Table render ──────────────────────────────────────────────────────────────
+function renderTable() {
+  const container = document.getElementById('invTableContainer');
+  if (!filteredInvitations.length) {
+    container.innerHTML = `
+      <div class="table-empty">
+        <div class="table-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+        <div class="table-empty-title">No invitations found</div>
+        <div class="table-empty-desc">Try adjusting your filters or send a new invitation.</div>
+      </div>`;
+    document.getElementById('invPagination').innerHTML = '';
+    return;
+  }
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page  = filteredInvitations.slice(start, start + PAGE_SIZE);
+
+  let rows = '';
+  let mobileCardItems = '';
+
+  page.forEach(inv => {
+    const sentDate    = formatDate(inv.created_at);
+    const expiryDate  = formatDate(inv.expires_at);
+    const expiryClass = isExpiringSoon(inv) ? 'expire-warning' : 'expire-ok';
+    const rolePill    = `<span class="role-pill ${inv.role || ''}">${roleName(inv.role)}</span>`;
+    const statusChip  = `<span class="inv-status ${inv.status}">${capitalize(inv.status)}</span>`;
+
+    // Action buttons based on status
+    let actions = '';
+    let mobileActions = '';
+    if (inv.status === 'pending') {
+      actions = `
+        <button class="tbl-action-btn" onclick="resendInvitation('${inv.id}', '${escHtml(inv.email)}')" title="Resend">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Resend
+        </button>
+        <button class="tbl-action-btn" onclick="copyInviteLink('${inv.token || ''}')" title="Copy Link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy Link
+        </button>
+        <button class="tbl-action-btn danger" onclick="openRevokeModal('${inv.id}', '${escHtml(inv.email)}')" title="Revoke">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          Revoke
+        </button>`;
+      mobileActions = `
+        <button class="tbl-action-btn" style="flex:1;justify-content:center;" onclick="resendInvitation('${inv.id}', '${escHtml(inv.email)}')">Resend</button>
+        <button class="tbl-action-btn" style="flex:1;justify-content:center;" onclick="copyInviteLink('${inv.token || ''}')">Copy Link</button>
+        <button class="tbl-action-btn danger" style="flex:1;justify-content:center;" onclick="openRevokeModal('${inv.id}', '${escHtml(inv.email)}')">Revoke</button>`;
+    } else if (inv.status === 'expired') {
+      actions = `
+        <button class="tbl-action-btn" onclick="resendInvitation('${inv.id}', '${escHtml(inv.email)}')" title="Resend new invitation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+          Resend New
+        </button>`;
+      mobileActions = `<button class="tbl-action-btn" style="flex:1;justify-content:center;" onclick="resendInvitation('${inv.id}', '${escHtml(inv.email)}')">Resend New</button>`;
+    } else if (inv.status === 'accepted') {
+      actions = `
+        <button class="tbl-action-btn" onclick="viewUser('${escHtml(inv.email)}')" title="View user profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          View User
+        </button>`;
+      mobileActions = `<button class="tbl-action-btn" style="flex:1;justify-content:center;" onclick="viewUser('${escHtml(inv.email)}')">View User</button>`;
+    } else if (inv.status === 'revoked') {
+      actions = `<span style="font-size:11px;color:#94a3b8;">Revoked</span>`;
+      mobileActions = `<span style="font-size:11px;color:#94a3b8;">Revoked</span>`;
+    }
+
+    rows += `
+      <tr>
+        <td>
+          <div class="cell-primary">${escHtml(inv.email)}</div>
+          <div class="cell-secondary">${escHtml(inv.invited_name || '—')}</div>
+        </td>
+        <td>${rolePill}</td>
+        <td>
+          ${inv.related_customer_name
+            ? `<span style="font-size:13px;color:#0f1e38;font-weight:500;">${escHtml(inv.related_customer_name)}</span>`
+            : '<span style="color:#94a3b8;font-size:12px;">—</span>'}
+        </td>
+        <td>${statusChip}</td>
+        <td><span style="font-size:12px;color:#64748b;">${sentDate}</span></td>
+        <td><span class="${expiryClass}" style="font-size:12px;">${expiryDate}</span></td>
+        <td>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+            ${actions}
+          </div>
+        </td>
+      </tr>`;
+
+    // ── Mobile card ──────────────────────────────────────────────────────────
+    mobileCardItems += `
+      <div class="admin-mobile-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+          <div style="min-width:0;">
+            <div style="font-size:13px;font-weight:700;color:#0f1e38;word-break:break-all;">${escHtml(inv.email)}</div>
+            ${inv.invited_name ? `<div style="font-size:11px;color:#64748b;margin-top:2px;">${escHtml(inv.invited_name)}</div>` : ''}
+          </div>
+          ${statusChip}
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;">
+          ${rolePill}
+          ${inv.related_customer_name ? `<span style="font-size:12px;color:#475569;font-weight:500;">${escHtml(inv.related_customer_name)}</span>` : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-top:10px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Sent: ${sentDate}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;" class="${expiryClass}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Expires: ${expiryDate}
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid #f1f5f9;flex-wrap:wrap;">
+          ${mobileActions}
+        </div>
+      </div>`;
+  });
+
+  container.innerHTML = `
+    <div style="overflow-x:auto;">
+      <table class="admin-data-table" style="min-width:900px;">
+        <thead>
+          <tr>
+            <th>Invited Email / Name</th>
+            <th>Role</th>
+            <th>Related Customer</th>
+            <th>Status</th>
+            <th>Sent Date</th>
+            <th>Expiration</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div class="admin-mobile-cards-list" style="padding:12px;">${mobileCardItems}</div>`;
+
+  // Pagination
+  const totalPages = Math.ceil(filteredInvitations.length / PAGE_SIZE);
+  const pag = document.getElementById('invPagination');
+  pag.innerHTML = `
+    <span>Showing ${start + 1}–${Math.min(start + PAGE_SIZE, filteredInvitations.length)} of ${filteredInvitations.length} invitations</span>
+    <div style="display:flex;gap:6px;">
+      <button style="padding:4px 12px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;font-size:12px;color:#475569;" onclick="changePage(${currentPage-1})" ${currentPage===1?'disabled':''}>← Prev</button>
+      <span style="padding:4px 8px;font-size:12px;font-weight:600;color:#0f1e38;">${currentPage} / ${totalPages}</span>
+      <button style="padding:4px 12px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;font-size:12px;color:#475569;" onclick="changePage(${currentPage+1})" ${currentPage>=totalPages?'disabled':''}>Next →</button>
+    </div>`;
+}
+
+function changePage(p) {
+  const total = Math.ceil(filteredInvitations.length / PAGE_SIZE);
+  if (p < 1 || p > total) return;
+  currentPage = p;
+  renderTable();
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+async function resendInvitation(id, email) {
+  try {
+    const newExpiry = new Date(Date.now() + 7 * 86400000).toISOString();
+    const newToken  = 'tok-' + Math.random().toString(36).slice(2, 12);
+    await fetch(`tables/invitations/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'pending', expires_at: newExpiry, token: newToken }),
+    });
+    showToast(`Invitation resent to ${email}`, 'success');
+    loadInvitations();
+  } catch {
+    showToast('Failed to resend invitation.', 'error');
+  }
+}
+
+function viewUser(email) {
+  window.location.href = `admin-user-management.html?search=${encodeURIComponent(email)}`;
+}
+
+function copyInviteLink(token) {
+  const link = `${location.origin}/activate.html?token=${token}`;
+  navigator.clipboard.writeText(link).then(() => {
+    showToast('Activation link copied to clipboard!', 'success');
+  }).catch(() => {
+    showToast('Could not copy automatically. Token: ' + token, 'info');
+  });
+}
+
+// ── Revoke ────────────────────────────────────────────────────────────────────
+function openRevokeModal(id, email) {
+  revokeTargetId    = id;
+  revokeTargetEmail = email;
+  document.getElementById('revokeEmailLabel').textContent = email;
+  document.getElementById('revokeModal').classList.add('open');
+}
+function closeRevokeModal() {
+  document.getElementById('revokeModal').classList.remove('open');
+  revokeTargetId = revokeTargetEmail = null;
+}
+async function confirmRevoke() {
+  if (!revokeTargetId) return;
+  const btn = document.getElementById('revokeConfirmBtn');
+  btn.disabled = true; btn.textContent = 'Revoking…';
+  try {
+    await fetch(`tables/invitations/${revokeTargetId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'revoked' }),
+    });
+    showToast(`Invitation for ${revokeTargetEmail} has been revoked.`, 'success');
+    closeRevokeModal();
+    loadInvitations();
+  } catch {
+    showToast('Failed to revoke invitation.', 'error');
+  }
+  btn.disabled = false; btn.textContent = 'Revoke Invitation';
+}
+
+// ── Send Invitation Modal ─────────────────────────────────────────────────────
+function openSendModal() {
+  document.getElementById('newInvName').value    = '';
+  document.getElementById('newInvEmail').value   = '';
+  document.getElementById('newInvRole').value    = '';
+  document.getElementById('newInvNote').value    = '';
+  document.getElementById('newInvExpiry').value  = '7';
+  document.getElementById('customerFieldWrap').style.display = 'none';
+  document.getElementById('linkPreviewWrap').style.display   = 'none';
+  document.getElementById('roleHelpText').textContent = 'Select a role to see requirements.';
+  document.getElementById('sendModal').classList.add('open');
+}
+function closeSendModal() {
+  document.getElementById('sendModal').classList.remove('open');
+}
+function toggleCustomerField() {
+  const role = document.getElementById('newInvRole').value;
+  const wrap = document.getElementById('customerFieldWrap');
+  const help = document.getElementById('roleHelpText');
+  wrap.style.display = role === 'client' ? 'block' : 'none';
+  const messages = {
+    executive: 'Executive: Full platform access. Admin portal only.',
+    manager:   'Manager: Admin portal access. Operations and CRM management.',
+    inspector: 'Inspector: Limited access to assigned visits and field workflow.',
+    client:    'Client: Access to client portal only. Must have properties pre-linked.',
+    '':        'Select a role to see requirements.',
+  };
+  help.textContent = messages[role] || '';
+  if (role) {
+    const token = 'tok-' + Math.random().toString(36).slice(2, 12);
+    const link  = `${location.origin}/activate.html?token=${token}`;
+    document.getElementById('linkPreviewInput').value = link;
+    document.getElementById('linkPreviewWrap').style.display = 'block';
+  } else {
+    document.getElementById('linkPreviewWrap').style.display = 'none';
+  }
+}
+
+async function sendInvitation() {
+  const name     = document.getElementById('newInvName').value.trim();
+  const email    = document.getElementById('newInvEmail').value.trim();
+  const role     = document.getElementById('newInvRole').value;
+  const customer = document.getElementById('newInvCustomer').value.trim();
+  const days     = parseInt(document.getElementById('newInvExpiry').value);
+
+  if (!email || !role) {
+    showToast('Please enter email and select a role.', 'error'); return;
+  }
+  if (role === 'client' && !customer) {
+    showToast('Please enter a related customer name for client invitations.', 'error'); return;
+  }
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path d="M3 12a9 9 0 019-9"/></svg> Sending…';
+
+  const token     = 'tok-' + Math.random().toString(36).slice(2, 12);
+  const now       = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + days * 86400000).toISOString();
+
+  try {
+    await fetch('tables/invitations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: 'inv-' + Math.random().toString(36).slice(2, 10),
+        email, role,
+        invited_name: name || null,
+        related_customer_name: role === 'client' ? customer : null,
+        token, status: 'pending',
+        created_at: now, expires_at: expiresAt,
+        accepted_at: null,
+        created_by_user_id: ADMIN_SESSION.userId,
+        created_by_name: ADMIN_SESSION.name,
+      }),
+    });
+    showToast(`Invitation sent to ${email}!`, 'success');
+    closeSendModal();
+    loadInvitations();
+  } catch {
+    showToast('Failed to send invitation. Please try again.', 'error');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Invitation';
+}
+
+function copyLink() {
+  const input = document.getElementById('linkPreviewInput');
+  input.select();
+  document.execCommand('copy');
+  showToast('Link copied to clipboard!', 'success');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function isExpiringSoon(inv) {
+  if (inv.status !== 'pending') return false;
+  return new Date(inv.expires_at) < new Date(Date.now() + 2 * 86400000);
+}
+function roleName(r) {
+  const m = { executive: 'Executive', manager: 'Manager', inspector: 'Inspector', client: 'Client' };
+  return m[r] || r || '—';
+}
+function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : '—'; }
+function escHtml(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function showToast(msg, type = 'success') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  const cfg = {
+    success: { bg: '#f0fdf4', color: '#166534', border: '#bbf7d0' },
+    error:   { bg: '#fef2f2', color: '#dc2626', border: '#fca5a5' },
+    info:    { bg: '#f0f6ff', color: '#1e40af', border: '#bfdbfe' },
+  }[type] || { bg: '#f0fdf4', color: '#166534', border: '#bbf7d0' };
+  t.style.cssText = `background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border};padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.1);max-width:320px;`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+const styleEl = document.createElement('style');
+styleEl.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+document.head.appendChild(styleEl);
+</script>
+</body>
+</html>

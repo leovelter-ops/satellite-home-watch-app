@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hours Worked — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/employee.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .hw-week-nav {
+      display:flex;align-items:center;gap:12px;
+    }
+    .hw-week-nav-btn {
+      width:34px;height:34px;border-radius:8px;border:1px solid #e2e8f0;
+      background:#fff;color:#334155;cursor:pointer;display:flex;align-items:center;justify-content:center;
+      transition:all .15s;flex-shrink:0;
+    }
+    .hw-week-nav-btn:hover { background:#f0f5ff;border-color:#162d56;color:#162d56; }
+    .hw-week-nav-btn:disabled { opacity:.4;cursor:not-allowed; }
+    .hw-week-label {
+      font-size:14px;font-weight:700;color:#0f1e38;min-width:200px;text-align:center;
+    }
+    .hw-summary-bar {
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;
+      margin-bottom:24px;
+    }
+    .hw-summary-card {
+      background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;
+    }
+    .hw-summary-label {
+      font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;
+    }
+    .hw-summary-value {
+      font-size:24px;font-weight:800;color:#0f1e38;
+    }
+    .hw-summary-sub {
+      font-size:11px;color:#64748b;margin-top:2px;
+    }
+    .hw-day-card {
+      background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:12px;overflow:hidden;
+    }
+    .hw-day-header {
+      display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+      cursor:pointer;
+    }
+    .hw-day-header:hover { background:#f8fafc; }
+    .hw-day-name {
+      font-size:14px;font-weight:700;color:#0f1e38;
+    }
+    .hw-day-date {
+      font-size:12px;color:#64748b;margin-top:1px;
+    }
+    .hw-day-stats {
+      display:flex;align-items:center;gap:16px;
+    }
+    .hw-day-stat {
+      text-align:right;
+    }
+    .hw-day-stat-value {
+      font-size:16px;font-weight:700;color:#0f1e38;
+    }
+    .hw-day-stat-label {
+      font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.3px;
+    }
+    .hw-day-visits {
+      padding:0 18px 14px;border-top:1px solid #f1f5f9;
+    }
+    .hw-visit-row {
+      display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f8fafc;
+    }
+    .hw-visit-row:last-child { border-bottom:none; }
+    .hw-visit-time {
+      font-size:11px;font-weight:700;color:#162d56;background:#e8eef8;border-radius:6px;
+      padding:2px 8px;flex-shrink:0;margin-top:2px;
+    }
+    .hw-visit-info { flex:1;min-width:0; }
+    .hw-visit-name {
+      font-size:13px;font-weight:600;color:#0f1e38;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .hw-visit-addr {
+      font-size:11px;color:#64748b;margin-top:1px;
+    }
+    .hw-visit-dur {
+      font-size:12px;font-weight:700;color:#64748b;white-space:nowrap;
+    }
+    .hw-no-visits {
+      padding:14px 0;font-size:12px;color:#94a3b8;text-align:center;
+    }
+    .hw-today-dot {
+      display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-left:6px;vertical-align:middle;
+    }
+    .hw-chevron {
+      transition:transform .2s;
+    }
+    .hw-day-card.open .hw-chevron {
+      transform:rotate(180deg);
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Staff navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Hours Worked</span>
+          <span class="topbar-welcome">Weekly breakdown — last 4 weeks</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <!-- Messages notification icon -->
+        <button
+          class="topbar-icon-btn emp-msg-notif-btn"
+          id="empMsgNotifBtn"
+          aria-label="Message notifications"
+          title="Messages"
+          type="button"
+          onclick="openEmpMsgNotif(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span class="topbar-notif-badge" id="empMsgBadge" style="display:none;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="employee"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <div class="emp-topbar-role">
+          <span class="role-chip inspector">Inspector</span>
+        </div>
+        <div class="topbar-avatar" id="topbarAvatar"></div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Week Navigation -->
+      <div class="vd-card" style="margin-bottom:20px;">
+        <div class="vd-card-body" style="padding:16px 20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div class="hw-week-nav">
+              <button class="hw-week-nav-btn" id="prevWeekBtn" onclick="changeWeek(-1)" title="Previous week">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <div class="hw-week-label" id="weekLabel">Loading...</div>
+              <button class="hw-week-nav-btn" id="nextWeekBtn" onclick="changeWeek(1)" title="Next week">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+            <div style="font-size:12px;color:#94a3b8;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 12px;">
+              Showing up to 4 most recent weeks
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Summary Cards -->
+      <div class="hw-summary-bar" id="weeklySummary"></div>
+
+      <!-- Daily Breakdown -->
+      <div id="dailyBreakdown">
+        <div style="text-align:center;padding:40px;color:#94a3b8;font-size:13px;">Loading hours data...</div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Message Notifications Panel -->
+<div id="empMsgNotifPanel" style="display:none;position:fixed;top:60px;right:16px;width:340px;max-width:calc(100vw - 32px);background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 32px rgba(22,45,86,.15);z-index:9999;">
+  <div style="padding:14px 16px 10px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:14px;font-weight:700;color:#0f1e38;">Message Notifications</div>
+    <button onclick="closeEmpMsgNotif()" style="background:none;border:none;font-size:18px;color:#94a3b8;cursor:pointer;line-height:1;">×</button>
+  </div>
+  <div id="empMsgNotifList" style="max-height:340px;overflow-y:auto;padding:8px 0;">
+    <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No new messages</div>
+  </div>
+  <div style="padding:10px 16px;border-top:1px solid #f1f5f9;text-align:center;">
+    <a href="employee-messages.html" style="font-size:13px;font-weight:600;color:#162d56;text-decoration:none;">View All Messages →</a>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/emp-msg-notif.js"></script>
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+let _weekOffset = 0;        // 0 = current week, -1 = last week, etc. (max -3)
+let _allVisits  = [];
+let _propMap    = {};
+let _myEmpId    = null;
+
+const MAX_WEEKS_BACK = 3;   // So users can see 4 weeks total (0, -1, -2, -3)
+
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderEmpSidebar('emp-hours');
+  await loadBaseData();
+  renderWeek();
+  initEmpMsgNotif();
+});
+
+async function loadBaseData() {
+  const [visitsRes, propsRes, empsRes] = await Promise.all([
+    empApiGetAll('visits'),
+    empApiGetAll('properties'),
+    empApiGetAll('employees'),
+  ]);
+  _propMap   = buildMap(propsRes.data || []);
+  const myEmp = (empsRes.data || []).find(e => e.user_id === EMP_SESSION.userId);
+  _myEmpId    = myEmp?.id;
+  _allVisits  = (visitsRes.data || []).filter(v => v.assigned_employee_id === _myEmpId);
+}
+
+function getWeekBounds(offset) {
+  const now  = new Date();
+  const dow  = now.getDay(); // 0=Sun
+  // Start of current week (Sunday)
+  const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dow + (offset * 7));
+  weekStart.setHours(0, 0, 0, 0);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 7);
+  weekEnd.setHours(23, 59, 59, 999);
+  return { weekStart, weekEnd };
+}
+
+function changeWeek(delta) {
+  const newOffset = _weekOffset + delta;
+  if (newOffset > 0) return;                // Can't go into future
+  if (newOffset < -MAX_WEEKS_BACK) return;  // Cap at 4 weeks back
+  _weekOffset = newOffset;
+  renderWeek();
+}
+
+function renderWeek() {
+  const { weekStart, weekEnd } = getWeekBounds(_weekOffset);
+  const now = new Date();
+  const isCurrentWeek = _weekOffset === 0;
+
+  // Nav button states
+  document.getElementById('prevWeekBtn').disabled = _weekOffset <= -MAX_WEEKS_BACK;
+  document.getElementById('nextWeekBtn').disabled = _weekOffset >= 0;
+
+  // Week label
+  const startStr = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const endStr   = new Date(weekEnd.getTime() - 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  document.getElementById('weekLabel').textContent = `${startStr} – ${endStr}`;
+
+  // Filter visits for this week
+  const weekVisits = _allVisits.filter(v => {
+    const d = new Date(v.scheduled_start || v.created_at);
+    return d >= weekStart && d <= weekEnd;
+  });
+
+  // Compute total hours & visits
+  const totalMinutes = weekVisits.reduce((s, v) => s + (v.duration_minutes || 90), 0);
+  const totalHours   = totalMinutes / 60;
+  const doneVisits   = weekVisits.filter(v => v.status === 'completed');
+  const avgPerDay    = doneVisits.length > 0 ? (totalHours / 7).toFixed(1) : '0.0';
+
+  // Summary cards
+  document.getElementById('weeklySummary').innerHTML = `
+    <div class="hw-summary-card">
+      <div class="hw-summary-label">Total Hours</div>
+      <div class="hw-summary-value">${totalHours.toFixed(1)}</div>
+      <div class="hw-summary-sub">hours this week</div>
+    </div>
+    <div class="hw-summary-card">
+      <div class="hw-summary-label">Visits Completed</div>
+      <div class="hw-summary-value">${doneVisits.length}</div>
+      <div class="hw-summary-sub">of ${weekVisits.length} scheduled</div>
+    </div>
+    <div class="hw-summary-card">
+      <div class="hw-summary-label">Avg Daily Hours</div>
+      <div class="hw-summary-value">${avgPerDay}</div>
+      <div class="hw-summary-sub">hrs/day (active days)</div>
+    </div>
+    <div class="hw-summary-card">
+      <div class="hw-summary-label">Overtime</div>
+      <div class="hw-summary-value" style="color:${totalHours > 40 ? '#dc2626' : '#0f1e38'}">${Math.max(0, totalHours - 40).toFixed(1)}</div>
+      <div class="hw-summary-sub">hours over 40 this week</div>
+    </div>`;
+
+  // Daily breakdown
+  const container = document.getElementById('dailyBreakdown');
+  let html = '';
+
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(weekStart);
+    day.setDate(weekStart.getDate() + i);
+    const dayEnd = new Date(day);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const isToday = day.toDateString() === now.toDateString();
+    const isFuture = day > now;
+
+    // Visits on this day
+    const dayVisits = weekVisits.filter(v => {
+      const d = new Date(v.scheduled_start || v.created_at);
+      return d >= day && d <= dayEnd;
+    });
+
+    const dayMinutes = dayVisits.reduce((s, v) => s + (v.duration_minutes || 90), 0);
+    const dayHours   = dayMinutes / 60;
+    const dayDone    = dayVisits.filter(v => v.status === 'completed').length;
+
+    html += `
+      <div class="hw-day-card${dayVisits.length ? ' open' : ''}" id="hwday-${i}">
+        <div class="hw-day-header" onclick="toggleDayCard(${i})">
+          <div>
+            <div class="hw-day-name">
+              ${DAYS[day.getDay()]}${isToday ? '<span class="hw-today-dot" title="Today"></span>' : ''}
+            </div>
+            <div class="hw-day-date">${day.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}${isFuture ? ' <span style="font-size:10px;font-weight:700;color:#94a3b8;background:#f1f5f9;border-radius:4px;padding:1px 6px;margin-left:6px;">Future</span>' : ''}</div>
+          </div>
+          <div class="hw-day-stats">
+            <div class="hw-day-stat">
+              <div class="hw-day-stat-value" style="color:${dayHours > 0 ? '#0f1e38' : '#94a3b8'}">${dayHours > 0 ? dayHours.toFixed(1) + 'h' : '—'}</div>
+              <div class="hw-day-stat-label">Hours</div>
+            </div>
+            <div class="hw-day-stat">
+              <div class="hw-day-stat-value" style="color:${dayVisits.length > 0 ? '#0f1e38' : '#94a3b8'}">${dayVisits.length > 0 ? dayVisits.length : '—'}</div>
+              <div class="hw-day-stat-label">Visits</div>
+            </div>
+            <svg class="hw-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        ${dayVisits.length ? `
+        <div class="hw-day-visits">
+          ${dayVisits.map(v => {
+            const prop = _propMap[v.property_id] || {};
+            const dur  = v.duration_minutes || 90;
+            const startTime = v.actual_start || v.scheduled_start;
+            const statusColors = { completed:'#166534', in_progress:'#1d4ed8', scheduled:'#64748b', en_route:'#b45309', cancelled:'#dc2626' };
+            return `
+              <div class="hw-visit-row">
+                <span class="hw-visit-time">${FMT.time(startTime)}</span>
+                <div class="hw-visit-info">
+                  <div class="hw-visit-name">${prop.property_name || 'Unknown Property'}</div>
+                  <div class="hw-visit-addr">${prop.address || ''} · <span style="color:${statusColors[v.status]||'#64748b'};font-weight:600;">${FMT.snakeToTitle(v.status)}</span></div>
+                </div>
+                <div class="hw-visit-dur">${Math.round(dur)} min</div>
+              </div>`;
+          }).join('')}
+        </div>` : ''}
+      </div>`;
+  }
+
+  if (!html) html = '<div class="emp-empty-state"><div class="emp-empty-title">No data available</div></div>';
+  container.innerHTML = html;
+}
+
+function toggleDayCard(idx) {
+  const card = document.getElementById(`hwday-${idx}`);
+  if (card) card.classList.toggle('open');
+}
+</script>
+</body>
+</html>

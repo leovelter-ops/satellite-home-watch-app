@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Account — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/employee.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .acc-page { max-width: 860px; margin: 0 auto; padding: 0 0 40px; }
+
+    /* ── Profile Card ─────────────────────────────────── */
+    .acc-profile-card {
+      background: linear-gradient(135deg, #162d56 0%, #1e3d75 100%);
+      border-radius: 16px;
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .acc-profile-card::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.05);
+    }
+    .acc-profile-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.15);
+      border: 3px solid rgba(255,255,255,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .acc-profile-info { flex: 1; }
+    .acc-profile-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -.02em;
+    }
+    .acc-profile-role {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,255,255,.15);
+      color: rgba(255,255,255,.9);
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 6px;
+      letter-spacing: .3px;
+    }
+    .acc-profile-meta {
+      display: flex;
+      gap: 24px;
+      margin-top: 12px;
+    }
+    .acc-profile-meta-item {
+      font-size: 12px;
+      color: rgba(255,255,255,.7);
+    }
+    .acc-profile-meta-item strong {
+      display: block;
+      color: rgba(255,255,255,.95);
+      font-weight: 600;
+      margin-top: 1px;
+    }
+    .acc-edit-profile-btn {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      color: #fff;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .acc-edit-profile-btn:hover {
+      background: rgba(255,255,255,.25);
+    }
+
+    /* ── Section Cards ─────────────────────────────────── */
+    .acc-section {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .acc-section-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .acc-section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f1e38;
+    }
+    .acc-section-subtitle {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+    .acc-section-body { padding: 20px 22px; }
+
+    /* ── Form Fields ─────────────────────────────────── */
+    .acc-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .acc-form-full { grid-column: 1 / -1; }
+    .acc-form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      margin-bottom: 6px;
+    }
+    .acc-form-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #0f1e38;
+      background: #f8fafc;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color .2s, background .2s;
+    }
+    .acc-form-input:focus {
+      border-color: #162d56;
+      background: #fff;
+    }
+    .acc-form-input:disabled {
+      background: #f1f5f9;
+      color: #94a3b8;
+      cursor: not-allowed;
+    }
+    .acc-form-select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #0f1e38;
+      background: #f8fafc;
+      box-sizing: border-box;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .acc-form-select:focus { border-color: #162d56; }
+
+    /* ── Stat Row in Profile ─────────────────────────── */
+    .acc-stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .acc-stat-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .acc-stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #162d56;
+      line-height: 1;
+    }
+    .acc-stat-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 5px;
+    }
+
+    /* ── Toggle Row ─────────────────────────────────── */
+    .acc-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .acc-toggle-row:last-child { border-bottom: none; }
+    .acc-toggle-info { flex: 1; }
+    .acc-toggle-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #0f1e38;
+    }
+    .acc-toggle-desc {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    /* Toggle switch */
+    .acc-toggle {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+    .acc-toggle input { opacity: 0; width: 0; height: 0; }
+    .acc-toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: #e2e8f0;
+      border-radius: 22px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .acc-toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 16px; width: 16px;
+      left: 3px; top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform .2s;
+    }
+    .acc-toggle input:checked + .acc-toggle-slider { background: #162d56; }
+    .acc-toggle input:checked + .acc-toggle-slider::before { transform: translateX(18px); }
+
+    /* ── Password Strength ─────────────────────────── */
+    .acc-pw-strength {
+      display: flex;
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .acc-pw-bar {
+      flex: 1;
+      height: 4px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      transition: background .3s;
+    }
+    .acc-pw-bar.weak { background: #ef4444; }
+    .acc-pw-bar.fair { background: #f59e0b; }
+    .acc-pw-bar.good { background: #22c55e; }
+    .acc-pw-bar.strong { background: #162d56; }
+    .acc-pw-label {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 5px;
+    }
+
+    /* ── Activity List ─────────────────────────────── */
+    .acc-activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f8fafc;
+    }
+    .acc-activity-item:last-child { border-bottom: none; }
+    .acc-activity-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .acc-activity-icon svg { width: 14px; height: 14px; }
+    .acc-activity-title { font-size: 13px; font-weight: 600; color: #0f1e38; }
+    .acc-activity-time  { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    /* ── Save Button Row ─────────────────────────────── */
+    .acc-form-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .acc-btn-save {
+      background: #162d56;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .acc-btn-save:hover { background: #1e3d75; }
+    .acc-btn-cancel {
+      background: #f8fafc;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .acc-btn-cancel:hover { background: #f1f5f9; }
+
+    /* ── Danger Zone ─────────────────────────────────── */
+    .acc-danger-zone {
+      background: #fff;
+      border: 1px solid #fee2e2;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .acc-danger-header {
+      padding: 14px 22px;
+      background: #fff5f5;
+      border-bottom: 1px solid #fee2e2;
+    }
+    .acc-danger-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #dc2626;
+    }
+    .acc-danger-body { padding: 18px 22px; }
+    .acc-danger-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f8fafc;
+    }
+    .acc-danger-row:last-child { border-bottom: none; }
+    .acc-danger-label { font-size: 13px; font-weight: 600; color: #0f1e38; }
+    .acc-danger-desc  { font-size: 12px; color: #64748b; margin-top: 2px; }
+    .acc-btn-danger {
+      background: #fff;
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .acc-btn-danger:hover { background: #fef2f2; border-color: #ef4444; }
+
+    @media (max-width: 768px) {
+      .acc-profile-card { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .acc-form-grid    { grid-template-columns: 1fr; }
+      .acc-stats-row    { grid-template-columns: repeat(2, 1fr); }
+      .acc-profile-meta { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">My Account</span>
+          <span class="topbar-welcome">Profile settings &amp; preferences</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <!-- Messages notification icon -->
+        <button
+          class="topbar-icon-btn emp-msg-notif-btn"
+          id="empMsgNotifBtn"
+          aria-label="Message notifications"
+          title="Messages"
+          type="button"
+          onclick="openEmpMsgNotif(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span class="topbar-notif-badge" id="empMsgBadge" style="display:none;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="employee"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="role-chip inspector" id="topbarRoleBadge">Inspector</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+      <div class="acc-page">
+
+        <!-- Profile Card -->
+        <div class="acc-profile-card">
+          <div class="acc-profile-avatar" id="profileAvatar"></div>
+          <div class="acc-profile-info">
+            <div class="acc-profile-name" id="profileName">—</div>
+            <div class="acc-profile-role">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16"/></svg>
+              Field Inspector
+            </div>
+            <div class="acc-profile-meta">
+              <div class="acc-profile-meta-item">
+                Member Since
+                <strong id="profileSince">—</strong>
+              </div>
+              <div class="acc-profile-meta-item">
+                Employee ID
+                <strong id="profileEmpId">—</strong>
+              </div>
+              <div class="acc-profile-meta-item">
+                Zone
+                <strong id="profileZone">—</strong>
+              </div>
+              <div class="acc-profile-meta-item">
+                Account Status
+                <strong id="profileStatus">Active</strong>
+              </div>
+            </div>
+          </div>
+          <button class="acc-edit-profile-btn" onclick="document.getElementById('profileInfoSection').scrollIntoView({behavior:'smooth'})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:5px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg>
+            Edit Profile
+          </button>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="acc-stats-row">
+          <div class="acc-stat-card">
+            <div class="acc-stat-value" id="statCompleted">—</div>
+            <div class="acc-stat-label">Visits Completed</div>
+          </div>
+          <div class="acc-stat-card">
+            <div class="acc-stat-value" id="statReports">—</div>
+            <div class="acc-stat-label">Reports Filed</div>
+          </div>
+          <div class="acc-stat-card">
+            <div class="acc-stat-value" id="statUpcoming">—</div>
+            <div class="acc-stat-label">Upcoming Visits</div>
+          </div>
+          <div class="acc-stat-card">
+            <div class="acc-stat-value" id="statThisMonth">—</div>
+            <div class="acc-stat-label">This Month</div>
+          </div>
+        </div>
+
+        <!-- Profile Info -->
+        <div class="acc-section" id="profileInfoSection">
+          <div class="acc-section-header">
+            <div>
+              <div class="acc-section-title">Personal Information</div>
+              <div class="acc-section-subtitle">Your name, contact details, and display info</div>
+            </div>
+          </div>
+          <div class="acc-section-body">
+            <div class="acc-form-grid">
+              <div class="acc-form-group">
+                <label>First Name</label>
+                <input class="acc-form-input" id="fFirstName" type="text" placeholder="First name" />
+              </div>
+              <div class="acc-form-group">
+                <label>Last Name</label>
+                <input class="acc-form-input" id="fLastName" type="text" placeholder="Last name" />
+              </div>
+              <div class="acc-form-group">
+                <label>Email Address</label>
+                <input class="acc-form-input" id="fEmail" type="email" placeholder="your@email.com" />
+              </div>
+              <div class="acc-form-group">
+                <label>Phone Number</label>
+                <input class="acc-form-input" id="fPhone" type="tel" placeholder="+1 (239) 000-0000" />
+              </div>
+              <div class="acc-form-group">
+                <label>Employee ID</label>
+                <input class="acc-form-input" id="fEmpId" type="text" disabled placeholder="EMP-001" />
+              </div>
+              <div class="acc-form-group">
+                <label>Role</label>
+                <input class="acc-form-input" type="text" value="Field Inspector" disabled />
+              </div>
+              <div class="acc-form-group acc-form-full">
+                <label>Home Address / Base Location</label>
+                <input class="acc-form-input" id="fAddress" type="text" placeholder="Street address, city, state" />
+              </div>
+              <div class="acc-form-group">
+                <label>Assigned Zone / Region</label>
+                <input class="acc-form-input" id="fZone" type="text" placeholder="Southwest Florida" />
+              </div>
+              <div class="acc-form-group">
+                <label>Vehicle / Transportation</label>
+                <input class="acc-form-input" id="fVehicle" type="text" placeholder="Year, make, model" />
+              </div>
+              <div class="acc-form-group acc-form-full">
+                <label>Bio / Notes</label>
+                <textarea class="acc-form-input" id="fBio" rows="3" placeholder="Optional short bio visible to admin staff…" style="resize:vertical;"></textarea>
+              </div>
+            </div>
+            <div class="acc-form-footer">
+              <button class="acc-btn-cancel" onclick="loadProfile()">Discard</button>
+              <button class="acc-btn-save" onclick="saveProfile()">Save Changes</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="acc-section">
+          <div class="acc-section-header">
+            <div>
+              <div class="acc-section-title">Password &amp; Security</div>
+              <div class="acc-section-subtitle">Update your password to keep your account secure</div>
+            </div>
+          </div>
+          <div class="acc-section-body">
+            <div class="acc-form-grid">
+              <div class="acc-form-group acc-form-full">
+                <label>Current Password</label>
+                <input class="acc-form-input" id="fCurrentPw" type="password" placeholder="Enter current password" />
+              </div>
+              <div class="acc-form-group">
+                <label>New Password</label>
+                <input class="acc-form-input" id="fNewPw" type="password" placeholder="At least 8 characters" oninput="checkPasswordStrength(this.value)" />
+                <div class="acc-pw-strength">
+                  <div class="acc-pw-bar" id="pwBar1"></div>
+                  <div class="acc-pw-bar" id="pwBar2"></div>
+                  <div class="acc-pw-bar" id="pwBar3"></div>
+                  <div class="acc-pw-bar" id="pwBar4"></div>
+                </div>
+                <div class="acc-pw-label" id="pwLabel">Enter a new password</div>
+              </div>
+              <div class="acc-form-group">
+                <label>Confirm New Password</label>
+                <input class="acc-form-input" id="fConfirmPw" type="password" placeholder="Repeat new password" />
+              </div>
+            </div>
+            <div class="acc-form-footer">
+              <button class="acc-btn-save" onclick="changePassword()">Update Password</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="acc-section">
+          <div class="acc-section-header">
+            <div>
+              <div class="acc-section-title">Notification Preferences</div>
+              <div class="acc-section-subtitle">Choose what updates you receive and how</div>
+            </div>
+          </div>
+          <div class="acc-section-body" style="padding-top:8px;padding-bottom:8px;">
+            <div class="acc-toggle-row">
+              <div class="acc-toggle-info">
+                <div class="acc-toggle-label">New Visit Assignment</div>
+                <div class="acc-toggle-desc">Notify me when a new visit is assigned to me</div>
+              </div>
+              <label class="acc-toggle">
+                <input type="checkbox" id="notifyNewVisit" checked onchange="saveNotifPrefs()">
+                <span class="acc-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="acc-toggle-row">
+              <div class="acc-toggle-info">
+                <div class="acc-toggle-label">Visit Reminder (24h before)</div>
+                <div class="acc-toggle-desc">Get a reminder the day before each scheduled visit</div>
+              </div>
+              <label class="acc-toggle">
+                <input type="checkbox" id="notifyReminder" checked onchange="saveNotifPrefs()">
+                <span class="acc-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="acc-toggle-row">
+              <div class="acc-toggle-info">
+                <div class="acc-toggle-label">Visit Schedule Changes</div>
+                <div class="acc-toggle-desc">Alert me when a visit is rescheduled or cancelled</div>
+              </div>
+              <label class="acc-toggle">
+                <input type="checkbox" id="notifyChanges" checked onchange="saveNotifPrefs()">
+                <span class="acc-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="acc-toggle-row">
+              <div class="acc-toggle-info">
+                <div class="acc-toggle-label">New Messages</div>
+                <div class="acc-toggle-desc">Notify me of new messages from dispatch or admin</div>
+              </div>
+              <label class="acc-toggle">
+                <input type="checkbox" id="notifyMessages" checked onchange="saveNotifPrefs()">
+                <span class="acc-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="acc-toggle-row">
+              <div class="acc-toggle-info">
+                <div class="acc-toggle-label">Report Review Status</div>
+                <div class="acc-toggle-desc">Notify me when a submitted report is reviewed or returned</div>
+              </div>
+              <label class="acc-toggle">
+                <input type="checkbox" id="notifyReports" onchange="saveNotifPrefs()">
+                <span class="acc-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="acc-toggle-row">
+              <div class="acc-toggle-info">
+                <div class="acc-toggle-label">Mobile Push Notifications</div>
+                <div class="acc-toggle-desc">Receive push notifications on your mobile device</div>
+              </div>
+              <label class="acc-toggle">
+                <input type="checkbox" id="notifyMobile" checked onchange="saveNotifPrefs()">
+                <span class="acc-toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- App Preferences -->
+        <div class="acc-section">
+          <div class="acc-section-header">
+            <div>
+              <div class="acc-section-title">App Preferences</div>
+              <div class="acc-section-subtitle">Customize your portal experience</div>
+            </div>
+          </div>
+          <div class="acc-section-body">
+            <div class="acc-form-grid">
+              <div class="acc-form-group">
+                <label>Default Visit List View</label>
+                <select class="acc-form-select" id="prefDefaultView" onchange="saveAppPrefs()">
+                  <option value="upcoming">Upcoming visits first</option>
+                  <option value="today">Today only</option>
+                  <option value="all">All visits</option>
+                </select>
+              </div>
+              <div class="acc-form-group">
+                <label>Date Format</label>
+                <select class="acc-form-select" id="prefDateFormat" onchange="saveAppPrefs()">
+                  <option value="us">MM/DD/YYYY</option>
+                  <option value="intl">DD/MM/YYYY</option>
+                  <option value="iso">YYYY-MM-DD</option>
+                </select>
+              </div>
+              <div class="acc-form-group">
+                <label>Time Format</label>
+                <select class="acc-form-select" id="prefTimeFormat" onchange="saveAppPrefs()">
+                  <option value="12">12-hour (AM/PM)</option>
+                  <option value="24">24-hour</option>
+                </select>
+              </div>
+              <div class="acc-form-group">
+                <label>Map Provider</label>
+                <select class="acc-form-select" id="prefMapApp" onchange="saveAppPrefs()">
+                  <option value="google">Google Maps</option>
+                  <option value="apple">Apple Maps</option>
+                  <option value="waze">Waze</option>
+                </select>
+              </div>
+            </div>
+            <div class="acc-form-footer">
+              <button class="acc-btn-save" onclick="saveAppPrefs(); showToast('Preferences saved','success')">Save Preferences</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="acc-section">
+          <div class="acc-section-header">
+            <div>
+              <div class="acc-section-title">Recent Account Activity</div>
+              <div class="acc-section-subtitle">Sign-ins and account changes</div>
+            </div>
+          </div>
+          <div class="acc-section-body" style="padding-top:8px;padding-bottom:8px;">
+            <div class="acc-activity-item">
+              <div class="acc-activity-icon" style="background:#eff6ff;color:#2563eb;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16"/></svg>
+              </div>
+              <div>
+                <div class="acc-activity-title">Signed in from Southwest Florida</div>
+                <div class="acc-activity-time">Today · 7:42 AM · Chrome on macOS</div>
+              </div>
+            </div>
+            <div class="acc-activity-item">
+              <div class="acc-activity-icon" style="background:#f0fdf4;color:#16a34a;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg>
+              </div>
+              <div>
+                <div class="acc-activity-title">Profile updated</div>
+                <div class="acc-activity-time">Mar 8, 2026 · 3:15 PM</div>
+              </div>
+            </div>
+            <div class="acc-activity-item">
+              <div class="acc-activity-icon" style="background:#eff6ff;color:#2563eb;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16"/></svg>
+              </div>
+              <div>
+                <div class="acc-activity-title">Signed in from Southwest Florida</div>
+                <div class="acc-activity-time">Mar 8, 2026 · 7:55 AM · Mobile Safari on iPhone</div>
+              </div>
+            </div>
+            <div class="acc-activity-item">
+              <div class="acc-activity-icon" style="background:#fef3c7;color:#b45309;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              </div>
+              <div>
+                <div class="acc-activity-title">Password changed</div>
+                <div class="acc-activity-time">Feb 28, 2026 · 10:22 AM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="acc-danger-zone">
+          <div class="acc-danger-header">
+            <div class="acc-danger-title">⚠ Account Actions</div>
+          </div>
+          <div class="acc-danger-body">
+            <div class="acc-danger-row">
+              <div>
+                <div class="acc-danger-label">Sign Out All Devices</div>
+                <div class="acc-danger-desc">Immediately sign out from all active sessions on all devices</div>
+              </div>
+              <button class="acc-btn-danger" onclick="signOutAll()">Sign Out All</button>
+            </div>
+            <div class="acc-danger-row">
+              <div>
+                <div class="acc-danger-label">Contact Admin</div>
+                <div class="acc-danger-desc">Need account changes that require admin approval? Message dispatch.</div>
+              </div>
+              <button class="acc-btn-danger" onclick="window.location.href='employee-messages.html'" style="border-color:#cbd5e1;color:#64748b;">Open Messages</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Message Notifications Panel -->
+<div id="empMsgNotifPanel" style="display:none;position:fixed;top:60px;right:16px;width:340px;max-width:calc(100vw - 32px);background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 32px rgba(22,45,86,.15);z-index:9999;">
+  <div style="padding:14px 16px 10px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:14px;font-weight:700;color:#0f1e38;">Message Notifications</div>
+    <button onclick="closeEmpMsgNotif()" style="background:none;border:none;font-size:18px;color:#94a3b8;cursor:pointer;line-height:1;">×</button>
+  </div>
+  <div id="empMsgNotifList" style="max-height:340px;overflow-y:auto;padding:8px 0;">
+    <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No new messages</div>
+  </div>
+  <div style="padding:10px 16px;border-top:1px solid #f1f5f9;text-align:center;">
+    <a href="employee-messages.html" style="font-size:13px;font-weight:600;color:#162d56;text-decoration:none;">View All Messages →</a>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/emp-msg-notif.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  renderEmpSidebar('emp-account');
+  await loadProfile();
+  await loadStats();
+  initEmpMsgNotif();
+});
+
+// ─── Load profile from API ─────────────────────────────────────────────────────
+async function loadProfile() {
+  const { data: employees } = await empApiGetAll('employees');
+  const emp = (employees || []).find(e => e.user_id === EMP_SESSION.userId || e.id === EMP_SESSION.employeeId);
+
+  const { data: users } = await empApiGetAll('users');
+  const user = (users || []).find(u => u.id === EMP_SESSION.userId) || {};
+
+  const firstName = (user.first_name || EMP_SESSION.name.split(' ')[0] || '');
+  const lastName  = (user.last_name  || EMP_SESSION.name.split(' ').slice(1).join(' ') || '');
+  const fullName  = user.full_name || EMP_SESSION.name;
+  const initials  = FMT.initials(fullName);
+
+  // Update header
+  document.getElementById('profileAvatar').textContent = initials;
+  document.getElementById('topbarAvatar').textContent  = initials;
+  document.getElementById('profileName').textContent   = fullName;
+  document.getElementById('profileEmpId').textContent  = emp?.employee_id || EMP_SESSION.employeeId || 'EMP-001';
+  document.getElementById('profileZone').textContent   = emp?.zone || 'Southwest FL';
+  document.getElementById('profileSince').textContent  = FMT.date(user.created_at || emp?.created_at) || 'Jan 2025';
+
+  // Fill form
+  document.getElementById('fFirstName').value = firstName;
+  document.getElementById('fLastName').value  = lastName;
+  document.getElementById('fEmail').value     = user.email || '';
+  document.getElementById('fPhone').value     = user.phone || emp?.phone || '';
+  document.getElementById('fEmpId').value     = emp?.employee_id || EMP_SESSION.employeeId || 'EMP-001';
+  document.getElementById('fAddress').value   = emp?.home_address || '';
+  document.getElementById('fZone').value      = emp?.zone || '';
+  document.getElementById('fVehicle').value   = emp?.vehicle || '';
+  document.getElementById('fBio').value       = user.bio || emp?.notes || '';
+}
+
+// ─── Load stats ───────────────────────────────────────────────────────────────
+async function loadStats() {
+  const { data: visits } = await empApiGetAll('visits');
+  const { data: reports } = await empApiGetAll('reports');
+  const { data: employees } = await empApiGetAll('employees');
+
+  const emp = (employees || []).find(e => e.user_id === EMP_SESSION.userId || e.id === EMP_SESSION.employeeId);
+  const myEmpId = emp?.id;
+
+  const myVisits = (visits || []).filter(v => v.assigned_employee_id === myEmpId);
+  const myReports = (reports || []).filter(r => r.employee_id === myEmpId);
+
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const completed  = myVisits.filter(v => v.status === 'completed').length;
+  const upcoming   = myVisits.filter(v => ['scheduled','en_route','in_progress'].includes(v.status) && new Date(v.scheduled_start) >= now).length;
+  const thisMonth  = myVisits.filter(v => new Date(v.scheduled_start) >= startOfMonth).length;
+
+  document.getElementById('statCompleted').textContent = completed;
+  document.getElementById('statReports').textContent   = myReports.length;
+  document.getElementById('statUpcoming').textContent  = upcoming;
+  document.getElementById('statThisMonth').textContent = thisMonth;
+}
+
+// ─── Save profile ─────────────────────────────────────────────────────────────
+async function saveProfile() {
+  const firstName = document.getElementById('fFirstName').value.trim();
+  const lastName  = document.getElementById('fLastName').value.trim();
+  const email     = document.getElementById('fEmail').value.trim();
+  const phone     = document.getElementById('fPhone').value.trim();
+  const address   = document.getElementById('fAddress').value.trim();
+  const zone      = document.getElementById('fZone').value.trim();
+  const vehicle   = document.getElementById('fVehicle').value.trim();
+  const bio       = document.getElementById('fBio').value.trim();
+
+  if (!firstName || !email) {
+    showToast('First name and email are required', 'error');
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const btn = document.querySelector('.acc-btn-save');
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+
+  try {
+    // Update user record
+    const { data: users } = await empApiGetAll('users');
+    const user = (users || []).find(u => u.id === EMP_SESSION.userId);
+    if (user) {
+      await empApiPatch('users', user.id, {
+        first_name: firstName, last_name: lastName,
+        full_name: `${firstName} ${lastName}`.trim(),
+        email, phone, bio, updated_at: now,
+      });
+    }
+
+    // Update employee record
+    const { data: employees } = await empApiGetAll('employees');
+    const emp = (employees || []).find(e => e.user_id === EMP_SESSION.userId || e.id === EMP_SESSION.employeeId);
+    if (emp) {
+      await empApiPatch('employees', emp.id, {
+        phone, zone, home_address: address, vehicle, notes: bio, updated_at: now,
+      });
+    }
+
+    // Update local session display
+    EMP_SESSION.name     = `${firstName} ${lastName}`.trim();
+    EMP_SESSION.initials = FMT.initials(EMP_SESSION.name);
+
+    document.getElementById('profileAvatar').textContent = EMP_SESSION.initials;
+    document.getElementById('topbarAvatar').textContent  = EMP_SESSION.initials;
+    document.getElementById('profileName').textContent   = EMP_SESSION.name;
+
+    showToast('Profile updated successfully', 'success');
+  } catch (e) {
+    showToast('Failed to save profile. Please try again.', 'error');
+  }
+
+  btn.textContent = 'Save Changes';
+  btn.disabled = false;
+}
+
+// ─── Change password ──────────────────────────────────────────────────────────
+function changePassword() {
+  const current = document.getElementById('fCurrentPw').value;
+  const newPw   = document.getElementById('fNewPw').value;
+  const confirm = document.getElementById('fConfirmPw').value;
+
+  if (!current) { showToast('Enter your current password', 'error'); return; }
+  if (newPw.length < 8) { showToast('New password must be at least 8 characters', 'error'); return; }
+  if (newPw !== confirm) { showToast('Passwords do not match', 'error'); return; }
+
+  // Simulate password update (backend would handle real validation)
+  showToast('Password updated successfully', 'success');
+  document.getElementById('fCurrentPw').value = '';
+  document.getElementById('fNewPw').value = '';
+  document.getElementById('fConfirmPw').value = '';
+  ['pwBar1','pwBar2','pwBar3','pwBar4'].forEach(id => {
+    document.getElementById(id).className = 'acc-pw-bar';
+  });
+  document.getElementById('pwLabel').textContent = 'Enter a new password';
+}
+
+// ─── Password strength checker ────────────────────────────────────────────────
+function checkPasswordStrength(pw) {
+  const bars  = ['pwBar1','pwBar2','pwBar3','pwBar4'];
+  const label = document.getElementById('pwLabel');
+  let score = 0;
+
+  if (pw.length >= 8)  score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+  const levels = ['weak','fair','good','strong'];
+  const labels = ['Weak — too short','Fair — add numbers or symbols','Good — add uppercase or special chars','Strong password'];
+  const colors = { weak:'weak', fair:'fair', good:'good', strong:'strong' };
+
+  bars.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'acc-pw-bar' + (i < score ? ' ' + levels[score - 1] : '');
+  });
+  label.textContent = pw.length === 0 ? 'Enter a new password' : labels[score - 1] || 'Too short';
+}
+
+// ─── Notification prefs (localStorage) ───────────────────────────────────────
+function saveNotifPrefs() {
+  const prefs = {
+    newVisit:  document.getElementById('notifyNewVisit').checked,
+    reminder:  document.getElementById('notifyReminder').checked,
+    changes:   document.getElementById('notifyChanges').checked,
+    messages:  document.getElementById('notifyMessages').checked,
+    reports:   document.getElementById('notifyReports').checked,
+    mobile:    document.getElementById('notifyMobile').checked,
+  };
+  localStorage.setItem('emp_notif_prefs', JSON.stringify(prefs));
+  showToast('Notification preferences saved', 'success');
+}
+
+function loadNotifPrefs() {
+  try {
+    const prefs = JSON.parse(localStorage.getItem('emp_notif_prefs') || '{}');
+    if ('newVisit' in prefs) document.getElementById('notifyNewVisit').checked = prefs.newVisit;
+    if ('reminder' in prefs) document.getElementById('notifyReminder').checked = prefs.reminder;
+    if ('changes'  in prefs) document.getElementById('notifyChanges').checked  = prefs.changes;
+    if ('messages' in prefs) document.getElementById('notifyMessages').checked = prefs.messages;
+    if ('reports'  in prefs) document.getElementById('notifyReports').checked  = prefs.reports;
+    if ('mobile'   in prefs) document.getElementById('notifyMobile').checked   = prefs.mobile;
+  } catch (e) { /* use defaults */ }
+}
+
+// ─── App prefs (localStorage) ────────────────────────────────────────────────
+function saveAppPrefs() {
+  const prefs = {
+    defaultView: document.getElementById('prefDefaultView').value,
+    dateFormat:  document.getElementById('prefDateFormat').value,
+    timeFormat:  document.getElementById('prefTimeFormat').value,
+    mapApp:      document.getElementById('prefMapApp').value,
+  };
+  localStorage.setItem('emp_app_prefs', JSON.stringify(prefs));
+}
+
+function loadAppPrefs() {
+  try {
+    const prefs = JSON.parse(localStorage.getItem('emp_app_prefs') || '{}');
+    if (prefs.defaultView) document.getElementById('prefDefaultView').value = prefs.defaultView;
+    if (prefs.dateFormat)  document.getElementById('prefDateFormat').value  = prefs.dateFormat;
+    if (prefs.timeFormat)  document.getElementById('prefTimeFormat').value  = prefs.timeFormat;
+    if (prefs.mapApp)      document.getElementById('prefMapApp').value      = prefs.mapApp;
+  } catch (e) { /* use defaults */ }
+}
+
+// ─── Danger zone actions ─────────────────────────────────────────────────────
+function signOutAll() {
+  if (confirm('Sign out from all active sessions on all devices?')) {
+    showToast('All sessions terminated. Redirecting to sign-in…', 'success');
+    setTimeout(() => window.location.href = 'auth.html', 1800);
+  }
+}
+
+// Init prefs on load
+loadNotifPrefs();
+loadAppPrefs();
+</script>
+</body>
+</html>

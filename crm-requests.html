@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Requests — CRM — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+
+  <style>
+    /* ── EXISTING page-level styles ────────────────────────────── */
+    /* ── Status badges ─────────────────────────────────────────── */
+    .req-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      letter-spacing: .2px;
+    }
+    .req-badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .req-badge.new       { background: #eff6ff; color: #2563eb; }
+    .req-badge.new .dot  { background: #2563eb; }
+    .req-badge.reviewing       { background: #fffbeb; color: #b45309; }
+    .req-badge.reviewing .dot  { background: #f59e0b; }
+    .req-badge.scheduled       { background: #f0fdf4; color: #15803d; }
+    .req-badge.scheduled .dot  { background: #22c55e; }
+    .req-badge.completed       { background: #f0fdf4; color: #166534; }
+    .req-badge.completed .dot  { background: #16a34a; }
+    .req-badge.declined        { background: #fef2f2; color: #b91c1c; }
+    .req-badge.declined .dot   { background: #ef4444; }
+
+    /* ── Schedule Visit button ─────────────────────────────────── */
+    .btn-schedule-visit {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #162d56;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 5px 11px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .18s, transform .1s;
+      white-space: nowrap;
+    }
+    .btn-schedule-visit:hover  { background: #1e3d75; transform: translateY(-1px); }
+    .btn-schedule-visit:active { transform: translateY(0); }
+    .btn-schedule-visit svg    { flex-shrink: 0; }
+
+    /* disabled state for statuses where scheduling makes no sense */
+    .btn-schedule-visit.muted {
+      background: #e2e8f0;
+      color: #94a3b8;
+      cursor: default;
+    }
+    .btn-schedule-visit.muted:hover  { background: #e2e8f0; transform: none; }
+
+    /* ── View-request button ───────────────────────────────────── */
+    .btn-view-req {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: transparent;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+      border-radius: 7px;
+      padding: 5px 11px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color .18s, color .18s;
+      white-space: nowrap;
+    }
+    .btn-view-req:hover { border-color: #162d56; color: #162d56; }
+
+    /* ── Toast override for schedule confirmation ──────────────── */
+    .schedule-confirm-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #162d56;
+      color: #fff;
+      border-radius: 10px;
+      padding: 14px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 8px 32px rgba(22,45,86,.25);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 9999;
+      animation: toastIn .25s ease;
+    }
+    .schedule-confirm-toast .toast-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .schedule-confirm-toast .toast-body .toast-title { font-size: 13px; font-weight: 700; }
+    .schedule-confirm-toast .toast-body .toast-sub   { font-size: 11px; opacity: .75; margin-top: 2px; }
+    .toast-dismiss {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,.6);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0 0 0 8px;
+      line-height: 1;
+    }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Info panel under the header ──────────────────────────── */
+    .req-info-strip {
+      background: #f0f6ff;
+      border: 1px solid #c7d9f5;
+      border-radius: 10px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12.5px;
+      color: #2b5199;
+      margin-bottom: 20px;
+    }
+    .req-info-strip svg { flex-shrink: 0; opacity: .7; }
+
+    /* ── Operations link pill ──────────────────────────────────── */
+    .ops-link-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      border: 1px solid #c7d9f5;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #162d56;
+      text-decoration: none;
+      transition: background .15s, border-color .15s;
+    }
+    .ops-link-pill:hover { background: #e8eef8; border-color: #162d56; }
+
+    /* ══════════════════════════════════════════════════════════════
+       MOBILE-ONLY: CRM Requests List
+       All rules below only activate at ≤ 768px.
+       Desktop layout is completely unchanged.
+       ══════════════════════════════════════════════════════════════ */
+
+    /* Mobile request cards container – hidden on desktop */
+    #reqMobileCards {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      padding: 0;
+    }
+
+    /* Individual mobile request card */
+    .mob-req-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(15,30,56,.04);
+    }
+
+    .mob-req-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .mob-req-card-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .mob-req-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #162d56;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .mob-req-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f1e38;
+      line-height: 1.3;
+      min-width: 0;
+    }
+
+    .mob-req-card-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      margin-bottom: 10px;
+    }
+
+    .mob-req-field {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .mob-req-field-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .mob-req-field-val {
+      font-size: 12px;
+      color: #334155;
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    .mob-req-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid #f1f5f9;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+
+      /* Show mobile cards */
+      #reqMobileCards {
+        display: flex !important;
+      }
+
+      /* Hide desktop table scroll wrapper */
+      .reqs-table-scroll {
+        display: none !important;
+      }
+
+      /* Tighter page padding */
+      .dashboard-content {
+        padding: 14px !important;
+      }
+
+      /* Stats row: 2×2 grid */
+      .crm-stats-row {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+      }
+
+      /* Header banner: stack vertically */
+      .crm-header-banner {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+      }
+
+      /* Info strip: wrap text */
+      .req-info-strip {
+        font-size: 12px;
+        padding: 10px 14px;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      /* Admin table header: stack vertically */
+      .admin-table-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        padding: 14px 14px 12px !important;
+      }
+
+      .admin-table-actions {
+        flex-direction: column !important;
+        gap: 8px !important;
+      }
+
+      .admin-search-wrap {
+        width: 100%;
+      }
+
+      .admin-search-input {
+        width: 100% !important;
+        box-sizing: border-box;
+      }
+
+      .admin-filter-select {
+        width: 100% !important;
+        box-sizing: border-box;
+      }
+
+      /* Mobile cards padding inside the table card */
+      #reqMobileCards {
+        padding: 0 14px 14px;
+      }
+
+      /* Pagination */
+      .admin-pagination {
+        padding: 10px 14px;
+        font-size: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      /* Mobile schedule + view buttons: wrap cleanly */
+      .mob-req-card-footer .btn-schedule-visit,
+      .mob-req-card-footer .btn-view-req {
+        flex: 1;
+        justify-content: center;
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dashboard-content {
+        padding: 10px !important;
+      }
+
+      .mob-req-card {
+        padding: 12px 13px;
+      }
+
+      .mob-req-card-fields {
+        grid-template-columns: 1fr 1fr;
+        gap: 5px 10px;
+      }
+
+      .mob-req-card-footer {
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Requests</span>
+          <span class="topbar-welcome">CRM · Central request management system</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <!-- Messages icon -->
+        <button
+          class="topbar-icon-btn"
+          data-msg-trigger="admin"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          title="Messages"
+          type="button"
+          onclick="SHWMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span data-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <!-- Notifications bell -->
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="admin"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <span class="admin-badge manager" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+
+      <!-- Breadcrumb -->
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;margin-bottom:18px;">
+        <a href="admin-dashboard.html" style="color:#64748b;text-decoration:none;font-weight:500;">Admin</a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span style="color:#64748b;font-weight:500;">CRM</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span style="color:#0f1e38;font-weight:600;">Requests</span>
+      </div>
+
+      <!-- Header Banner -->
+      <div class="crm-header-banner" style="margin-bottom:16px;">
+        <div class="crm-header-left">
+          <div class="crm-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 11l3 3L22 4"/>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+            </svg>
+          </div>
+          <div>
+            <div class="crm-header-title">Service Requests</div>
+            <div class="crm-header-sub">
+              Review all client requests submitted through the portal · Use <strong>Schedule Visit</strong> to create field work in Operations
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <a href="admin-schedule.html" class="ops-link-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            Schedule &amp; Dispatch
+          </a>
+        </div>
+      </div>
+
+      <!-- Info strip -->
+      <div class="req-info-strip">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+        </svg>
+        This is the single master system for all client service requests. To convert a request into operational field work, use the
+        <strong>Schedule Visit</strong> button on any row.
+      </div>
+
+      <!-- Stats Row -->
+      <div class="crm-stats-row" style="margin-bottom:20px;">
+        <div class="crm-stat-card">
+          <div class="crm-stat-top">
+            <div class="crm-stat-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+              </svg>
+            </div>
+            <span class="crm-stat-trend up" id="trendNew">—</span>
+          </div>
+          <div class="crm-stat-value" id="statNew">—</div>
+          <div class="crm-stat-label">New</div>
+        </div>
+        <div class="crm-stat-card">
+          <div class="crm-stat-top">
+            <div class="crm-stat-icon amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <span class="crm-stat-trend neu" id="trendReviewing">—</span>
+          </div>
+          <div class="crm-stat-value" id="statReviewing">—</div>
+          <div class="crm-stat-label">Reviewing</div>
+        </div>
+        <div class="crm-stat-card">
+          <div class="crm-stat-top">
+            <div class="crm-stat-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <span class="crm-stat-trend up" id="trendScheduled">—</span>
+          </div>
+          <div class="crm-stat-value" id="statScheduled">—</div>
+          <div class="crm-stat-label">Scheduled</div>
+        </div>
+        <div class="crm-stat-card">
+          <div class="crm-stat-top">
+            <div class="crm-stat-icon purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <span class="crm-stat-trend up" id="trendCompleted">—</span>
+          </div>
+          <div class="crm-stat-value" id="statCompleted">—</div>
+          <div class="crm-stat-label">Completed (this month)</div>
+        </div>
+      </div>
+
+      <!-- Requests Table -->
+      <div class="admin-table-card">
+        <div class="admin-table-header">
+          <div class="admin-table-title">
+            All Service Requests
+            <span style="font-size:12px;color:#94a3b8;font-weight:400;margin-left:6px;" id="reqCount"></span>
+          </div>
+          <div class="admin-table-actions">
+            <div class="admin-search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input type="text" class="admin-search-input" placeholder="Search requests…"
+                id="reqSearch" oninput="filterRequests()" style="width:200px;" />
+            </div>
+            <select class="admin-filter-select" id="reqStatusFilter" onchange="filterRequests()">
+              <option value="">All Statuses</option>
+              <option value="new">New</option>
+              <option value="reviewing">Reviewing</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="completed">Completed</option>
+              <option value="declined">Declined</option>
+            </select>
+            <select class="admin-filter-select" id="reqTypeFilter" onchange="filterRequests()">
+              <option value="">All Types</option>
+              <option value="AC Service">AC Service</option>
+              <option value="Plumbing">Plumbing</option>
+              <option value="Electrical">Electrical</option>
+              <option value="Landscaping">Landscaping</option>
+              <option value="Pest Control">Pest Control</option>
+              <option value="General Repair">General Repair</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="reqs-table-scroll" style="overflow-x:auto;">
+          <table class="admin-data-table">
+            <thead>
+              <tr>
+                <th>Customer Name</th>
+                <th>Property</th>
+                <th>Request Type</th>
+                <th>Request Date</th>
+                <th>Status</th>
+                <th style="text-align:right; min-width:220px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reqTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Mobile card list (hidden on desktop, shown on mobile via CSS) -->
+        <div id="reqMobileCards"></div>
+
+        <div class="admin-pagination">
+          <span id="reqPaginationInfo" style="font-size:12px;color:#94a3b8;"></span>
+          <div class="admin-page-btns" id="reqPageBtns"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/messages-panel.js"></script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+});
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+// All requests are loaded from the backend API — no hardcoded data.
+let REQUESTS = [];
+
+const TYPE_ICONS = {
+  'AC Service':     '❄️',
+  'Plumbing':       '🔧',
+  'Electrical':     '⚡',
+  'Landscaping':    '🌿',
+  'Pest Control':   '🐛',
+  'General Repair': '🔨',
+  'Other':          '📋',
+};
+
+// ── Pagination state ──────────────────────────────────────────────────────────
+const PER_PAGE  = 15;
+let _filtered   = [];
+let _currentPage = 1;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderAdminSidebar('crm-requests');
+  loadApiRequests();
+  if (typeof SHWNav !== 'undefined') SHWNav.restoreScroll('crm-requests.html');
+});
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function computeStats() {
+  const byStatus = st => REQUESTS.filter(r => r.status === st).length;
+
+  document.getElementById('statNew').textContent       = byStatus('new');
+  document.getElementById('statReviewing').textContent  = byStatus('reviewing');
+  document.getElementById('statScheduled').textContent  = byStatus('scheduled');
+  document.getElementById('statCompleted').textContent  = byStatus('completed');
+
+  document.getElementById('trendNew').textContent       = `+${byStatus('new')}`;
+  document.getElementById('trendNew').className         = 'crm-stat-trend up';
+  document.getElementById('trendReviewing').textContent = byStatus('reviewing');
+  document.getElementById('trendScheduled').textContent = `↑ ${byStatus('scheduled')}`;
+  document.getElementById('trendScheduled').className   = 'crm-stat-trend up';
+  document.getElementById('trendCompleted').textContent = `↑ ${byStatus('completed')}`;
+  document.getElementById('trendCompleted').className   = 'crm-stat-trend up';
+}
+
+// ── API load ──────────────────────────────────────────────────────────────────
+async function loadApiRequests() {
+  try {
+    const res = await fetch('tables/service_requests?limit=200&sort=created_at');
+    if (res.ok) {
+      const json = await res.json();
+      REQUESTS = (json.data || []).map(r => {
+        const rawDate = r.created_at ? new Date(typeof r.created_at === 'number' ? r.created_at : Number(r.created_at)) : null;
+        return {
+          id:       r.id,
+          client:   r.client_name  || r.full_name  || '—',
+          property: r.property_name || r.address   || '—',
+          type:     r.request_type  || r.type      || 'Other',
+          date:     rawDate && !isNaN(rawDate)
+                      ? rawDate.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+                      : '—',
+          status:   r.status || 'new',
+        };
+      });
+    }
+  } catch (e) {
+    // API unavailable — REQUESTS stays empty
+  } finally {
+    computeStats();
+    filterRequests();
+  }
+}
+
+// ── Filter + render ───────────────────────────────────────────────────────────
+function filterRequests() {
+  const q   = (document.getElementById('reqSearch').value || '').toLowerCase();
+  const st  = document.getElementById('reqStatusFilter').value;
+  const typ = document.getElementById('reqTypeFilter').value;
+
+  _filtered = REQUESTS.filter(r => {
+    const mQ   = !q   || r.client.toLowerCase().includes(q) ||
+                         r.property.toLowerCase().includes(q) ||
+                         r.type.toLowerCase().includes(q);
+    const mS   = !st  || r.status === st;
+    const mTyp = !typ || r.type   === typ;
+    return mQ && mS && mTyp;
+  });
+
+  _currentPage = 1;
+  renderPage();
+}
+
+function renderPage() {
+  const total = _filtered.length;
+  const start = (_currentPage - 1) * PER_PAGE;
+  const page  = _filtered.slice(start, start + PER_PAGE);
+
+  document.getElementById('reqCount').textContent =
+    `(${total} request${total !== 1 ? 's' : ''})`;
+  document.getElementById('reqPaginationInfo').textContent =
+    total === 0 ? 'No results'
+    : `Showing ${start + 1}–${Math.min(start + PER_PAGE, total)} of ${total} requests`;
+
+  renderRequests(page);
+  renderPagination(total);
+}
+
+function renderRequests(data) {
+  const tbody = document.getElementById('reqTableBody');
+  const mobileList = document.getElementById('reqMobileCards');
+
+  if (!data.length) {
+    tbody.innerHTML = `
+      <tr><td colspan="6">
+        <div class="admin-empty-state">
+          <div class="admin-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 11l3 3L22 4"/>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+            </svg>
+          </div>
+          <div class="admin-empty-title">No requests found</div>
+          <div class="admin-empty-text">Try adjusting your search or filter.</div>
+        </div>
+      </td></tr>`;
+    mobileList.innerHTML = `<div style="text-align:center;padding:32px 16px;color:#94a3b8;font-size:13px;">No requests found</div>`;
+    return;
+  }
+
+  // Desktop table rows
+  tbody.innerHTML = data.map(r => {
+    const canSchedule = ['new', 'reviewing'].includes(r.status);
+    const scheduleBtnClass = canSchedule ? 'btn-schedule-visit' : 'btn-schedule-visit muted';
+    const scheduleTitle = canSchedule
+      ? `Create a visit in Schedule & Dispatch for this request`
+      : `Request is already ${r.status} — scheduling not required`;
+
+    return `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:#162d56;color:#fff;
+                      font-size:10px;font-weight:700;display:flex;align-items:center;
+                      justify-content:center;flex-shrink:0;">
+            ${initials(r.client)}
+          </div>
+          <div class="cell-primary">${r.client}</div>
+        </div>
+      </td>
+      <td>
+        <div class="cell-primary" style="font-weight:500;">${r.property}</div>
+      </td>
+      <td>
+        <span style="font-size:13px;">${TYPE_ICONS[r.type] || '📋'} ${r.type}</span>
+      </td>
+      <td style="color:#64748b;white-space:nowrap;">${r.date}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td class="cell-actions" style="text-align:right;">
+        <div style="display:inline-flex;gap:6px;align-items:center;justify-content:flex-end;">
+          <button class="btn-view-req"
+            onclick="if(typeof SHWNav!=='undefined')SHWNav.saveScroll('crm-requests.html'); window.location.href='crm-request-detail.html?id=${r.id}'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 width="12" height="12">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            View
+          </button>
+          <button
+            class="${scheduleBtnClass}"
+            ${canSchedule ? `onclick="scheduleVisit('${r.id}','${r.client}','${r.property}')"` : ''}
+            title="${scheduleTitle}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 width="12" height="12">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            Schedule Visit
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Mobile cards
+  mobileList.innerHTML = data.map(r => {
+    const canSchedule = ['new', 'reviewing'].includes(r.status);
+    const scheduleBtnClass = canSchedule ? 'btn-schedule-visit' : 'btn-schedule-visit muted';
+    return `
+    <div class="mob-req-card">
+      <div class="mob-req-card-header">
+        <div class="mob-req-card-identity">
+          <div class="mob-req-avatar">${initials(r.client)}</div>
+          <div class="mob-req-name">${r.client}</div>
+        </div>
+        <div>${statusBadge(r.status)}</div>
+      </div>
+      <div class="mob-req-card-fields">
+        <div class="mob-req-field" style="grid-column:1/-1;">
+          <span class="mob-req-field-label">Property</span>
+          <span class="mob-req-field-val">${r.property}</span>
+        </div>
+        <div class="mob-req-field">
+          <span class="mob-req-field-label">Request Type</span>
+          <span class="mob-req-field-val">${TYPE_ICONS[r.type] || '📋'} ${r.type}</span>
+        </div>
+        <div class="mob-req-field">
+          <span class="mob-req-field-label">Date</span>
+          <span class="mob-req-field-val">${r.date}</span>
+        </div>
+      </div>
+      <div class="mob-req-card-footer">
+        <button class="btn-view-req"
+          onclick="if(typeof SHWNav!=='undefined')SHWNav.saveScroll('crm-requests.html'); window.location.href='crm-request-detail.html?id=${r.id}'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          View
+        </button>
+        <button
+          class="${scheduleBtnClass}"
+          ${canSchedule ? `onclick="scheduleVisit('${r.id}','${r.client}','${r.property}')"` : ''}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Schedule Visit
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Pagination renderer ───────────────────────────────────────────────────────
+function renderPagination(total) {
+  const pages  = Math.ceil(total / PER_PAGE);
+  const btnCon = document.getElementById('reqPageBtns');
+  if (pages <= 1) { btnCon.innerHTML = ''; return; }
+
+  let html = `<button class="admin-page-btn" ${_currentPage === 1 ? 'disabled' : ''}
+    onclick="goPage(${_currentPage - 1})">‹</button>`;
+  for (let i = 1; i <= pages; i++) {
+    html += `<button class="admin-page-btn ${i === _currentPage ? 'active' : ''}"
+      onclick="goPage(${i})">${i}</button>`;
+  }
+  html += `<button class="admin-page-btn" ${_currentPage === pages ? 'disabled' : ''}
+    onclick="goPage(${_currentPage + 1})">›</button>`;
+  btnCon.innerHTML = html;
+}
+
+function goPage(n) {
+  _currentPage = n;
+  renderPage();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Status badge helper ───────────────────────────────────────────────────────
+function statusBadge(status) {
+  const map = {
+    new:       'New',
+    reviewing: 'Reviewing',
+    scheduled: 'Scheduled',
+    completed: 'Completed',
+    declined:  'Declined',
+  };
+  const label = map[status] || status;
+  return `<span class="req-badge ${status}"><span class="dot"></span>${label}</span>`;
+}
+
+// ── Initials helper ───────────────────────────────────────────────────────────
+function initials(name) {
+  const parts = name.replace(/&/g, '').trim().split(/\s+/);
+  return (parts[0][0] + (parts[parts.length - 1][0] || '')).toUpperCase();
+}
+
+// ── Schedule Visit action ─────────────────────────────────────────────────────
+function scheduleVisit(reqId, clientName, property) {
+  // Remove any existing toast
+  const existing = document.getElementById('scheduleToast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'scheduleToast';
+  toast.className = 'schedule-confirm-toast';
+  toast.innerHTML = `
+    <div class="toast-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+    </div>
+    <div class="toast-body">
+      <div class="toast-title">Visit Added to Schedule &amp; Dispatch</div>
+      <div class="toast-sub">${clientName} · ${property}</div>
+    </div>
+    <button class="toast-dismiss" onclick="this.closest('#scheduleToast').remove()">✕</button>`;
+
+  document.body.appendChild(toast);
+
+  // Auto-dismiss after 4 s
+  setTimeout(() => {
+    if (toast.parentNode) {
+      toast.style.transition = 'opacity .3s, transform .3s';
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(8px)';
+      setTimeout(() => toast.remove(), 320);
+    }
+  }, 4000);
+}
+</script>
+</body>
+</html>

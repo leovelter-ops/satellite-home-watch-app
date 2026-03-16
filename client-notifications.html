@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+<div class="app-wrapper">
+
+  <!-- Mobile Top Bar (injected by sidebar.js for non-dashboard pages) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Client navigation">
+    <div class="sidebar-header">
+      <a href="index.html" class="sidebar-logo" title="Go to main site">
+        <img src="images/logo.png" alt="Satellite Home Watch logo" class="sidebar-logo-img" />
+        <div class="sidebar-logo-text">
+          <span class="sidebar-logo-primary">Satellite Home Watch</span>
+          <span class="sidebar-logo-sub">Client Portal</span>
+        </div>
+      </a>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <div class="sidebar-section-label">Main</div>
+      <a href="dashboard.html" class="sidebar-nav-item" data-page="dashboard">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Client Dashboard
+      </a>
+      <a href="client-properties.html" class="sidebar-nav-item" data-page="properties">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        My Properties
+      </a>
+      <div class="sidebar-section-label" style="margin-top:var(--space-2);">Activity</div>
+      <a href="client-visits.html" class="sidebar-nav-item" data-page="visits">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        All Visits
+      </a>
+      <a href="client-alerts.html" class="sidebar-nav-item" data-page="alerts">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        All Alerts
+        <span class="sidebar-nav-badge">2</span>
+      </a>
+      <a href="client-reports.html" class="sidebar-nav-item" data-page="reports">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        All Reports
+      </a>
+      <a href="client-messages.html" class="sidebar-nav-item" data-page="messages">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+        Messages
+        <span class="sidebar-nav-badge amber">1</span>
+      </a>
+      <div class="sidebar-section-label" style="margin-top:var(--space-2);">Documents</div>
+      <a href="client-documents.html" class="sidebar-nav-item" data-page="documents">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+        </svg>
+        All Documents
+      </a>
+      <div class="sidebar-section-label" style="margin-top:var(--space-2);">Services</div>
+      <a href="client-track-visit.html" class="sidebar-nav-item" data-page="track">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polygon points="10 8 16 12 10 16 10 8"/>
+        </svg>
+        Track Visit
+      </a>
+      <a href="client-request-service.html" class="sidebar-nav-item" data-page="request-service">
+        <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="16"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+        Request a Service
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-profile" onclick="window.location.href='client-account.html'">
+        <div class="sidebar-profile-avatar" id="sidebarAvatarInitials"></div>
+        <div class="sidebar-profile-info">
+          <div class="sidebar-profile-name" id="sidebarProfileName">—</div>
+          <div class="sidebar-profile-role">Property Owner</div>
+        </div>
+        <svg style="width:14px;height:14px;color:var(--navy-400);flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="sidebar-footer-links">
+        <a href="client-account.html" class="sidebar-footer-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>
+          My Account
+        </a>
+        <a href="client-terms.html" class="sidebar-footer-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Terms &amp; Conditions
+        </a>
+        <a href="auth.html" class="sidebar-footer-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- Desktop Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Open navigation">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">Notifications</span>
+          <span class="topbar-welcome">Your activity feed and important updates</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-icon-btn" title="Notifications (current page)" aria-current="page" style="color:var(--navy-600);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="topbar-notif-badge" id="desktopBadge" style="display:none;"></span>
+        </button>
+        <button class="topbar-icon-btn" data-client-msg-trigger="client" aria-label="Open messages" aria-haspopup="dialog" aria-expanded="false" title="Messages" type="button" onclick="SHWClientMsgPanel.toggle(this)" style="position:relative;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span data-client-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <div class="topbar-avatar" id="topbarAvatar" onclick="window.location.href='client-account.html'" style="cursor:pointer;"></div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="dashboard-content">
+      <div class="notif-page">
+
+        <!-- Page Header -->
+        <div class="notif-page-header">
+          <div class="notif-page-title-group">
+            <div class="notif-page-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 01-3.46 0"/>
+              </svg>
+            </div>
+            <div>
+              <div class="notif-page-title">
+                Notifications
+                <span class="notif-unread-count-badge" id="unreadCountBadge">4</span>
+              </div>
+              <div class="notif-page-sub">Messages, reports, inspections, alerts, and account updates</div>
+            </div>
+          </div>
+          <div class="notif-header-actions">
+            <button class="notif-mark-all-btn" onclick="handleMarkAllRead()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Mark all as read
+            </button>
+          </div>
+        </div>
+
+        <!-- Summary Strip -->
+        <div class="notif-summary-strip">
+          <div class="notif-summary-stat">
+            <div class="notif-summary-stat-value" id="summaryTotal">12</div>
+            <div class="notif-summary-stat-label">Total</div>
+          </div>
+          <div class="notif-summary-divider"></div>
+          <div class="notif-summary-stat">
+            <div class="notif-summary-stat-value" id="summaryUnread">4</div>
+            <div class="notif-summary-stat-label">Unread</div>
+          </div>
+          <div class="notif-summary-divider"></div>
+          <div class="notif-summary-stat">
+            <div class="notif-summary-stat-value" id="summaryUrgent">1</div>
+            <div class="notif-summary-stat-label">Urgent</div>
+          </div>
+          <div class="notif-summary-divider"></div>
+          <div class="notif-summary-stat">
+            <div class="notif-summary-stat-value" id="summaryToday">3</div>
+            <div class="notif-summary-stat-label">Today</div>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="notif-filter-bar" id="filterBar" role="group" aria-label="Filter notifications">
+          <button class="notif-filter-chip active" data-filter="all" onclick="setFilter('all', this)">
+            All <span class="chip-count" id="countAll">12</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="message" onclick="setFilter('message', this)">
+            💬 Messages <span class="chip-count" id="countMessage">2</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="inspection" onclick="setFilter('inspection', this)">
+            ✅ Inspections <span class="chip-count" id="countInspection">3</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="report" onclick="setFilter('report', this)">
+            📄 Reports <span class="chip-count" id="countReport">2</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="alert" onclick="setFilter('alert', this)">
+            🚨 Alerts <span class="chip-count" id="countAlert">2</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="document" onclick="setFilter('document', this)">
+            📁 Documents <span class="chip-count" id="countDocument">1</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="service" onclick="setFilter('service', this)">
+            🔧 Service <span class="chip-count" id="countService">1</span>
+          </button>
+          <button class="notif-filter-chip" data-filter="account" onclick="setFilter('account', this)">
+            👤 Account <span class="chip-count" id="countAccount">1</span>
+          </button>
+          <label class="notif-unread-toggle">
+            <input type="checkbox" id="unreadOnlyToggle" onchange="toggleUnreadOnly(this.checked)" />
+            Unread only
+          </label>
+        </div>
+
+        <!-- Notifications Feed -->
+        <div class="notif-feed" id="notifFeed">
+          <!-- Rendered by JS -->
+        </div>
+
+      </div>
+    </main>
+  </div><!-- /main-content -->
+</div><!-- /app-wrapper -->
+
+<script src="js/notifications-data.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/client-msg-panel.js"></script>
+<script>
+  // ── State ────────────────────────────────────────────────
+  let currentFilter   = 'all';
+  let unreadOnly      = false;
+
+  // Work on a local mutable copy so mark-as-read persists within session
+  const notifications = CLIENT_NOTIFICATIONS.map(n => ({ ...n }));
+
+  // ── Init ─────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    // Inject mobile topbar
+    injectMobileTopbar('Client Portal');
+
+    // Render feed
+    refreshFeed();
+    updateCounts();
+
+    // Deep-link: highlight a specific notification from URL ?id=cn-xxx
+    const params = new URLSearchParams(window.location.search);
+    const highlightId = params.get('id');
+    if (highlightId) {
+      setTimeout(() => {
+        const el = document.querySelector(`[data-id="${highlightId}"]`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('notif-highlight');
+        }
+      }, 200);
+    }
+  });
+
+  // ── Render ───────────────────────────────────────────────
+  function refreshFeed() {
+    const container = document.getElementById('notifFeed');
+    renderNotifFeed(container, notifications, currentFilter, unreadOnly);
+    updateSummaryStrip();
+  }
+
+  // ── Counts ───────────────────────────────────────────────
+  function updateCounts() {
+    const types = ['message','inspection','report','alert','document','service','account'];
+    document.getElementById('countAll').textContent      = notifications.length;
+    types.forEach(t => {
+      const el = document.getElementById('count' + t.charAt(0).toUpperCase() + t.slice(1));
+      if (el) el.textContent = notifications.filter(n => n.type === t).length;
+    });
+  }
+
+  function updateSummaryStrip() {
+    const unread  = notifications.filter(n => !n.read).length;
+    const urgent  = notifications.filter(n => n.priority === 'urgent').length;
+    const today   = notifications.filter(n => {
+      const d = new Date(n.timestamp);
+      return d.toDateString() === new Date().toDateString();
+    }).length;
+
+    document.getElementById('summaryTotal').textContent  = notifications.length;
+    document.getElementById('summaryUnread').textContent = unread;
+    document.getElementById('summaryUrgent').textContent = urgent;
+    document.getElementById('summaryToday').textContent  = today;
+
+    // Page badge
+    const badge = document.getElementById('unreadCountBadge');
+    if (unread > 0) {
+      badge.textContent = unread;
+      badge.style.display = '';
+    } else {
+      badge.textContent = '';
+      badge.style.display = 'none';
+    }
+  }
+
+  // ── Filter ───────────────────────────────────────────────
+  function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.notif-filter-chip[data-filter]').forEach(c => c.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    refreshFeed();
+  }
+
+  function toggleUnreadOnly(checked) {
+    unreadOnly = checked;
+    refreshFeed();
+  }
+
+  // ── Mark read ────────────────────────────────────────────
+  function markRead(id, rowEl) {
+    const n = notifications.find(x => x.id === id);
+    if (n && !n.read) {
+      n.read = true;
+      if (rowEl) {
+        rowEl.classList.remove('notif-unread');
+        const dot = rowEl.querySelector('.notif-dot');
+        if (dot) dot.remove();
+      }
+      updateSummaryStrip();
+    }
+    // If unread-only mode is active, re-render to remove this item
+    if (unreadOnly) setTimeout(refreshFeed, 280);
+  }
+
+  function handleMarkAllRead() {
+    notifications.forEach(n => { n.read = true; });
+    refreshFeed();
+    updateSummaryStrip();
+  }
+</script>
+</body>
+</html>

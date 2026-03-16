@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Properties — Satellite Home Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/properties.css" />
+  <link rel="stylesheet" href="css/notifications.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+<div class="app-wrapper">
+
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar (rendered by JS) -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Client navigation"></aside>
+
+  <!-- Mobile Topbar (injected by app.js renderSidebar) -->
+
+  <!-- ════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════ -->
+  <div class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">My Properties</span>
+          <span class="topbar-welcome">View and manage your monitored properties</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          class="topbar-icon-btn"
+          data-client-msg-trigger="client"
+          aria-label="Open messages"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Messages"
+          type="button"
+          onclick="SHWClientMsgPanel.toggle(this)"
+          style="position:relative;"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span data-client-msg-badge style="display:none;position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;padding:0 3px;border:1.5px solid #fff;"></span>
+        </button>
+        <button
+          class="topbar-icon-btn np-bell-btn"
+          data-notif-trigger="client"
+          aria-label="Open notifications"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          title="Notifications"
+          type="button"
+          onclick="SHWNotifPanel.toggle(this)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="topbar-notif-badge"></span>
+        </button>
+        <div class="topbar-avatar" onclick="window.location.href='client-account.html'" role="button" aria-label="My account">JM</div>
+      </div>
+    </header>
+
+    <!-- ════════════════════════════════════════
+         PAGE BODY
+    ════════════════════════════════════════ -->
+    <main class="dashboard-content">
+      <div class="properties-page">
+
+        <!-- ══════════════════════════════
+             PAGE HEADER
+        ══════════════════════════════ -->
+        <div class="properties-page-header">
+          <h1 class="properties-page-title">My Properties</h1>
+          <p class="properties-page-subtitle">Your monitored properties — managed and assigned by Satellite Home Watch</p>
+        </div>
+
+        <!-- Invitation-only notice: properties are pre-configured -->
+        <div style="background:#f0f6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 18px;display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <p style="font-size:12px;color:#1e40af;margin:0;line-height:1.5;"><strong>Your properties are managed by our team.</strong> All properties in your portfolio have been enrolled and linked to your account by Satellite Home Watch. To add or modify a property, please contact your account manager.</p>
+        </div>
+
+        <!-- ══════════════════════════════
+             SUMMARY BAR
+        ══════════════════════════════ -->
+        <div class="properties-summary-bar" role="region" aria-label="Portfolio summary">
+
+          <!-- Active Properties -->
+          <div class="properties-summary-item">
+            <div class="properties-summary-icon active-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <div class="properties-summary-text">
+              <span class="properties-summary-count">3</span>
+              <span class="properties-summary-label">Active Properties</span>
+            </div>
+          </div>
+
+          <!-- Upcoming Visits -->
+          <div class="properties-summary-item">
+            <div class="properties-summary-icon visits-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div class="properties-summary-text">
+              <span class="properties-summary-count">2</span>
+              <span class="properties-summary-label">Upcoming Visits</span>
+            </div>
+          </div>
+
+          <!-- Open Alerts -->
+          <div class="properties-summary-item">
+            <div class="properties-summary-icon alerts-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <div class="properties-summary-text">
+              <span class="properties-summary-count">2</span>
+              <span class="properties-summary-label">Open Alerts</span>
+            </div>
+          </div>
+
+        </div><!-- /.properties-summary-bar -->
+
+        <!-- ══════════════════════════════
+             SEARCH & FILTER BAR
+        ══════════════════════════════ -->
+        <div class="properties-filter-bar" role="search" aria-label="Filter properties">
+
+          <!-- Search Input -->
+          <div class="properties-search-wrap">
+            <svg class="properties-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              class="properties-search-input"
+              type="text"
+              id="propertiesSearch"
+              placeholder="Search properties..."
+              aria-label="Search properties"
+              autocomplete="off"
+              oninput="filterProperties()"
+            />
+          </div>
+
+          <!-- Status Filter -->
+          <select
+            class="properties-filter-select"
+            id="propertiesStatusFilter"
+            aria-label="Filter by status"
+            onchange="filterProperties()"
+          >
+            <option value="all">All Properties</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+
+          <!-- Visible count -->
+          <span class="properties-filter-count" id="propertiesCount" aria-live="polite">3 Properties</span>
+
+        </div><!-- /.properties-filter-bar -->
+
+        <!-- ══════════════════════════════
+             SERVICE PLAN INFO BANNER
+        ══════════════════════════════ -->
+        <div style="display:flex;align-items:flex-start;gap:12px;background:linear-gradient(135deg,#e8eef8 0%,#f0f9ff 100%);border:1px solid #c0d0ea;border-radius:12px;padding:14px 18px;margin-bottom:20px;">
+          <div style="width:36px;height:36px;background:#162d56;color:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:#0f1e38;margin-bottom:3px;">Active Service Plans — Visits Auto-Scheduled</div>
+            <div style="font-size:12px;color:#1e3a6a;line-height:1.5;">
+              Your properties are enrolled in recurring home watch plans. Routine inspection visits are automatically scheduled by our team — no action needed on your end.
+              You can view your full visit schedule and upcoming dates on the <a href="client-visits.html" style="color:#162d56;font-weight:700;text-decoration:none;">All Visits</a> page.
+            </div>
+          </div>
+          <a href="client-visits.html" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#162d56;text-decoration:none;background:#fff;border:1px solid #c0d0ea;border-radius:7px;padding:6px 12px;white-space:nowrap;flex-shrink:0;transition:all .15s;"
+            onmouseover="this.style.background='#e8eef8'" onmouseout="this.style.background='#fff'">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            View Schedule
+          </a>
+        </div>
+
+        <!-- ══════════════════════════════
+             PROPERTY CARD GRID
+        ══════════════════════════════ -->
+        <div class="properties-grid" id="propertiesGrid" role="list" aria-label="Property portfolio">
+
+          <!-- Large property cards with real property images are rendered here by properties-data.js -->
+          <div id="propertiesListContainer" style="display:contents;"></div>
+
+          <!-- ─────────────────────────────
+               EMPTY STATE (hidden by default)
+          ───────────────────────────────── -->
+          <div class="properties-empty-state" id="propertiesEmptyState" style="display:none;" role="status" aria-live="polite">
+            <div class="properties-empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <p class="properties-empty-title">No properties found</p>
+            <p class="properties-empty-desc" id="propertiesEmptyDesc">
+              No properties match your current search or filter. Try adjusting your criteria.
+            </p>
+          </div>
+
+        </div><!-- /.properties-grid -->
+
+      </div><!-- /.properties-page -->
+    </main>
+
+  </div><!-- /.main-content -->
+</div><!-- /.app-wrapper -->
+
+<script src="js/nav.js"></script>
+<script src="js/app.js"></script>
+<script src="js/sidebar.js"></script>
+<script>
+  renderSidebar('properties');
+
+  // Restore scroll position after returning from property detail
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof SHWNav !== 'undefined') SHWNav.restoreScroll('client-properties.html');
+  });
+
+  // ── Filter / Search Logic ──
+  // Targets the large property cards (.property-main-card) rendered by properties-data.js
+  function filterProperties() {
+    const searchVal   = document.getElementById('propertiesSearch').value.toLowerCase().trim();
+    const statusVal   = document.getElementById('propertiesStatusFilter').value;
+    const cards       = document.querySelectorAll('.property-main-card[data-status]');
+    const emptyState  = document.getElementById('propertiesEmptyState');
+    const countEl     = document.getElementById('propertiesCount');
+
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const cardName    = (card.dataset.name || '').toLowerCase();
+      const cardStatus  = card.dataset.status || '';
+
+      const matchesSearch = !searchVal || cardName.includes(searchVal);
+      const matchesStatus = statusVal === 'all' || cardStatus === statusVal;
+
+      if (matchesSearch && matchesStatus) {
+        card.style.display = '';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    // Update count label
+    if (visibleCount === 0) {
+      emptyState.style.display  = '';
+      countEl.textContent       = '0 Properties';
+    } else {
+      emptyState.style.display  = 'none';
+      countEl.textContent       = visibleCount === 1 ? '1 Property' : `${visibleCount} Properties`;
+    }
+  }
+</script>
+
+<!-- ═══════════════════════════════════════════
+     BACKEND DATA LAYER
+════════════════════════════════════════════ -->
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/properties-data.js"></script>
+<script src="js/notifications-data.js"></script>
+<script src="js/notif-panel.js"></script>
+<script src="js/client-msg-panel.js"></script>
+
+</body>
+</html>

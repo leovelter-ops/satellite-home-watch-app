@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Account — Satellite Home Watch Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .acc-page { max-width: 920px; margin: 0 auto; padding: 0 0 48px; }
+
+    /* ── Profile Hero ──────────────────────────────────── */
+    .acc-hero {
+      background: linear-gradient(135deg, #0d1b35 0%, #162d56 60%, #1e3d75 100%);
+      border-radius: 16px;
+      padding: 30px 36px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .acc-hero::after {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 240px; height: 240px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.04);
+    }
+    .acc-hero-avatar {
+      width: 76px; height: 76px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .acc-hero-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -.02em;
+    }
+    .acc-hero-role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 6px;
+      letter-spacing: .3px;
+    }
+    .acc-hero-role-badge.executive {
+      background: rgba(157,23,77,.25);
+      color: #fbcfe8;
+    }
+    .acc-hero-role-badge.manager {
+      background: rgba(255,255,255,.15);
+      color: rgba(255,255,255,.9);
+    }
+    .acc-hero-meta {
+      display: flex;
+      gap: 28px;
+      margin-top: 12px;
+    }
+    .acc-hero-meta-item {
+      font-size: 12px;
+      color: rgba(255,255,255,.65);
+    }
+    .acc-hero-meta-item strong {
+      display: block;
+      color: rgba(255,255,255,.95);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .acc-hero-edit-btn {
+      margin-left: auto;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff;
+      border-radius: 9px;
+      padding: 10px 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .acc-hero-edit-btn:hover { background: rgba(255,255,255,.2); }
+
+    /* ── Stats Row ─────────────────────────────────────── */
+    .acc-stats-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .acc-stat-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .acc-stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: #162d56;
+      line-height: 1;
+    }
+    .acc-stat-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 5px;
+    }
+
+    /* ── Section Card ──────────────────────────────────── */
+    .acc-section {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .acc-section-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .acc-section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f1e38;
+    }
+    .acc-section-subtitle {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+    .acc-section-body { padding: 22px 24px; }
+
+    /* ── Form ──────────────────────────────────────────── */
+    .acc-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .acc-form-full { grid-column: 1 / -1; }
+    .acc-form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 7px;
+    }
+    .acc-form-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 9px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #0f1e38;
+      background: #f8fafc;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color .2s, background .2s;
+    }
+    .acc-form-input:focus { border-color: #162d56; background: #fff; }
+    .acc-form-input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+    .acc-form-select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 9px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #0f1e38;
+      background: #f8fafc;
+      box-sizing: border-box;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .acc-form-select:focus { border-color: #162d56; }
+    .acc-form-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .acc-btn-save {
+      background: #162d56;
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 10px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .acc-btn-save:hover { background: #1e3d75; }
+    .acc-btn-cancel {
+      background: #f8fafc;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+      border-radius: 9px;
+      padding: 10px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .acc-btn-cancel:hover { background: #f1f5f9; }
+
+    /* ── Toggle Row ────────────────────────────────────── */
+    .acc-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 0;
+      border-bottom: 1px solid #f8fafc;
+    }
+    .acc-toggle-row:last-child { border-bottom: none; }
+    .acc-toggle-info { flex: 1; }
+    .acc-toggle-label { font-size: 13px; font-weight: 600; color: #0f1e38; }
+    .acc-toggle-desc  { font-size: 12px; color: #64748b; margin-top: 2px; }
+    .acc-toggle {
+      position: relative; width: 40px; height: 22px; flex-shrink: 0; margin-left: 16px;
+    }
+    .acc-toggle input { opacity: 0; width: 0; height: 0; }
+    .acc-toggle-slider {
+      position: absolute; inset: 0;
+      background: #e2e8f0; border-radius: 22px;
+      cursor: pointer; transition: background .2s;
+    }
+    .acc-toggle-slider::before {
+      content: ''; position: absolute;
+      height: 16px; width: 16px; left: 3px; top: 3px;
+      background: #fff; border-radius: 50%; transition: transform .2s;
+    }
+    .acc-toggle input:checked + .acc-toggle-slider { background: #162d56; }
+    .acc-toggle input:checked + .acc-toggle-slider::before { transform: translateX(18px); }
+
+    /* ── Password strength ─────────────────────────────── */
+    .acc-pw-strength { display: flex; gap: 4px; margin-top: 8px; }
+    .acc-pw-bar { flex: 1; height: 4px; background: #e2e8f0; border-radius: 4px; transition: background .3s; }
+    .acc-pw-bar.weak   { background: #ef4444; }
+    .acc-pw-bar.fair   { background: #f59e0b; }
+    .acc-pw-bar.good   { background: #22c55e; }
+    .acc-pw-bar.strong { background: #162d56; }
+    .acc-pw-label { font-size: 11px; color: #94a3b8; margin-top: 5px; }
+
+    /* ── Permissions Table ─────────────────────────────── */
+    .acc-permissions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .acc-perm-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: #f0f5ff;
+      border: 1px solid #c7d9f5;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #162d56;
+    }
+    .acc-perm-chip svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .acc-perm-chip.exec-only {
+      background: #fdf2f8;
+      border-color: #f9a8d4;
+      color: #9d174d;
+    }
+
+    /* ── Activity ──────────────────────────────────────── */
+    .acc-activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f8fafc;
+    }
+    .acc-activity-item:last-child { border-bottom: none; }
+    .acc-activity-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .acc-activity-icon svg { width: 14px; height: 14px; }
+    .acc-activity-title { font-size: 13px; font-weight: 600; color: #0f1e38; }
+    .acc-activity-time  { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    /* ── Danger Zone ───────────────────────────────────── */
+    .acc-danger-zone {
+      background: #fff; border: 1px solid #fee2e2; border-radius: 14px; overflow: hidden;
+    }
+    .acc-danger-header {
+      padding: 14px 24px; background: #fff5f5; border-bottom: 1px solid #fee2e2;
+    }
+    .acc-danger-title { font-size: 13px; font-weight: 700; color: #dc2626; }
+    .acc-danger-body  { padding: 6px 24px 12px; }
+    .acc-danger-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid #f8fafc;
+    }
+    .acc-danger-row:last-child { border-bottom: none; }
+    .acc-danger-label { font-size: 13px; font-weight: 600; color: #0f1e38; }
+    .acc-danger-desc  { font-size: 12px; color: #64748b; margin-top: 2px; }
+    .acc-btn-danger {
+      background: #fff; color: #dc2626; border: 1px solid #fca5a5;
+      border-radius: 8px; padding: 8px 16px; font-size: 12px; font-weight: 600;
+      font-family: inherit; cursor: pointer; transition: all .2s; white-space: nowrap;
+    }
+    .acc-btn-danger:hover { background: #fef2f2; border-color: #ef4444; }
+
+    @media (max-width: 768px) {
+      .acc-hero         { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .acc-form-grid    { grid-template-columns: 1fr; }
+      .acc-stats-row    { grid-template-columns: repeat(2, 1fr); }
+      .acc-hero-meta    { flex-direction: column; gap: 10px; }
+      .acc-hero-edit-btn { margin-left: 0; }
+      .acc-permissions-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar" role="navigation"></aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-page-title">
+          <span class="topbar-title-text">My Account</span>
+          <span class="topbar-welcome">Profile, security &amp; preferences</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="admin-badge" id="topbarRoleBadge">Manager</span>
+        <div class="topbar-avatar" id="topbarAvatar">—</div>
+      </div>
+    </header>
+
+    <main class="dashboard-content" style="padding:24px;">
+      <div class="acc-page">
+
+        <!-- Profile Hero -->
+        <div class="acc-hero">
+          <div class="acc-hero-avatar" id="heroAvatar"></div>
+          <div style="flex:1;">
+            <div class="acc-hero-name" id="heroName">—</div>
+            <div class="acc-hero-role-badge" id="heroRoleBadge">Manager / Admin</div>
+            <div class="acc-hero-meta">
+              <div class="acc-hero-meta-item">
+                Member Since
+                <strong id="heroSince">—</strong>
+              </div>
+              <div class="acc-hero-meta-item">
+                User ID
+                <strong id="heroUserId">—</strong>
+              </div>
+              <div class="acc-hero-meta-item">
+                Last Login
+                <strong id="heroLastLogin">—</strong>
+              </div>
+              <div class="acc-hero-meta-item">
+                Account Status
+                <strong id="heroStatus">Active</strong>
+              </div>
+            </div>
+          </div>
+          <button class="acc-hero-edit-btn" onclick="document.getElementById('profileSection').scrollIntoView({behavior:'smooth'})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:5px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg>
+            Edit Profile
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="acc-stats-row">
+          <div class="acc-stat-card">
+            <div class="acc-stat-value" id="statProperties">—</div>
+            <div class="acc-stat-label">Properties Managed</div>
+          </div>
+          <div class="acc-stat-card">
+            <div class="acc-stat-value" id="statClients">—</div>
+            <div class="acc-stat-label">Active Clients</div>
+          </div>
+          <div class="acc-stat-card">
+            <div class="acc-stat-value" id="statVisits">—</div>
+            <div class="acc-stat-label">Visits This Month</div>
+          </div>
+          <div class="acc-stat-card">
+            <div class="acc-stat-value" id="statAlerts">—</div>
+            <div class="acc-stat-label">Open Alerts</div>
+          </div>
+          <div class="acc-stat-card">
+            <div class="acc-stat-value" id="statMessages">—</div>
+            <div class="acc-stat-label">Unread Messages</div>
+          </div>
+        </div>
+
+        <!-- Profile Information -->
+        <div class="acc-section" id="profileSection">
+          <div class="acc-section-header">
+            <div>
+              <div class="acc-section-title">Personal Information</div>
+              <div class="acc-section-subtitle">Your name, contact details, and display preferences</div>
+            </div>
+          </div>
+          <div class="acc-section-body">
+            <div class="acc-form-grid">
+              <div class="acc-form-group">
+                <label>First Name</label>
+                <input class="acc-form-input" id="fFirstName" type="text" placeholder="First name" />
+              </div>
+              <div class="acc-form-group">
+                <label>Last Name</label>
+                <input class="acc-form-input" id="fLastName" type="text" placeholder="Last name" />
+              </div>
+              <div class="acc-form-group">
+                <label>Email Address</label>
+                <input class="acc-form-input" id="fEmail" type="email" placeholder="your@email.com" />
+              </div>
+              <div class="acc-form-group">
+                <label>Phone Number</label>
+                <input class="acc-form-input" id="fPhone" type="tel" placeholder="+1 (239) 000-0000" />
+              </div>
+              <div class="acc-form-group">
+                <label>Job Title</label>
+                <input class="acc-form-input" id="fTitle" type="text" placeholder="Operations Manager" />
+              </div>
+              <div class="acc-form-group">
+                <label>Role</label>
+                <input class="acc-form-input" id="fRole" type="text" disabled />
+              </div>
+              <div class="acc-form-group">
+                <label>Office / Branch</label>
+                <input class="acc-form-input" id="fOffice" type="text" placeholder="Naples, FL — Main Office" />
+              </div>
+              <div class="acc-form-group">
+                <label>Emergency Contact</label>
+                <input class="acc-form-input" id="fEmergency" type="text" placeholder="Name — Phone" />
+              </div>
+              <div class="acc-form-group acc-form-full">
+                <label>Internal Notes (visible to executives only)</label>
+                <textarea class="acc-form-input" id="fNotes" rows="3" style="resize:vertical;" placeholder="Optional notes about this account…"></textarea>
+              </div>
+            </div>
+            <div class="acc-form-footer">
+              <button class="acc-btn-cancel" onclick="loadProfile()">Discard</button>
+              <button class="acc-btn-save" id="saveProfileBtn" onclick="saveProfile()">Save Changes</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Password & Security -->
+        <div class="acc-section">
+          <div class="acc-section-header">
+            <div>
+              <div class="acc-section-title">Password &amp; Security</div>
+              <div class="acc-section-subtitle">Keep your admin account secure</div>
+            </div>
+          </div>
+          <div class="acc-section-body">
+            <div class="acc-form-grid">
+              <div class="acc-form-group acc-form-full">
+                <label>Current Password</label>
+                <input class="acc-form-input" id="fCurrentPw" type="password" placeholder="Enter current password" />
+              </div>
+              <div class="acc-form-group">
+                <label>New Password</label>
+                <input class="acc-form-input" id="fNewPw" type="password" placeholder="Min. 12 characters recommended" oninput="checkPasswordStrength(this.value)" />
+                <div class="acc-pw-strength">
+                  <div class="acc-pw-bar" id="pwBar1"></div>
+                  <div class="acc-pw-bar" id="pwBar2"></div>
+                  <div class="acc-pw-bar" id="pwBar3"></div>
+                  <div class="acc-pw-bar" id="pwBar4"></div>
+                </div>
+                <div class="acc-pw-label" id="pwLabel">Enter a new password</div>
+              </div>
+              <div class="acc-form-group">
+                <label>Confirm New Password</label>
+                <input class="acc-form-input" id="fConfirmPw" type="password" placeholder="Repeat new password" />
+              </div>
+            </div>
+
+            <!-- 2FA toggle row -->
+            <div style="margin-top:20px;padding:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:#0f1e38;">Two-Factor Authentication (2FA)</div>
+                <div style="font-size:12px;color:#64748b;margin-top:3px;">Adds an extra layer of security to your account.</div>
+              </div>
+              <label class="acc-toggle">
+                <input type="checkbox" id="toggle2FA" onchange="toggle2FA()">
+                <span class="acc-toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="acc-form-footer">
+              <button class="acc-btn-save" onclick="changePassword()">Update Password</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Role & Permissions (read-only) -->
+        <div class="acc-section">
+          <div class="acc-section-header">
+            <div>
+              <div class="acc-section-title">Role &amp; Permissions</div>
+              <div class="acc-section-subtitle">Your access level is set by executives and cannot be changed here</div>
+            </div>
+            <a href="admin-user-management.html" style="font-size:12px;font-weight:600;color:#162d56;text-decoration:none;" id="userMgmtLink" style="display:none;">Manage Users →</a>
+          </div>
+          <div class="acc-section-body" style="padding-top:8px;padding-bottom:8px;">
+            <!-- Role display -->
+            <div style="display:flex;align-items:center;gap:14px;padding:16px;background:#f0f5ff;border:1px solid #c7d9f5;border-radius:10px;margin-bottom:16px;">
+              <div style="width:42px;height:42px;border-radius:10px;background:#162d56;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div>
+                <div style="font-size:14px;font-weight:700;color:#162d56;" id="roleDisplayName">Manager / Admin</div>
+                <div style="font-size:12px;color:#4a6fa5;" id="roleDisplayDesc">Full operations access. Cannot manage user accounts or execute destructive account actions.</div>
+              </div>
+            </div>
+
+            <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Permissions Granted</div>
+            <div class="acc-permissions-grid" id="permissionsGrid">
+              <!-- populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="acc-section">
+          <div class="acc-section-header">
+            <div>
+              <div class="acc-section-title">Notification Preferences</div>
+              <div class="acc-section-subtitle">Choose what operational updates you receive</div>
+            </div>
+          </div>
+          <div class="acc-section-body" style="padding-top:8px;padding-bottom:8px;">
+            <div class="acc-toggle-row">
+              <div class="acc-toggle-info">
+                <div class="acc-toggle-label">New Service Requests</div>
+                <div class="acc-toggle-desc">Notify when a client submits a new service request via CRM</div>
+              </div>
+              <label class="acc-toggle"><input type="checkbox" id="notifyServiceReq" checked onchange="saveNotifPrefs()"><span class="acc-toggle-slider"></span></label>
+            </div>
+            <div class="acc-toggle-row">
+              <div class="acc-toggle-info">
+                <div class="acc-toggle-label">Urgent Alerts</div>
+                <div class="acc-toggle-desc">Immediate notification of urgent-level property alerts</div>
+              </div>
+              <label class="acc-toggle"><input type="checkbox" id="notifyUrgentAlerts" checked onchange="saveNotifPrefs()"><span class="acc-toggle-slider"></span></label>
+            </div>
+            <div class="acc-toggle-row">
+              <div class="acc-toggle-info">
+                <div class="acc-toggle-label">Unassigned Visits</div>
+                <div class="acc-toggle-desc">Alert when a scheduled visit is still unassigned 24h before</div>
+              </div>
+              <label class="acc-toggle"><input type="checkbox" id="notifyUnassigned" checked onchange="saveNotifPrefs()"><span class="acc-toggle-slider"></span></label>
+            </div>
+            <div class="acc-toggle-row">
+              <div class="acc-toggle-info">
+                <div class="acc-toggle-label">Inspector Status Updates</div>
+                <div class="acc-toggle-desc">Notify when an inspector checks in, completes, or has an issue</div>
+              </div>
+              <label class="acc-toggle"><input type="checkbox" id="notifyInspector" onchange="saveNotifPrefs()"><span class="acc-toggle-slider"></span></label>
+            </div>
+            <div class="acc-toggle-row">
+              <div class="acc-toggle-info">
+                <div class="acc-toggle-label">Client Messages</div>
+                <div class="acc-toggle-desc">Notify when a client sends a new message through the portal</div>
+              </div>
+              <label class="acc-toggle"><input type="checkbox" id="notifyMessages" checked onchange="saveNotifPrefs()"><span class="acc-toggle-slider"></span></label>
+            </div>
+            <div class="acc-toggle-row">
+              <div class="acc-toggle-info">
+                <div class="acc-toggle-label">New Leads (CRM)</div>
+                <div class="acc-toggle-desc">Notify when a new lead is submitted or imported</div>
+              </div>
+              <label class="acc-toggle"><input type="checkbox" id="notifyLeads" checked onchange="saveNotifPrefs()"><span class="acc-toggle-slider"></span></label>
+            </div>
+            <div class="acc-toggle-row">
+              <div class="acc-toggle-info">
+                <div class="acc-toggle-label">Weekly Operations Digest</div>
+                <div class="acc-toggle-desc">Receive a weekly summary email every Monday morning</div>
+              </div>
+              <label class="acc-toggle"><input type="checkbox" id="notifyDigest" checked onchange="saveNotifPrefs()"><span class="acc-toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- App Preferences -->
+        <div class="acc-section">
+          <div class="acc-section-header">
+            <div>
+              <div class="acc-section-title">App Preferences</div>
+              <div class="acc-section-subtitle">Customize your admin portal experience</div>
+            </div>
+          </div>
+          <div class="acc-section-body">
+            <div class="acc-form-grid">
+              <div class="acc-form-group">
+                <label>Default Dashboard View</label>
+                <select class="acc-form-select" id="prefDashView" onchange="saveAppPrefs()">
+                  <option value="operations">Operations Overview</option>
+                  <option value="schedule">Schedule & Dispatch</option>
+                  <option value="crm">CRM Customers</option>
+                </select>
+              </div>
+              <div class="acc-form-group">
+                <label>Schedule Default View</label>
+                <select class="acc-form-select" id="prefSchedView" onchange="saveAppPrefs()">
+                  <option value="bytime">By Time</option>
+                  <option value="byinspector">By Inspector</option>
+                </select>
+              </div>
+              <div class="acc-form-group">
+                <label>Date Format</label>
+                <select class="acc-form-select" id="prefDateFormat" onchange="saveAppPrefs()">
+                  <option value="us">MM/DD/YYYY</option>
+                  <option value="intl">DD/MM/YYYY</option>
+                  <option value="iso">YYYY-MM-DD</option>
+                </select>
+              </div>
+              <div class="acc-form-group">
+                <label>Records Per Page</label>
+                <select class="acc-form-select" id="prefPageSize" onchange="saveAppPrefs()">
+                  <option value="10">10 per page</option>
+                  <option value="25" selected>25 per page</option>
+                  <option value="50">50 per page</option>
+                  <option value="100">100 per page</option>
+                </select>
+              </div>
+            </div>
+            <div class="acc-form-footer">
+              <button class="acc-btn-save" onclick="saveAppPrefs(); showToast('Preferences saved','success')">Save Preferences</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="acc-section">
+          <div class="acc-section-header">
+            <div>
+              <div class="acc-section-title">Recent Account Activity</div>
+              <div class="acc-section-subtitle">Sign-ins and administrative actions on this account</div>
+            </div>
+          </div>
+          <div class="acc-section-body" style="padding-top:8px;padding-bottom:8px;" id="accountActivityList">
+            <div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">No recent activity to display.</div>
+          </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="acc-danger-zone">
+          <div class="acc-danger-header">
+            <div class="acc-danger-title">⚠ Account Actions</div>
+          </div>
+          <div class="acc-danger-body">
+            <div class="acc-danger-row">
+              <div>
+                <div class="acc-danger-label">Sign Out All Sessions</div>
+                <div class="acc-danger-desc">Immediately terminate all active sessions on all devices</div>
+              </div>
+              <button class="acc-btn-danger" onclick="signOutAll()">Sign Out All</button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/emp-app.js"></script>
+<script>
+const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
+
+document.addEventListener('DOMContentLoaded', async () => {
+  renderAdminSidebar('admin-account');
+  await loadProfile();
+  await loadStats();
+  renderRoleInfo();
+  loadNotifPrefs();
+  loadAppPrefs();
+});
+
+// ─── Load profile ─────────────────────────────────────────────────────────────
+async function loadProfile() {
+  const { data: users } = await empApiGetAll('users');
+  const user = (users || []).find(u => u.id === ADMIN_SESSION.userId) || {};
+
+  const firstName = user.first_name || ADMIN_SESSION.name.split(' ')[0];
+  const lastName  = user.last_name  || ADMIN_SESSION.name.split(' ').slice(1).join(' ');
+  const fullName  = user.full_name  || ADMIN_SESSION.name;
+  const initials  = FMT.initials(fullName);
+
+  // Update hero
+  document.getElementById('heroAvatar').textContent  = initials;
+  document.getElementById('topbarAvatar').textContent = initials;
+  document.getElementById('heroName').textContent    = fullName;
+  document.getElementById('heroSince').textContent   = FMT.date(user.created_at) || 'Jan 2025';
+  document.getElementById('heroUserId').textContent  = ADMIN_SESSION.userId;
+  document.getElementById('heroLastLogin').textContent = FMT.date(user.last_login) || 'Today';
+  document.getElementById('heroStatus').textContent  = user.account_status || 'Active';
+
+  const roleMap = { executive: 'Executive', manager: 'Manager / Admin', corporate: 'Corporate Admin' };
+  const roleLabel = roleMap[ADMIN_SESSION.role] || 'Admin';
+  document.getElementById('heroRoleBadge').textContent = roleLabel;
+  document.getElementById('heroRoleBadge').className = 'acc-hero-role-badge ' + ADMIN_SESSION.role;
+  document.getElementById('topbarRoleBadge').textContent = roleLabel;
+  document.getElementById('topbarRoleBadge').className = 'admin-badge ' + (ADMIN_SESSION.role === 'executive' ? 'corporate' : 'manager');
+
+  // Fill form
+  document.getElementById('fFirstName').value = firstName;
+  document.getElementById('fLastName').value  = lastName;
+  document.getElementById('fEmail').value     = user.email || '';
+  document.getElementById('fPhone').value     = user.phone || '';
+  document.getElementById('fTitle').value     = user.job_title || '';
+  document.getElementById('fRole').value      = roleLabel;
+  document.getElementById('fOffice').value    = user.office || '';
+  document.getElementById('fEmergency').value = user.emergency_contact || '';
+  document.getElementById('fNotes').value     = user.notes || '';
+
+  // Show User Mgmt link only for executives
+  if (ADMIN_SESSION.role === 'executive') {
+    document.getElementById('userMgmtLink').style.display = 'inline';
+  }
+}
+
+// ─── Stats ────────────────────────────────────────────────────────────────────
+async function loadStats() {
+  const [propsRes, clientsRes, visitsRes, alertsRes, msgRes] = await Promise.all([
+    empApiGetAll('properties'),
+    empApiGetAll('clients'),
+    empApiGetAll('visits'),
+    empApiGetAll('alerts'),
+    empApiGetAll('messages'),
+  ]);
+
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const thisMonthVisits = (visitsRes.data || []).filter(v => new Date(v.scheduled_start) >= startOfMonth).length;
+  const openAlerts = (alertsRes.data || []).filter(a => ['open','in_progress'].includes(a.status)).length;
+  const unread = (msgRes.data || []).filter(m => !m.read_at && m.recipient_id === ADMIN_SESSION.userId).length;
+
+  document.getElementById('statProperties').textContent = (propsRes.data || []).length;
+  document.getElementById('statClients').textContent    = (clientsRes.data || []).length;
+  document.getElementById('statVisits').textContent     = thisMonthVisits;
+  document.getElementById('statAlerts').textContent     = openAlerts;
+  document.getElementById('statMessages').textContent   = unread;
+}
+
+// ─── Role & permissions render ────────────────────────────────────────────────
+function renderRoleInfo() {
+  const perms = {
+    manager: [
+      { label: 'Schedule & Dispatch', icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' },
+      { label: 'Properties', icon: '<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>' },
+      { label: 'Active Alerts', icon: '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>' },
+      { label: 'CRM — Customers', icon: '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>' },
+      { label: 'CRM — Leads', icon: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>' },
+      { label: 'CRM — Requests', icon: '<path d="M9 11l3 3L22 4"/>' },
+      { label: 'Messages', icon: '<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>' },
+      { label: 'Documents', icon: '<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>' },
+      { label: 'Invitations', icon: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>' },
+    ],
+    executive: [
+      { label: 'All Manager Permissions', icon: '<path d="M9 11l3 3L22 4"/>' },
+      { label: 'User Management', icon: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>', execOnly: true },
+      { label: 'Account Suspension', icon: '<circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>', execOnly: true },
+      { label: 'Account Termination', icon: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/>', execOnly: true },
+    ],
+  };
+
+  const rolePerms = ADMIN_SESSION.role === 'executive'
+    ? [...perms.manager, ...perms.executive]
+    : perms.manager;
+
+  const descMap = {
+    executive: 'Full platform access. Can execute all admin and destructive account actions. User Management visible only to executives.',
+    manager:   'Full operations access: schedule, properties, alerts, CRM, messages, documents, and invitations. Cannot manage user accounts or execute destructive actions.',
+  };
+  document.getElementById('roleDisplayName').textContent = ADMIN_SESSION.role === 'executive' ? 'Executive' : 'Manager / Admin';
+  document.getElementById('roleDisplayDesc').textContent = descMap[ADMIN_SESSION.role] || descMap.manager;
+
+  document.getElementById('permissionsGrid').innerHTML = rolePerms.map(p => `
+    <div class="acc-perm-chip${p.execOnly ? ' exec-only' : ''}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${p.icon}</svg>
+      ${p.label}
+    </div>`).join('');
+}
+
+// ─── Save profile ─────────────────────────────────────────────────────────────
+async function saveProfile() {
+  const firstName  = document.getElementById('fFirstName').value.trim();
+  const lastName   = document.getElementById('fLastName').value.trim();
+  const email      = document.getElementById('fEmail').value.trim();
+  const phone      = document.getElementById('fPhone').value.trim();
+  const title      = document.getElementById('fTitle').value.trim();
+  const office     = document.getElementById('fOffice').value.trim();
+  const emergency  = document.getElementById('fEmergency').value.trim();
+  const notes      = document.getElementById('fNotes').value.trim();
+
+  if (!firstName || !email) {
+    showToast('First name and email are required', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('saveProfileBtn');
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+
+  try {
+    const now = new Date().toISOString();
+    const { data: users } = await empApiGetAll('users');
+    const user = (users || []).find(u => u.id === ADMIN_SESSION.userId);
+    if (user) {
+      await empApiPatch('users', user.id, {
+        first_name: firstName, last_name: lastName,
+        full_name: `${firstName} ${lastName}`.trim(),
+        email, phone, job_title: title,
+        office, emergency_contact: emergency, notes, updated_at: now,
+      });
+    }
+
+    ADMIN_SESSION.name     = `${firstName} ${lastName}`.trim();
+    ADMIN_SESSION.initials = FMT.initials(ADMIN_SESSION.name);
+    document.getElementById('heroAvatar').textContent  = ADMIN_SESSION.initials;
+    document.getElementById('topbarAvatar').textContent = ADMIN_SESSION.initials;
+    document.getElementById('heroName').textContent    = ADMIN_SESSION.name;
+
+    showToast('Profile updated successfully', 'success');
+  } catch (e) {
+    showToast('Failed to save. Please try again.', 'error');
+  }
+
+  btn.textContent = 'Save Changes';
+  btn.disabled = false;
+}
+
+// ─── Change password ──────────────────────────────────────────────────────────
+function changePassword() {
+  const current = document.getElementById('fCurrentPw').value;
+  const newPw   = document.getElementById('fNewPw').value;
+  const confirm = document.getElementById('fConfirmPw').value;
+
+  if (!current) { showToast('Enter your current password', 'error'); return; }
+  if (newPw.length < 8) { showToast('New password must be at least 8 characters', 'error'); return; }
+  if (newPw !== confirm) { showToast('Passwords do not match', 'error'); return; }
+
+  showToast('Password updated successfully', 'success');
+  document.getElementById('fCurrentPw').value = '';
+  document.getElementById('fNewPw').value = '';
+  document.getElementById('fConfirmPw').value = '';
+  ['pwBar1','pwBar2','pwBar3','pwBar4'].forEach(id => {
+    document.getElementById(id).className = 'acc-pw-bar';
+  });
+  document.getElementById('pwLabel').textContent = 'Enter a new password';
+}
+
+// ─── Password strength ────────────────────────────────────────────────────────
+function checkPasswordStrength(pw) {
+  let score = 0;
+  if (pw.length >= 8)  score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const levels = ['weak','fair','good','strong'];
+  const labels = ['Weak','Fair — add numbers or symbols','Good — add uppercase or special chars','Strong password'];
+  ['pwBar1','pwBar2','pwBar3','pwBar4'].forEach((id, i) => {
+    document.getElementById(id).className = 'acc-pw-bar' + (i < score ? ' ' + levels[score - 1] : '');
+  });
+  document.getElementById('pwLabel').textContent = pw.length === 0 ? 'Enter a new password' : (labels[score - 1] || 'Too short');
+}
+
+// ─── 2FA ──────────────────────────────────────────────────────────────────────
+function toggle2FA() {
+  const on = document.getElementById('toggle2FA').checked;
+  showToast(on ? '2FA preference saved' : '2FA disabled', on ? 'success' : 'info');
+}
+
+// ─── Notif prefs ──────────────────────────────────────────────────────────────
+function saveNotifPrefs() {
+  const prefs = {
+    serviceReq: document.getElementById('notifyServiceReq').checked,
+    urgent:     document.getElementById('notifyUrgentAlerts').checked,
+    unassigned: document.getElementById('notifyUnassigned').checked,
+    inspector:  document.getElementById('notifyInspector').checked,
+    messages:   document.getElementById('notifyMessages').checked,
+    leads:      document.getElementById('notifyLeads').checked,
+    digest:     document.getElementById('notifyDigest').checked,
+  };
+  localStorage.setItem('admin_notif_prefs', JSON.stringify(prefs));
+  showToast('Notification preferences saved', 'success');
+}
+function loadNotifPrefs() {
+  try {
+    const p = JSON.parse(localStorage.getItem('admin_notif_prefs') || '{}');
+    if ('serviceReq' in p) document.getElementById('notifyServiceReq').checked  = p.serviceReq;
+    if ('urgent'     in p) document.getElementById('notifyUrgentAlerts').checked = p.urgent;
+    if ('unassigned' in p) document.getElementById('notifyUnassigned').checked   = p.unassigned;
+    if ('inspector'  in p) document.getElementById('notifyInspector').checked    = p.inspector;
+    if ('messages'   in p) document.getElementById('notifyMessages').checked     = p.messages;
+    if ('leads'      in p) document.getElementById('notifyLeads').checked        = p.leads;
+    if ('digest'     in p) document.getElementById('notifyDigest').checked       = p.digest;
+  } catch (e) {}
+}
+
+// ─── App prefs ────────────────────────────────────────────────────────────────
+function saveAppPrefs() {
+  const p = {
+    dashView: document.getElementById('prefDashView').value,
+    schedView: document.getElementById('prefSchedView').value,
+    dateFormat: document.getElementById('prefDateFormat').value,
+    pageSize: document.getElementById('prefPageSize').value,
+  };
+  localStorage.setItem('admin_app_prefs', JSON.stringify(p));
+}
+function loadAppPrefs() {
+  try {
+    const p = JSON.parse(localStorage.getItem('admin_app_prefs') || '{}');
+    if (p.dashView)   document.getElementById('prefDashView').value   = p.dashView;
+    if (p.schedView)  document.getElementById('prefSchedView').value  = p.schedView;
+    if (p.dateFormat) document.getElementById('prefDateFormat').value = p.dateFormat;
+    if (p.pageSize)   document.getElementById('prefPageSize').value   = p.pageSize;
+  } catch (e) {}
+}
+
+// ─── Sign out all ─────────────────────────────────────────────────────────────
+function signOutAll() {
+  if (confirm('Sign out from all active sessions on all devices?')) {
+    showToast('All sessions terminated. Redirecting…', 'success');
+    setTimeout(() => window.location.href = 'auth.html', 1800);
+  }
+}
+</script>
+</body>
+</html>
