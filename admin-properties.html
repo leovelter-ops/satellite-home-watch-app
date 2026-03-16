@@ -929,7 +929,11 @@ function openPropertyModal(propId = null) {
     .filter(e => e.role === 'inspector')
     .map(e => { const u = buildMap(_users)[e.user_id] || {}; return { id: e.id, full_name: u.full_name || e.id }; });
 
-  spContainer.innerHTML = ServicePlanEngine.buildPlanFormHTML(existingPlan, inspectors);
+  if (window.ServicePlanEngine && typeof ServicePlanEngine.buildPlanFormHTML === 'function') {
+    spContainer.innerHTML = ServicePlanEngine.buildPlanFormHTML(existingPlan, inspectors);
+  } else {
+    spContainer.innerHTML = '';
+  }
 
   document.getElementById('propertyModal').style.display = 'flex';
 }
@@ -988,17 +992,19 @@ async function submitProperty() {
   if (error) { showToast('Error: ' + error, 'error'); return; }
 
   // Handle service plan
-  const planValues = ServicePlanEngine.readPlanFormValues();
-  if (planValues.plan_type !== 'no_active_plan' && propId) {
-    const existingPlan = _plans.find(p => p.property_id === propId);
-    if (existingPlan) {
-      await ServicePlanEngine.updatePlan(existingPlan.id, planValues);
-    } else {
-      await ServicePlanEngine.createPlan({
-        ...planValues,
-        property_id: propId,
-        client_id:   cid,
-      });
+  if (window.ServicePlanEngine && typeof ServicePlanEngine.readPlanFormValues === 'function') {
+    const planValues = ServicePlanEngine.readPlanFormValues();
+    if (planValues.plan_type !== 'no_active_plan' && propId) {
+      const existingPlan = _plans.find(p => p.property_id === propId);
+      if (existingPlan) {
+        await ServicePlanEngine.updatePlan(existingPlan.id, planValues);
+      } else {
+        await ServicePlanEngine.createPlan({
+          ...planValues,
+          property_id: propId,
+          client_id:   cid,
+        });
+      }
     }
   }
 
