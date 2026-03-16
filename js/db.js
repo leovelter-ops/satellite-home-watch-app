@@ -36,6 +36,14 @@ const SHW_SESSION = window.SHW_SESSION_DATA || {
 // ─── API BASE ─────────────────────────────────────────────────────────────────
 const API_BASE = 'tables';
 
+// ─── SUPABASE CONFIG (browser-safe) ──────────────────────────────────────────
+// Populate these at deploy/runtime (for example, via an injected script block).
+const SHW_SUPABASE = window.SHW_SUPABASE || {
+  url:     window.SHW_SUPABASE_URL || '',
+  anonKey: window.SHW_SUPABASE_ANON_KEY || '',
+};
+window.SHW_SUPABASE = SHW_SUPABASE;
+
 // ─── PERMISSION RULES ─────────────────────────────────────────────────────────
 const PERMISSIONS = {
   client:    ['read_own'],
@@ -1238,6 +1246,7 @@ const InspectorService = {
 // All services available globally on window for page scripts
 window.SHW = {
   session:  SHW_SESSION,
+  supabaseConfig: SHW_SUPABASE,
   // Utilities
   fmt: { date: fmtDate, dateTime: fmtDateTime, time: fmtTime, fileSize: fmtFileSize },
   utils: { daysSince, capitalize, snakeToTitle, buildLookup, clearCache },
@@ -1255,5 +1264,4 @@ window.SHW = {
   Admin:           AdminService,
   Inspector:       InspectorService,
 };
-
 
