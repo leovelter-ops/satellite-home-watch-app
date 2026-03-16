@@ -406,6 +406,18 @@ const VisitsService = {
 
 const AlertsService = {
 
+  /** Get single alert (with access check) */
+  async getAlert(alertId) {
+    const { data, error } = await dbGetOne('alerts', alertId);
+    if (error) return { data: null, error };
+    if (!data) return { data: null, error: 'Not found' };
+
+    const { data: prop } = await PropertiesService.getProperty(data.property_id);
+    if (!prop) return { data: null, error: 'Access denied' };
+
+    return { data, error: null };
+  },
+
   /** Get all alerts for current client's properties */
   async getClientAlerts(propertyId = null) {
     const [alertsRes, propsRes] = await Promise.all([

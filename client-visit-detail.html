@@ -1120,16 +1120,15 @@
   }
 
   try {
-    const resp = await fetch(`tables/visits/${visitId}`);
-    if (!resp.ok) return;
-    const visit = await resp.json();
+    if (!window.SHW?.Visits?.getVisit) return;
+    const { data: visit } = await SHW.Visits.getVisit(visitId);
     if (!visit || !visit.id) return;
 
     // Load property
     const propResp = visit.property_id
-      ? await fetch(`tables/properties/${visit.property_id}`).then(r => r.ok ? r.json() : null).catch(() => null)
-      : null;
-    const prop = propResp || {};
+      ? await SHW.Properties.getProperty(visit.property_id)
+      : { data: null };
+    const prop = propResp?.data || {};
 
     // Update key page elements
     const fmt = (iso) => iso ? new Date(iso).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) : '—';

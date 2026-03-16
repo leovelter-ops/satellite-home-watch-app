@@ -1109,9 +1109,8 @@
   }
 
   try {
-    const resp = await fetch(`tables/properties/${propertyId}`);
-    if (!resp.ok) return;
-    const prop = await resp.json();
+    if (!window.SHW?.Properties?.getProperty) return;
+    const { data: prop } = await SHW.Properties.getProperty(propertyId);
     if (!prop || !prop.id) return;
 
     const propName = prop.property_name || prop.name || 'Your Property';
