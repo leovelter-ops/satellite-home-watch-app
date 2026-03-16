@@ -61,7 +61,7 @@
           <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
         All Alerts
-        <span class="sidebar-nav-badge">2</span>
+        <span class="sidebar-nav-badge" aria-hidden="true">—</span>
       </a>
       <a href="client-reports.html" class="sidebar-nav-item" data-page="reports">
         <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -77,7 +77,7 @@
           <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
         </svg>
         Messages
-        <span class="sidebar-nav-badge amber">1</span>
+        <span class="sidebar-nav-badge amber" aria-hidden="true">—</span>
       </a>
       <div class="sidebar-section-label" style="margin-top:var(--space-2);">Documents</div>
       <a href="client-documents.html" class="sidebar-nav-item" data-page="documents">
@@ -174,7 +174,7 @@
             <div>
               <div class="notif-page-title">
                 Notifications
-                <span class="notif-unread-count-badge" id="unreadCountBadge">4</span>
+                <span class="notif-unread-count-badge" id="unreadCountBadge">—</span>
               </div>
               <div class="notif-page-sub">Messages, reports, inspections, alerts, and account updates</div>
             </div>
@@ -192,22 +192,22 @@
         <!-- Summary Strip -->
         <div class="notif-summary-strip">
           <div class="notif-summary-stat">
-            <div class="notif-summary-stat-value" id="summaryTotal">12</div>
+            <div class="notif-summary-stat-value" id="summaryTotal">—</div>
             <div class="notif-summary-stat-label">Total</div>
           </div>
           <div class="notif-summary-divider"></div>
           <div class="notif-summary-stat">
-            <div class="notif-summary-stat-value" id="summaryUnread">4</div>
+            <div class="notif-summary-stat-value" id="summaryUnread">—</div>
             <div class="notif-summary-stat-label">Unread</div>
           </div>
           <div class="notif-summary-divider"></div>
           <div class="notif-summary-stat">
-            <div class="notif-summary-stat-value" id="summaryUrgent">1</div>
+            <div class="notif-summary-stat-value" id="summaryUrgent">—</div>
             <div class="notif-summary-stat-label">Urgent</div>
           </div>
           <div class="notif-summary-divider"></div>
           <div class="notif-summary-stat">
-            <div class="notif-summary-stat-value" id="summaryToday">3</div>
+            <div class="notif-summary-stat-value" id="summaryToday">—</div>
             <div class="notif-summary-stat-label">Today</div>
           </div>
         </div>
@@ -215,28 +215,28 @@
         <!-- Filter Bar -->
         <div class="notif-filter-bar" id="filterBar" role="group" aria-label="Filter notifications">
           <button class="notif-filter-chip active" data-filter="all" onclick="setFilter('all', this)">
-            All <span class="chip-count" id="countAll">12</span>
+            All <span class="chip-count" id="countAll">—</span>
           </button>
           <button class="notif-filter-chip" data-filter="message" onclick="setFilter('message', this)">
-            💬 Messages <span class="chip-count" id="countMessage">2</span>
+            💬 Messages <span class="chip-count" id="countMessage">—</span>
           </button>
           <button class="notif-filter-chip" data-filter="inspection" onclick="setFilter('inspection', this)">
-            ✅ Inspections <span class="chip-count" id="countInspection">3</span>
+            ✅ Inspections <span class="chip-count" id="countInspection">—</span>
           </button>
           <button class="notif-filter-chip" data-filter="report" onclick="setFilter('report', this)">
-            📄 Reports <span class="chip-count" id="countReport">2</span>
+            📄 Reports <span class="chip-count" id="countReport">—</span>
           </button>
           <button class="notif-filter-chip" data-filter="alert" onclick="setFilter('alert', this)">
-            🚨 Alerts <span class="chip-count" id="countAlert">2</span>
+            🚨 Alerts <span class="chip-count" id="countAlert">—</span>
           </button>
           <button class="notif-filter-chip" data-filter="document" onclick="setFilter('document', this)">
-            📁 Documents <span class="chip-count" id="countDocument">1</span>
+            📁 Documents <span class="chip-count" id="countDocument">—</span>
           </button>
           <button class="notif-filter-chip" data-filter="service" onclick="setFilter('service', this)">
-            🔧 Service <span class="chip-count" id="countService">1</span>
+            🔧 Service <span class="chip-count" id="countService">—</span>
           </button>
           <button class="notif-filter-chip" data-filter="account" onclick="setFilter('account', this)">
-            👤 Account <span class="chip-count" id="countAccount">1</span>
+            👤 Account <span class="chip-count" id="countAccount">—</span>
           </button>
           <label class="notif-unread-toggle">
             <input type="checkbox" id="unreadOnlyToggle" onchange="toggleUnreadOnly(this.checked)" />
@@ -254,6 +254,7 @@
   </div><!-- /main-content -->
 </div><!-- /app-wrapper -->
 
+<script src="js/db.js"></script>
 <script src="js/notifications-data.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
@@ -264,12 +265,15 @@
   let unreadOnly      = false;
 
   // Work on a local mutable copy so mark-as-read persists within session
-  const notifications = CLIENT_NOTIFICATIONS.map(n => ({ ...n }));
+  let notifications = [];
 
   // ── Init ─────────────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     // Inject mobile topbar
     injectMobileTopbar('Client Portal');
+
+    await loadClientNotifications();
+    await loadClientPortalCounts();
 
     // Render feed
     refreshFeed();
@@ -288,6 +292,76 @@
       }, 200);
     }
   });
+
+
+  async function loadClientNotifications() {
+    if (!window.SHW?.Notifications?.getUserNotifications) {
+      notifications = [];
+      return;
+    }
+
+    const { data, error } = await SHW.Notifications.getUserNotifications(200);
+    if (error) {
+      notifications = [];
+      return;
+    }
+
+    notifications = (data || []).map(n => ({
+      id: n.id,
+      type: n.notification_type || n.type || 'system',
+      title: n.title || 'Notification',
+      body: n.body || '',
+      timestamp: n.created_at || n.updated_at || new Date().toISOString(),
+      read: n.read_status === 'read',
+      priority: n.priority || (n.severity === 'urgent' ? 'urgent' : 'normal'),
+      link: n.link_url || n.link || '#',
+      linkLabel: n.link_label || 'View',
+    }));
+  }
+
+  async function loadClientPortalCounts() {
+    if (!window.SHW) return;
+
+    const [
+      propertiesRes,
+      visitsRes,
+      alertsRes,
+      reportsRes,
+      unreadMessageCount,
+    ] = await Promise.all([
+      SHW.Properties.getClientProperties(),
+      SHW.Visits.getClientVisits(),
+      SHW.Alerts.getClientAlerts(),
+      SHW.Reports.getClientReports(),
+      SHW.Messages.getUnreadThreadCount(),
+    ]);
+
+    setSidebarBadge('properties', (propertiesRes.data || []).length);
+    setSidebarBadge('visits', (visitsRes.data || []).length);
+    setSidebarBadge('alerts', (alertsRes.data || []).filter(a => a.status !== 'resolved' && a.status !== 'closed').length);
+    setSidebarBadge('reports', (reportsRes.data || []).length);
+    setSidebarBadge('messages', unreadMessageCount || 0, 'amber');
+  }
+
+  function setSidebarBadge(pageKey, count, extraClass = '') {
+    const navItem = document.querySelector(`.sidebar-nav-item[data-page="${pageKey}"]`);
+    if (!navItem) return;
+
+    let badge = navItem.querySelector('.sidebar-nav-badge');
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = `sidebar-nav-badge${extraClass ? ' ' + extraClass : ''}`;
+      navItem.appendChild(badge);
+    }
+
+    if (count > 0) {
+      badge.textContent = count > 99 ? '99+' : String(count);
+      badge.style.display = '';
+    } else {
+      badge.textContent = '';
+      badge.style.display = 'none';
+    }
+  }
 
   // ── Render ───────────────────────────────────────────────
   function refreshFeed() {
@@ -344,10 +418,13 @@
   }
 
   // ── Mark read ────────────────────────────────────────────
-  function markRead(id, rowEl) {
+  async function markRead(id, rowEl) {
     const n = notifications.find(x => x.id === id);
     if (n && !n.read) {
       n.read = true;
+      if (window.SHW?.Notifications?.markRead) {
+        await SHW.Notifications.markRead(id);
+      }
       if (rowEl) {
         rowEl.classList.remove('notif-unread');
         const dot = rowEl.querySelector('.notif-dot');
