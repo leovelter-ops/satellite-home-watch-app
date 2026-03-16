@@ -264,7 +264,7 @@
   const notifications = ADMIN_NOTIFICATIONS.map(n => ({ ...n }));
 
   document.addEventListener('DOMContentLoaded', () => {
-    injectMobileTopbar('Admin Portal');
+    renderAdminSidebar('admin-notifications');
     _bootstrapAdminTopbar();
     refreshFeed();
     updateCounts();
