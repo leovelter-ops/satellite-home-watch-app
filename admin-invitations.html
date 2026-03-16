@@ -360,10 +360,30 @@
           <input type="text" class="inv-form-input" id="newPropName" placeholder="e.g., Gulf Shore Residence" />
         </div>
         <div class="inv-form-group">
+          <label class="inv-form-label">Customer / Owner</label>
+          <select class="inv-form-input" id="newPropCustomerMode" onchange="toggleNewPropertyCustomerMode()">
+            <option value="existing">Existing customer</option>
+            <option value="new">New customer</option>
+            <option value="none">No customer yet</option>
+          </select>
+        </div>
+        <div class="inv-form-group" id="newPropExistingCustomerWrap">
           <label class="inv-form-label">Assign to Customer <span style="color:#dc2626;">*</span></label>
           <select class="inv-form-input" id="newPropClientId">
             <option value="">Select customer…</option>
           </select>
+        </div>
+        <div class="inv-form-group" id="newPropNewCustomerNameWrap" style="display:none;">
+          <label class="inv-form-label">New Customer Full Name <span style="color:#dc2626;">*</span></label>
+          <input type="text" class="inv-form-input" id="newPropNewCustomerName" placeholder="Full name" />
+        </div>
+        <div class="inv-form-group" id="newPropNewCustomerEmailWrap" style="display:none;">
+          <label class="inv-form-label">New Customer Email <span style="color:#dc2626;">*</span></label>
+          <input type="email" class="inv-form-input" id="newPropNewCustomerEmail" placeholder="name@example.com" />
+        </div>
+        <div class="inv-form-group" id="newPropNewCustomerPhoneWrap" style="display:none;">
+          <label class="inv-form-label">New Customer Phone</label>
+          <input type="tel" class="inv-form-input" id="newPropNewCustomerPhone" placeholder="(555) 123-4567" />
         </div>
         <div class="inv-form-group">
           <label class="inv-form-label">Address Line 1 <span style="color:#dc2626;">*</span></label>
@@ -471,6 +491,17 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAdminSidebar('admin-invitations');
   loadInvitations();
   loadInvitationFormData();
+  const emailInput = document.getElementById('newInvEmail');
+  if (emailInput) {
+    emailInput.addEventListener('input', () => {
+      const modeEl = document.getElementById('newPropCustomerMode');
+      const newCustomerEmailEl = document.getElementById('newPropNewCustomerEmail');
+      if (!modeEl || !newCustomerEmailEl) return;
+      if (modeEl.value === 'new' && !newCustomerEmailEl.value.trim()) {
+        newCustomerEmailEl.value = emailInput.value.trim();
+      }
+    });
+  }
 });
 
 function updateTopbarRole() {
@@ -792,7 +823,11 @@ function openSendModal() {
   document.getElementById('newInvPropertyMode').value = 'existing';
   document.getElementById('newInvPropertyId').value = '';
   document.getElementById('newPropName').value = '';
+  document.getElementById('newPropCustomerMode').value = 'existing';
   document.getElementById('newPropClientId').value = '';
+  document.getElementById('newPropNewCustomerName').value = '';
+  document.getElementById('newPropNewCustomerEmail').value = '';
+  document.getElementById('newPropNewCustomerPhone').value = '';
   document.getElementById('newPropAddr1').value = '';
   document.getElementById('newPropCity').value = '';
   document.getElementById('propertyFieldWrap').style.display = 'none';
@@ -801,6 +836,7 @@ function openSendModal() {
   document.getElementById('linkPreviewWrap').style.display   = 'none';
   document.getElementById('roleHelpText').textContent = 'Select a role to see requirements.';
   document.getElementById('sendModal').classList.add('open');
+  toggleNewPropertyCustomerMode();
 }
 function closeSendModal() {
   document.getElementById('sendModal').classList.remove('open');
@@ -840,6 +876,23 @@ function togglePropertyMode() {
   const mode = document.getElementById('newInvPropertyMode').value;
   document.getElementById('existingPropertyWrap').style.display = mode === 'existing' ? 'block' : 'none';
   document.getElementById('newPropertyWrap').style.display = mode === 'new' ? 'block' : 'none';
+  if (mode === 'new') toggleNewPropertyCustomerMode();
+}
+
+function toggleNewPropertyCustomerMode() {
+  const mode = document.getElementById('newPropCustomerMode').value;
+  document.getElementById('newPropExistingCustomerWrap').style.display = mode === 'existing' ? 'block' : 'none';
+  document.getElementById('newPropNewCustomerNameWrap').style.display = mode === 'new' ? 'block' : 'none';
+  document.getElementById('newPropNewCustomerEmailWrap').style.display = mode === 'new' ? 'block' : 'none';
+  document.getElementById('newPropNewCustomerPhoneWrap').style.display = mode === 'new' ? 'block' : 'none';
+
+  if (mode === 'new') {
+    const invEmail = document.getElementById('newInvEmail').value.trim();
+    const newCustomerEmail = document.getElementById('newPropNewCustomerEmail');
+    if (!newCustomerEmail.value.trim() && invEmail) {
+      newCustomerEmail.value = invEmail;
+    }
+  }
 }
 
 async function sendInvitation() {
@@ -884,14 +937,56 @@ async function sendInvitation() {
         relatedCustomerName = user?.full_name || client?.company_name || null;
       } else {
         const propName = document.getElementById('newPropName').value.trim();
-        const propClientId = document.getElementById('newPropClientId').value;
+        const customerMode = document.getElementById('newPropCustomerMode').value;
+        let propClientId = document.getElementById('newPropClientId').value || null;
         const propAddr1 = document.getElementById('newPropAddr1').value.trim();
         const propCity = document.getElementById('newPropCity').value.trim();
-        if (!propName || !propClientId || !propAddr1 || !propCity) {
+        if (!propName || !propAddr1 || !propCity) {
           showToast('Complete all required new property fields before sending.', 'error');
           btn.disabled = false;
           btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Invitation';
           return;
+        }
+
+        if (customerMode === 'existing') {
+          if (!propClientId) {
+            showToast('Please select an existing customer.', 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Invitation';
+            return;
+          }
+        } else if (customerMode === 'new') {
+          const newCustomerName = document.getElementById('newPropNewCustomerName').value.trim();
+          const newCustomerEmailField = document.getElementById('newPropNewCustomerEmail');
+          const newCustomerEmail = newCustomerEmailField.value.trim() || email;
+          const newCustomerPhone = document.getElementById('newPropNewCustomerPhone').value.trim();
+
+          if (!newCustomerName || !newCustomerEmail) {
+            showToast('New customer name and email are required.', 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Invitation';
+            return;
+          }
+
+          newCustomerEmailField.value = newCustomerEmail;
+
+          const createClientRes = await empApiPost('clients', {
+            full_name: newCustomerName,
+            email: newCustomerEmail,
+            phone: newCustomerPhone || null,
+            status: 'pending_invite',
+            created_at: now,
+            updated_at: now,
+          });
+          if (createClientRes.error || !createClientRes.data?.id) {
+            throw new Error(createClientRes.error || 'Could not create pending customer');
+          }
+
+          propClientId = createClientRes.data.id;
+          relatedCustomerName = newCustomerName;
+        } else {
+          propClientId = null;
+          relatedCustomerName = name || null;
         }
 
         const createPropRes = await empApiPost('properties', {
@@ -908,9 +1003,11 @@ async function sendInvitation() {
 
         propertyId = createPropRes.data.id;
         propertyName = createPropRes.data.property_name || propName;
-        const client = allClients.find(c => c.id === propClientId);
-        const user = allUsers.find(u => u.id === client?.user_id);
-        relatedCustomerName = user?.full_name || client?.company_name || null;
+        if (customerMode === 'existing') {
+          const client = allClients.find(c => c.id === propClientId);
+          const user = allUsers.find(u => u.id === client?.user_id);
+          relatedCustomerName = user?.full_name || client?.company_name || null;
+        }
 
         await loadInvitationFormData();
       }
