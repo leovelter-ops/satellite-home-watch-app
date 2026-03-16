@@ -42,8 +42,8 @@ const API_BASE = `${SUPABASE_URL}/rest/v1`;
 // ─── SUPABASE CONFIG (browser-safe) ──────────────────────────────────────────
 // Populate these at deploy/runtime (for example, via an injected script block).
 const SHW_SUPABASE = window.SHW_SUPABASE || {
-  url:     window.SHW_SUPABASE_URL || '',
-  anonKey: window.SHW_SUPABASE_ANON_KEY || '',
+  url: SUPABASE_URL,
+  anonKey: SUPABASE_KEY,
 };
 window.SHW_SUPABASE = SHW_SUPABASE;
 
