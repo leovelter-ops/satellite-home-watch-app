@@ -33,6 +33,7 @@ async function initDashboard() {
     renderNotificationsPanel(dash.notifications);
     updateWelcomeHeader(dash.client);
     updateSidebarProfile(dash.client);
+    updateDashboardSidebarBadges(dash.summary);
 
     // Update live sidebar badges
     await SHWUI.updateSidebarBadges();
@@ -40,6 +41,15 @@ async function initDashboard() {
   } catch (err) {
     SHWUI.showToast('Unable to load some dashboard data.', 'warning');
   }
+}
+
+
+function updateDashboardSidebarBadges(summary) {
+  const alertsBadge = document.getElementById('sidebarAlertsBadge');
+  const messagesBadge = document.getElementById('sidebarMessagesBadge');
+
+  if (alertsBadge) alertsBadge.textContent = String(summary?.activeAlertCount || 0);
+  if (messagesBadge) messagesBadge.textContent = String(summary?.unreadMsgCount || 0);
 }
 
 // ─── WELCOME HEADER ───────────────────────────────────────────────────────────
