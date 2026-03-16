@@ -318,15 +318,35 @@
           <label class="admin-form-label">Property Name *</label>
           <input type="text" class="admin-form-input" id="pName" placeholder="e.g., Gulf Shore Residence" />
         </div>
-        <div class="admin-form-group">
-          <label class="admin-form-label">Owner Name *</label>
+        <div class="admin-form-group admin-form-full">
+          <label class="admin-form-label">Customer / Owner</label>
+          <select class="admin-form-select" id="pCustomerMode" onchange="togglePropertyCustomerMode()">
+            <option value="existing">Existing customer</option>
+            <option value="new">New customer</option>
+            <option value="none">No customer yet</option>
+          </select>
+        </div>
+        <div class="admin-form-group" id="pExistingCustomerWrap">
+          <label class="admin-form-label">Assign to Customer *</label>
+          <select class="admin-form-select" id="pClientId">
+            <option value="">Select customer…</option>
+          </select>
+        </div>
+        <div class="admin-form-group" id="pOwnerNameWrap">
+          <label class="admin-form-label">Owner Name</label>
           <input type="text" class="admin-form-input" id="pOwnerName" placeholder="Full name on title" />
         </div>
-        <div class="admin-form-group">
-          <label class="admin-form-label">Assign to Client *</label>
-          <select class="admin-form-select" id="pClientId">
-            <option value="">Select client…</option>
-          </select>
+        <div class="admin-form-group" id="pNewCustomerNameWrap" style="display:none;">
+          <label class="admin-form-label">New Customer Full Name *</label>
+          <input type="text" class="admin-form-input" id="pNewCustomerName" placeholder="Full name" />
+        </div>
+        <div class="admin-form-group" id="pNewCustomerEmailWrap" style="display:none;">
+          <label class="admin-form-label">New Customer Email *</label>
+          <input type="email" class="admin-form-input" id="pNewCustomerEmail" placeholder="name@example.com" />
+        </div>
+        <div class="admin-form-group" id="pNewCustomerPhoneWrap" style="display:none;">
+          <label class="admin-form-label">New Customer Phone</label>
+          <input type="tel" class="admin-form-input" id="pNewCustomerPhone" placeholder="(555) 123-4567" />
         </div>
         <div class="admin-form-group">
           <label class="admin-form-label">Property Type</label>
@@ -701,7 +721,7 @@ async function loadData() {
 
   _clients.forEach(c => {
     const user  = userMap[c.user_id] || {};
-    const label = user.full_name || c.company_name || c.id;
+    const label = user.full_name || c.company_name || c.full_name || c.email || c.id;
     [cfSel, cpSel].forEach(sel => {
       const opt = document.createElement('option');
       opt.value = c.id; opt.textContent = label;
@@ -710,6 +730,21 @@ async function loadData() {
   });
 
   filterProperties();
+}
+
+function togglePropertyCustomerMode() {
+  const mode = document.getElementById('pCustomerMode').value;
+  const existingWrap = document.getElementById('pExistingCustomerWrap');
+  const ownerWrap = document.getElementById('pOwnerNameWrap');
+  const newNameWrap = document.getElementById('pNewCustomerNameWrap');
+  const newEmailWrap = document.getElementById('pNewCustomerEmailWrap');
+  const newPhoneWrap = document.getElementById('pNewCustomerPhoneWrap');
+
+  existingWrap.style.display = mode === 'existing' ? 'block' : 'none';
+  ownerWrap.style.display = mode === 'new' || mode === 'none' ? 'none' : 'block';
+  newNameWrap.style.display = mode === 'new' ? 'block' : 'none';
+  newEmailWrap.style.display = mode === 'new' ? 'block' : 'none';
+  newPhoneWrap.style.display = mode === 'new' ? 'block' : 'none';
 }
 
 // ── Navigate to full property detail page ───────────────────────────────
@@ -772,7 +807,7 @@ function renderPropertyTable(props, planMap) {
     const lastV   = propVis.filter(v => v.status === 'completed')
                            .sort((a,b) => new Date(b.actual_end) - new Date(a.actual_end))[0];
     const openAlerts   = _alertCount(p.id);
-    const ownerName    = user.full_name || '—';
+    const ownerName    = user.full_name || p.owner_name || '—';
     const ownerInitials= ownerName.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
     const addr         = [p.address_line1, p.city, p.state].filter(Boolean).join(', ');
     const svcClass     = p.service_status === 'active' ? 'active' : p.service_status === 'on_hold' ? 'pending' : 'inactive';
@@ -898,6 +933,10 @@ function openPropertyModal(propId = null) {
       document.getElementById('pName').value           = prop.property_name || '';
       document.getElementById('pOwnerName').value      = prop.owner_name || '';
       document.getElementById('pClientId').value       = prop.client_id || '';
+      document.getElementById('pCustomerMode').value   = prop.client_id ? 'existing' : 'none';
+      document.getElementById('pNewCustomerName').value = '';
+      document.getElementById('pNewCustomerEmail').value = '';
+      document.getElementById('pNewCustomerPhone').value = '';
       document.getElementById('pType').value           = prop.property_type || 'single_family';
       document.getElementById('pBedrooms').value       = prop.bedrooms || '';
       document.getElementById('pBathrooms').value      = prop.bathrooms || '';
@@ -916,10 +955,12 @@ function openPropertyModal(propId = null) {
       document.getElementById('pSpecialInstructions').value = prop.special_instructions || '';
     }
   } else {
-    ['pName','pOwnerName','pAddr1','pCity','pState','pZip','pCounty','pLockbox','pAlarm','pAccessNotes','pSpecialInstructions','pBedrooms','pBathrooms','pSqft','pYearBuilt']
+    ['pName','pOwnerName','pAddr1','pCity','pState','pZip','pCounty','pLockbox','pAlarm','pAccessNotes','pSpecialInstructions','pBedrooms','pBathrooms','pSqft','pYearBuilt','pNewCustomerName','pNewCustomerEmail','pNewCustomerPhone']
       .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     document.getElementById('pServiceStatus').value = 'active';
     document.getElementById('pHasPool').value        = 'false';
+    document.getElementById('pClientId').value       = '';
+    document.getElementById('pCustomerMode').value   = 'existing';
   }
 
   // Inject service plan form if creating new property
@@ -935,6 +976,7 @@ function openPropertyModal(propId = null) {
     spContainer.innerHTML = '';
   }
 
+  togglePropertyCustomerMode();
   document.getElementById('propertyModal').style.display = 'flex';
 }
 
@@ -945,20 +987,57 @@ function closePropertyModal() {
 function editProperty(id) { openPropertyModal(id); }
 
 async function submitProperty() {
-  const name  = document.getElementById('pName').value.trim();
-  const owner = document.getElementById('pOwnerName').value.trim();
-  const cid   = document.getElementById('pClientId').value;
+  const name = document.getElementById('pName').value.trim();
   const addr1 = document.getElementById('pAddr1').value.trim();
-  const city  = document.getElementById('pCity').value.trim();
+  const city = document.getElementById('pCity').value.trim();
+  const customerMode = document.getElementById('pCustomerMode').value;
+  let owner = document.getElementById('pOwnerName').value.trim();
+  let cid = document.getElementById('pClientId').value || null;
 
-  if (!name || !cid || !addr1 || !city) {
-    showToast('Property name, client, address and city are required', 'error');
+  if (!name || !addr1 || !city) {
+    showToast('Property name, address and city are required', 'error');
     return;
   }
 
   const now  = new Date().toISOString();
+
+  if (customerMode === 'existing') {
+    if (!cid) {
+      showToast('Please select an existing customer', 'error');
+      return;
+    }
+  } else if (customerMode === 'new') {
+    const newCustomerName = document.getElementById('pNewCustomerName').value.trim();
+    const newCustomerEmail = document.getElementById('pNewCustomerEmail').value.trim();
+    const newCustomerPhone = document.getElementById('pNewCustomerPhone').value.trim();
+
+    if (!newCustomerName || !newCustomerEmail) {
+      showToast('New customer name and email are required', 'error');
+      return;
+    }
+
+    const createClientRes = await empApiPost('clients', {
+      full_name: newCustomerName,
+      email: newCustomerEmail,
+      phone: newCustomerPhone || null,
+      status: 'pending_invite',
+      created_at: now,
+      updated_at: now,
+    });
+    if (createClientRes.error || !createClientRes.data?.id) {
+      showToast('Could not create pending customer: ' + (createClientRes.error || 'Unknown error'), 'error');
+      return;
+    }
+
+    cid = createClientRes.data.id;
+    owner = newCustomerName;
+  } else {
+    cid = null;
+    owner = owner || null;
+  }
+
   const data = {
-    property_name: name, owner_name: owner, client_id: cid,
+    property_name: name, owner_name: owner || null, client_id: cid,
     property_type:     document.getElementById('pType').value,
     bedrooms:          parseInt(document.getElementById('pBedrooms').value) || null,
     bathrooms:         parseFloat(document.getElementById('pBathrooms').value) || null,
@@ -1010,9 +1089,36 @@ async function submitProperty() {
 
   showToast(_editing ? 'Property updated' : `${name} added with service plan!`, 'success');
   closePropertyModal();
-  const [propsRes, plansRes] = await Promise.all([empApiGetAll('properties'), empApiGetAll('property_service_plans')]);
-  _properties = propsRes.data  || [];
-  _plans      = plansRes.data  || [];
+  const [propsRes, clientsRes, plansRes] = await Promise.all([
+    empApiGetAll('properties'),
+    empApiGetAll('clients'),
+    empApiGetAll('property_service_plans')
+  ]);
+  _properties = propsRes.data   || [];
+  _clients    = clientsRes.data || [];
+  _plans      = plansRes.data   || [];
+
+  const userMap = buildMap(_users);
+  const cfSel   = document.getElementById('propClientFilter');
+  const cpSel   = document.getElementById('pClientId');
+  if (cfSel && cpSel) {
+    cfSel.innerHTML = '<option value="">All Customers</option>';
+    const selectedClient = cid || '';
+
+    cpSel.innerHTML = '<option value="">Select customer…</option>';
+    _clients.forEach(c => {
+      const user = userMap[c.user_id] || {};
+      const label = user.full_name || c.company_name || c.full_name || c.email || c.id;
+      [cfSel, cpSel].forEach(sel => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = label;
+        sel.appendChild(opt);
+      });
+    });
+    if (selectedClient) cpSel.value = selectedClient;
+  }
+
   filterProperties();
 }
 
