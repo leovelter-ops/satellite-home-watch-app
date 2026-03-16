@@ -827,6 +827,7 @@
   </div>
 </footer>
 
+<script src="js/db.js"></script>
 <script>
 // ── Mobile Menu ──
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -942,7 +943,7 @@ form.addEventListener('submit', async function(e) {
   };
 
   try {
-    const res = await fetch('tables/leads', {
+    const res = await shwTableFetch('tables/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

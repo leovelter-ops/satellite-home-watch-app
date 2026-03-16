@@ -612,6 +612,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script src="js/notifications-data.js"></script>
 <script src="js/notif-panel.js"></script>
@@ -643,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── Data ──────────────────────────────────────────────────────────────────────
 async function loadUsers() {
   try {
-    const res  = await fetch('tables/users?limit=200');
+    const res  = await shwTableFetch('tables/users?limit=200');
     const data = await res.json();
     allUsers = (data.data || []).sort((a,b) => {
       const order = { executive:0, manager:1, inspector:2, client:3 };
@@ -955,7 +956,7 @@ async function confirmAction(action) {
       payload = { account_status: newStatus };
     }
 
-    await fetch(`tables/users/${id}`, {
+    await shwTableFetch(`tables/users/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

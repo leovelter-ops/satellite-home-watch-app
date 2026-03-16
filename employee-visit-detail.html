@@ -408,6 +408,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script src="js/notifications-data.js"></script>
 <script src="js/notif-panel.js"></script>
@@ -738,7 +739,7 @@ async function autoDeleteCustomerThread() {
   }
   try {
     // Archive (not hard-delete) — marks visit conversation as closed
-    await fetch(`tables/message_threads/${threadId}`, {
+    await shwTableFetch(`tables/message_threads/${threadId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

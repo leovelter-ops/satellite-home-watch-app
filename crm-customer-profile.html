@@ -436,6 +436,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script src="js/service-plan-engine.js"></script>
 <script>
@@ -465,7 +466,7 @@ async function loadCustomerProfile() {
     return;
   }
   try {
-    const res  = await fetch(`tables/clients/${_customerId}`);
+    const res  = await shwTableFetch(`tables/clients/${_customerId}`);
     if (!res.ok) throw new Error('Customer not found');
     const data = await res.json();
     CUSTOMER = data;
@@ -552,7 +553,7 @@ async function loadCustomerTimeline(clientId) {
   const el = document.getElementById('overviewTimeline');
   if (!el) return;
   try {
-    const res  = await fetch(`tables/activity_feed_events?limit=10&sort=created_at`);
+    const res  = await shwTableFetch(`tables/activity_feed_events?limit=10&sort=created_at`);
     const data = await res.json();
     const fmtD = iso => { if (!iso) return '—'; const d = new Date(iso); return isNaN(d) ? '—' : d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + ' · ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
     const events = (data.data || []).filter(e => e.client_id === clientId);
@@ -578,13 +579,13 @@ async function loadCustomerVisitsTable(clientId) {
   if (!tbody) return;
   try {
     // Get properties for this client, then visits
-    const propsRes = await fetch(`tables/properties?limit=50`);
+    const propsRes = await shwTableFetch(`tables/properties?limit=50`);
     const propsData = await propsRes.json();
     const propIds = new Set((propsData.data || []).filter(p => p.client_id === clientId).map(p => p.id));
     const propMap = {};
     (propsData.data || []).forEach(p => { propMap[p.id] = p; });
 
-    const visitsRes = await fetch(`tables/visits?limit=100&sort=scheduled_start`);
+    const visitsRes = await shwTableFetch(`tables/visits?limit=100&sort=scheduled_start`);
     const visitsData = await visitsRes.json();
     const visits = (visitsData.data || []).filter(v => propIds.has(v.property_id));
 
@@ -626,7 +627,7 @@ async function loadCustomerNotes(clientId) {
   const el = document.getElementById('notesListEl');
   if (!el) return;
   try {
-    const res  = await fetch(`tables/client_notes?limit=50`);
+    const res  = await shwTableFetch(`tables/client_notes?limit=50`);
     const data = await res.json();
     const notes = (data.data || []).filter(n => n.client_id === clientId).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
 
@@ -668,10 +669,10 @@ async function initCrmServicePlanData() {
   try {
     // Fetch all relevant data
     const [plansRes, propsRes, usersRes, empsRes] = await Promise.all([
-      fetch('tables/property_service_plans?limit=50').then(r => r.json()),
-      fetch('tables/properties?limit=50').then(r => r.json()),
-      fetch('tables/users?limit=100').then(r => r.json()),
-      fetch('tables/employees?limit=50').then(r => r.json()),
+      shwTableFetch('tables/property_service_plans?limit=50').then(r => r.json()),
+      shwTableFetch('tables/properties?limit=50').then(r => r.json()),
+      shwTableFetch('tables/users?limit=100').then(r => r.json()),
+      shwTableFetch('tables/employees?limit=50').then(r => r.json()),
     ]);
 
     const apiPlans    = plansRes.data  || [];
@@ -861,7 +862,7 @@ async function crmPlanAction(action, planId) {
     pause:      { msg: 'Pause this service plan? Future routine visits will stop until resumed.', fn: () => ServicePlanEngine.pausePlan(planId) },
     resume:     { msg: 'Resume this service plan? Routine visits will start generating again.',  fn: () => ServicePlanEngine.resumePlan(planId) },
     regenerate: { msg: 'Regenerate future visits from this plan?', fn: async () => {
-      const res   = await fetch('tables/property_service_plans?limit=50');
+      const res   = await shwTableFetch('tables/property_service_plans?limit=50');
       const data  = await res.json();
       const plan  = (data.data || []).find(p => p.id === planId);
       if (plan) await ServicePlanEngine.regenerateFutureVisits(plan);
@@ -906,7 +907,7 @@ async function loadCrmProperties(clientId) {
   const el = document.getElementById('crmPropertiesList');
   if (!el) return;
   try {
-    const res = await fetch(`tables/properties?limit=50`);
+    const res = await shwTableFetch(`tables/properties?limit=50`);
     if (!res.ok) throw new Error();
     const json = await res.json();
     const props = (json.data || []).filter(p => p.client_id === clientId || p.user_id === clientId);
@@ -919,7 +920,7 @@ async function loadCrmAlerts(clientId) {
   const el = document.getElementById('crmAlertsList');
   if (!el) return;
   try {
-    const res = await fetch(`tables/alerts?limit=50`);
+    const res = await shwTableFetch(`tables/alerts?limit=50`);
     if (!res.ok) throw new Error();
     const json = await res.json();
     const alerts = (json.data || []).filter(a => a.client_id === clientId || a.user_id === clientId);
@@ -938,7 +939,7 @@ async function loadCrmReports(clientId) {
   const tbody = document.getElementById('reportsTableBody');
   if (!tbody) return;
   try {
-    const res = await fetch(`tables/reports?limit=50`);
+    const res = await shwTableFetch(`tables/reports?limit=50`);
     if (!res.ok) throw new Error();
     const json = await res.json();
     const reports = (json.data || []).filter(r => r.client_id === clientId || r.user_id === clientId);
@@ -955,7 +956,7 @@ async function loadCrmDocuments(clientId) {
   const el = document.getElementById('crmDocumentsList');
   if (!el) return;
   try {
-    const res = await fetch(`tables/documents?limit=50`);
+    const res = await shwTableFetch(`tables/documents?limit=50`);
     if (!res.ok) throw new Error();
     const json = await res.json();
     const docs = (json.data || []).filter(d => d.client_id === clientId || d.user_id === clientId);
@@ -972,7 +973,7 @@ async function loadCrmNotes(clientId) {
   const el = document.getElementById('notesListEl');
   if (!el) return;
   try {
-    const res = await fetch(`tables/internal_notes?limit=50`);
+    const res = await shwTableFetch(`tables/internal_notes?limit=50`);
     if (!res.ok) throw new Error();
     const json = await res.json();
     const notes = (json.data || []).filter(n => n.client_id === clientId || n.customer_id === clientId);
@@ -995,7 +996,7 @@ async function loadCrmRequests(clientId) {
   const tbody = document.getElementById('requestsTableBody');
   if (!tbody) return;
   try {
-    const res = await fetch(`tables/service_requests?limit=50`);
+    const res = await shwTableFetch(`tables/service_requests?limit=50`);
     if (!res.ok) throw new Error();
     const json = await res.json();
     const reqs = (json.data || []).filter(r => r.client_id === clientId || r.user_id === clientId);
@@ -1020,7 +1021,7 @@ async function sendCustomerInvitation() {
     const now       = new Date().toISOString();
 
     // Create/update invitation record
-    await fetch('tables/invitations', {
+    await shwTableFetch('tables/invitations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1041,7 +1042,7 @@ async function sendCustomerInvitation() {
 
     // Update customer user status to "invited" if not yet active
     if (CUSTOMER.accountStatus !== 'active') {
-      await fetch(`tables/users/${CUSTOMER.userId}`, {
+      await shwTableFetch(`tables/users/${CUSTOMER.userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ account_status: 'invited', invited_at: now }),
@@ -1113,7 +1114,7 @@ async function confirmAccountAction() {
     const newStatus = statusMap[pendingAcctAction];
 
     if (newStatus && CUSTOMER.userId) {
-      await fetch(`tables/users/${CUSTOMER.userId}`, {
+      await shwTableFetch(`tables/users/${CUSTOMER.userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ account_status: newStatus }),

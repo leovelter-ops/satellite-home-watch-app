@@ -450,6 +450,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script src="js/notifications-data.js"></script>
 <script src="js/notif-panel.js"></script>
@@ -728,7 +729,7 @@ function removeEmpAttach(idx) {
 async function deleteEmpMessage(msgId) {
   if (!confirm('Delete this message?')) return;
   try {
-    await fetch(`tables/messages/${msgId}`, { method: 'DELETE' });
+    await shwTableFetch(`tables/messages/${msgId}`, { method: 'DELETE' });
     const el = document.getElementById(`empwrap-${msgId}`);
     if (el) el.remove();
     showToast('Message deleted.', 'success');
@@ -755,7 +756,7 @@ async function deleteEmpThread() {
   if (!_activeThread) return;
   if (!confirm('Permanently delete this conversation? This cannot be undone.')) return;
   try {
-    await fetch(`tables/message_threads/${_activeThread.id}`, { method: 'DELETE' });
+    await shwTableFetch(`tables/message_threads/${_activeThread.id}`, { method: 'DELETE' });
     _activeThread = null;
     await loadThreads();
     closeThread();

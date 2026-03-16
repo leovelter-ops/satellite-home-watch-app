@@ -427,6 +427,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script src="js/notifications-data.js"></script>
 <script src="js/notif-panel.js"></script>
@@ -576,7 +577,7 @@ function normalizeApiLead(r) {
 
 async function loadApiLeads() {
   try {
-    const res = await fetch('tables/leads?limit=200&sort=created_at');
+    const res = await shwTableFetch('tables/leads?limit=200&sort=created_at');
     if (!res.ok) return;
     const json = await res.json();
     const apiRecords = (json.data || []).map(normalizeApiLead);
@@ -637,7 +638,7 @@ async function submitAddLead(e) {
     created_at:       Date.now(),
   };
   try {
-    const res = await fetch('tables/leads', {
+    const res = await shwTableFetch('tables/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

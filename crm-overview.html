@@ -339,6 +339,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script>
 const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
@@ -359,9 +360,9 @@ function _timeAgo(ts) {
 async function loadOverviewData() {
   try {
     const [custRes, leadRes, reqRes] = await Promise.all([
-      fetch('tables/users?limit=1&search=role:client'),
-      fetch('tables/leads?limit=200'),
-      fetch('tables/service_requests?limit=200'),
+      shwTableFetch('tables/users?limit=1&search=role:client'),
+      shwTableFetch('tables/leads?limit=200'),
+      shwTableFetch('tables/service_requests?limit=200'),
     ]);
     const [custJson, leadJson, reqJson] = await Promise.all([
       custRes.ok ? custRes.json() : { total: 0, data: [] },

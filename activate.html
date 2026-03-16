@@ -461,7 +461,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    const res = await fetch('tables/invitations?search=' + encodeURIComponent(token) + '&limit=5');
+    const res = await shwTableFetch('tables/invitations?search=' + encodeURIComponent(token) + '&limit=5');
     const data = await res.json();
     const invitation = (data.data || []).find(i => i.token === token || i.id === token);
 
@@ -631,7 +631,7 @@ async function handleActivation(e) {
     }
 
     if (currentInvitation.id) {
-      await fetch(`tables/invitations/${currentInvitation.id}`, {
+      await shwTableFetch(`tables/invitations/${currentInvitation.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'accepted', accepted_at: new Date().toISOString() }),

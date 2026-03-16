@@ -132,6 +132,62 @@ async function getCached(table) {
 
 function clearCache() { _cache = {}; }
 
+
+function _mkResponseLike(ok, status, payload) {
+  return {
+    ok,
+    status,
+    async json() { return payload; },
+    async text() { return typeof payload === 'string' ? payload : JSON.stringify(payload); },
+  };
+}
+
+async function shwTableFetch(url, options = {}) {
+  const method = (options.method || 'GET').toUpperCase();
+  const raw = String(url || '');
+  const path = raw.startsWith('tables/') ? raw.slice(7) : raw;
+  const [pathOnly, queryString = ''] = path.split('?');
+  const parts = pathOnly.split('/').filter(Boolean);
+  const table = parts[0];
+  const id = parts[1] || null;
+  if (!table) return _mkResponseLike(false, 400, { error: 'Missing table name' });
+
+  let body = null;
+  if (typeof options.body === 'string' && options.body) {
+    try { body = JSON.parse(options.body); } catch (_) { body = null; }
+  } else if (options.body && typeof options.body === 'object') {
+    body = options.body;
+  }
+
+  try {
+    if (method === 'GET' && id) {
+      const { data, error } = await dbGetOne(table, id);
+      return error ? _mkResponseLike(false, 500, { error }) : _mkResponseLike(true, 200, data);
+    }
+    if (method === 'GET') {
+      const params = Object.fromEntries(new URLSearchParams(queryString));
+      const { data, error } = await dbGetAll(table, params);
+      return error ? _mkResponseLike(false, 500, { error }) : _mkResponseLike(true, 200, data);
+    }
+    if (method === 'POST') {
+      const { data, error } = await dbCreate(table, body || {});
+      return error ? _mkResponseLike(false, 500, { error }) : _mkResponseLike(true, 200, data);
+    }
+    if ((method === 'PATCH' || method === 'PUT') && id) {
+      const { data, error } = await dbUpdate(table, id, body || {});
+      return error ? _mkResponseLike(false, 500, { error }) : _mkResponseLike(true, 200, data);
+    }
+    if (method === 'DELETE' && id) {
+      const { error } = await dbDelete(table, id);
+      return error ? _mkResponseLike(false, 500, { error }) : _mkResponseLike(true, 204, null);
+    }
+    return _mkResponseLike(false, 405, { error: 'Unsupported method/path' });
+  } catch (e) {
+    return _mkResponseLike(false, 500, { error: e.message });
+  }
+}
+window.shwTableFetch = shwTableFetch;
+
 /** Build a lookup map from array by ID field */
 function buildLookup(arr, key = 'id') {
   return arr.reduce((acc, item) => { acc[item[key]] = item; return acc; }, {});
@@ -1283,5 +1339,13 @@ window.SHW = {
   Dashboard:       DashboardService,
   Admin:           AdminService,
   Inspector:       InspectorService,
+  // Low-level table access for legacy/admin pages migrating to service methods
+  DB: {
+    list: dbGetAll,
+    listAll: dbGetAllPages,
+    get: dbGetOne,
+    create: dbCreate,
+    update: dbUpdate,
+    remove: dbDelete,
+  },
 };
-

@@ -615,6 +615,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script src="js/service-plan-engine.js"></script>
 <script src="js/notifications-data.js"></script>
@@ -1100,7 +1101,7 @@ async function empApiGet(path, params = {}) {
 
 async function empApiPatch(table, id, body) {
   try {
-    const res = await fetch(`tables/${table}/${id}`, {
+    const res = await shwTableFetch(`tables/${table}/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

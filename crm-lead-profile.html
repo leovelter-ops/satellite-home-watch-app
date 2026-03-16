@@ -407,6 +407,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script>
 const ADMIN_SESSION = _resolveAdminSession(null) || { userId: '', role: 'manager', name: '', initials: '' };
@@ -439,7 +440,7 @@ async function loadLead() {
     return;
   }
   try {
-    const res = await fetch(`tables/leads/${id}`);
+    const res = await shwTableFetch(`tables/leads/${id}`);
     if (!res.ok) { showEmptyState('Lead not found.'); return; }
     const lead = await res.json();
     _currentLead = lead;
@@ -555,7 +556,7 @@ async function submitNote(e) {
   if (!text) return;
   const notes = _currentLead.notes ? _currentLead.notes + '\n\n' + text : text;
   try {
-    const res = await fetch(`tables/leads/${_currentLead.id}`, {
+    const res = await shwTableFetch(`tables/leads/${_currentLead.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notes }),
@@ -579,7 +580,7 @@ async function submitNote(e) {
 
 function markContacted() {
   if (!_currentLead) return;
-  fetch(`tables/leads/${_currentLead.id}`, {
+  shwTableFetch(`tables/leads/${_currentLead.id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status: 'contacted' })
@@ -593,7 +594,7 @@ function convertToCustomer() {
   if (!_currentLead) return;
   const name = _currentLead.full_name || _currentLead.name || 'this lead';
   if (confirm(`Convert ${name} to a Customer? This will create a new customer account.`)) {
-    fetch(`tables/leads/${_currentLead.id}`, {
+    shwTableFetch(`tables/leads/${_currentLead.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'converted' })

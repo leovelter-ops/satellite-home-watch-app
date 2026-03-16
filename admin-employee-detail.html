@@ -562,6 +562,7 @@
 
 <script src="js/nav.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/db.js"></script>
 <script src="js/emp-app.js"></script>
 <script src="js/notifications-data.js"></script>
 <script src="js/notif-panel.js"></script>
@@ -768,7 +769,7 @@ async function saveBenefitsDeductions() {
   _deductions = deductions;
 
   try {
-    const res = await fetch(`tables/employees/${_emp.id}`, {
+    const res = await shwTableFetch(`tables/employees/${_emp.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -929,7 +930,7 @@ async function saveCompensationSettings() {
   }
 
   try {
-    const res = await fetch(`tables/employees/${_emp.id}`, {
+    const res = await shwTableFetch(`tables/employees/${_emp.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patch),
