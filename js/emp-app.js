@@ -266,6 +266,13 @@ const ADMIN_SIDEBAR_PAGES = [
     roles: ['executive', 'manager'],
   },
   {
+    key: 'admin-notifications',
+    href: 'admin-notifications.html',
+    label: 'Notifications',
+    icon: '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>',
+    roles: ['executive', 'manager'],
+  },
+  {
     key: 'admin-documents',
     href: 'admin-documents.html',
     label: 'Documents',
