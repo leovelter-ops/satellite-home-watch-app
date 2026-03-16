@@ -237,6 +237,47 @@ async function shwTableFetch(url, options = {}) {
 }
 window.shwTableFetch = shwTableFetch;
 
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+async function shwFindInvitationCandidate({ token = '', email = '' } = {}) {
+  const normalizedEmail = normalizeEmail(email);
+  const candidates = [];
+
+  if (token) {
+    const tokenRes = await shwTableFetch(`tables/invitations?search=${encodeURIComponent(token)}&limit=10`);
+    const tokenJson = await tokenRes.json();
+    candidates.push(...((tokenJson.data || tokenJson) || []));
+  }
+
+  if (normalizedEmail) {
+    const emailRes = await shwTableFetch(`tables/invitations?email=ilike.${encodeURIComponent(normalizedEmail)}&limit=25`);
+    const emailJson = await emailRes.json();
+    candidates.push(...((emailJson.data || emailJson) || []));
+  }
+
+  const byId = new Map();
+  candidates.forEach(inv => {
+    if (inv && inv.id) byId.set(inv.id, inv);
+  });
+
+  const pending = [...byId.values()].filter(inv => {
+    if (!inv) return false;
+    if (inv.status === 'accepted' || inv.status === 'revoked') return false;
+    if (inv.expires_at && new Date(inv.expires_at) < new Date()) return false;
+    return true;
+  });
+
+  pending.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  return pending[0] || null;
+}
+
+window.SHWOnboarding = {
+  normalizeEmail,
+  findInvitationCandidate: shwFindInvitationCandidate,
+};
+
 /** Build a lookup map from array by ID field */
 function buildLookup(arr, key = 'id') {
   return arr.reduce((acc, item) => { acc[item[key]] = item; return acc; }, {});
