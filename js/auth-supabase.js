@@ -27,19 +27,13 @@
 
     const byId = await client
       .from('profiles')
-      .select('id, user_id, role, first_name, last_name, full_name')
+      .select('id, role, full_name, phone, created_at')
       .eq('id', userId)
       .maybeSingle();
 
     if (byId.data) return { data: byId.data, error: null };
 
-    const byUserId = await client
-      .from('profiles')
-      .select('id, user_id, role, first_name, last_name, full_name')
-      .eq('user_id', userId)
-      .maybeSingle();
-
-    return { data: byUserId.data, error: byUserId.error ? byUserId.error.message : null };
+    return { data: null, error: byId.error ? byId.error.message : null };
   }
 
   function normalizeRole(role) {
