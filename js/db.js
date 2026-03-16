@@ -88,36 +88,85 @@ async function apiRequest(method, path, body = null) {
 
 /** GET all records from a table (with optional query string params) */
 async function dbGetAll(table, params = {}) {
-  const qs = new URLSearchParams(params).toString();
-  const path = qs ? `${table}?${qs}` : table;
+  const resolvedTable = resolveTableName(table);
+  const qs = toPostgrestQuery(params).toString();
+  const path = qs ? `${resolvedTable}?${qs}` : resolvedTable;
   return apiRequest('GET', path);
 }
 
 /** GET single record by ID */
 async function dbGetOne(table, id) {
-  return apiRequest('GET', `${table}/${id}`);
+  const resolvedTable = resolveTableName(table);
+  const { data, error } = await apiRequest('GET', `${resolvedTable}?id=eq.${encodeURIComponent(id)}&limit=1`);
+  if (error) return { data: null, error };
+  return { data: Array.isArray(data) ? (data[0] || null) : data, error: null };
 }
 
 /** POST — create new record */
 async function dbCreate(table, data) {
-  return apiRequest('POST', table, data);
+  const resolvedTable = resolveTableName(table);
+  const { data: created, error } = await apiRequest('POST', resolvedTable, data);
+  if (error) return { data: null, error };
+  return { data: Array.isArray(created) ? (created[0] || null) : created, error: null };
 }
 
 /** PATCH — partial update */
 async function dbUpdate(table, id, data) {
-  return apiRequest('PATCH', `${table}/${id}`, data);
+  const resolvedTable = resolveTableName(table);
+  const { data: updated, error } = await apiRequest(
+    'PATCH',
+    `${resolvedTable}?id=eq.${encodeURIComponent(id)}`,
+    data
+  );
+  if (error) return { data: null, error };
+  return { data: Array.isArray(updated) ? (updated[0] || null) : updated, error: null };
 }
 
 /** DELETE — remove record */
 async function dbDelete(table, id) {
-  return apiRequest('DELETE', `${table}/${id}`);
+  const resolvedTable = resolveTableName(table);
+  return apiRequest('DELETE', `${resolvedTable}?id=eq.${encodeURIComponent(id)}`);
 }
 
 /** Fetch all pages of a table up to maxLimit records */
 async function dbGetAllPages(table, params = {}, maxLimit = 500) {
-  const { data, error } = await dbGetAll(table, { ...params, limit: maxLimit, page: 1 });
+  const { data, error } = await dbGetAll(table, { ...params, limit: maxLimit });
   if (error) return { data: [], error };
-  return { data: data.data || [], error: null };
+  return { data: Array.isArray(data) ? data : (data?.data || []), error: null };
+}
+
+const TABLE_ALIASES = {
+  reports: 'visit_reports',
+  conversations: 'message_threads',
+  customers: 'clients',
+};
+
+function resolveTableName(table) {
+  return TABLE_ALIASES[table] || table;
+}
+
+function toPostgrestQuery(params = {}) {
+  const mapped = new URLSearchParams();
+  const { limit, page, sort, search, ...rest } = params || {};
+
+  Object.entries(rest).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '') return;
+    if (String(value).includes('.')) mapped.set(key, String(value));
+    else mapped.set(key, `eq.${value}`);
+  });
+
+  if (limit) mapped.set('limit', String(limit));
+  if (page && limit) {
+    const offset = (Number(page) - 1) * Number(limit);
+    if (!Number.isNaN(offset) && offset > 0) mapped.set('offset', String(offset));
+  }
+  if (sort) mapped.set('order', `${sort}.desc`);
+  if (search && String(search).includes(':')) {
+    const [field, term] = String(search).split(':');
+    if (field && term !== undefined) mapped.set(field, `ilike.*${term}*`);
+  }
+
+  return mapped;
 }
 
 // ─── LOOKUP MAPS (in-memory caches for join enrichment) ──────────────────────
@@ -1318,6 +1367,76 @@ const InspectorService = {
 };
 
 
+// ═══════════════════════════════════════════════════════════════════════════════
+//  SERVICE: CORE DIRECTORY (PROFILES / CUSTOMERS / EMPLOYEES / CRM LEADS)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const ProfilesService = {
+  async getCurrentProfile() {
+    return dbGetOne('profiles', SHW_SESSION.userId);
+  },
+  async getProfile(userId) {
+    return dbGetOne('profiles', userId);
+  },
+  async upsertProfile(profileData) {
+    const id = profileData?.id || SHW_SESSION.userId;
+    const now = new Date().toISOString();
+    const { data: existing } = await dbGetOne('profiles', id);
+    if (existing) return dbUpdate('profiles', id, { ...profileData, updated_at: now });
+    return dbCreate('profiles', { ...profileData, id, created_at: now, updated_at: now });
+  },
+};
+
+const CustomersService = {
+  async list(params = {}) {
+    return dbGetAllPages('clients', params);
+  },
+  async get(customerId) {
+    return dbGetOne('clients', customerId);
+  },
+  async create(customerData) {
+    const now = new Date().toISOString();
+    return dbCreate('clients', { ...customerData, created_at: now, updated_at: now });
+  },
+  async update(customerId, updates) {
+    return dbUpdate('clients', customerId, { ...updates, updated_at: new Date().toISOString() });
+  },
+};
+
+const EmployeesService = {
+  async list(params = {}) {
+    return dbGetAllPages('employees', params);
+  },
+  async get(employeeId) {
+    return dbGetOne('employees', employeeId);
+  },
+  async create(employeeData) {
+    const now = new Date().toISOString();
+    return dbCreate('employees', { ...employeeData, created_at: now, updated_at: now });
+  },
+  async update(employeeId, updates) {
+    return dbUpdate('employees', employeeId, { ...updates, updated_at: new Date().toISOString() });
+  },
+};
+
+const CRMLeadsService = {
+  async list(params = {}) {
+    return dbGetAllPages('leads', params);
+  },
+  async get(leadId) {
+    return dbGetOne('leads', leadId);
+  },
+  async create(leadData) {
+    const now = new Date().toISOString();
+    return dbCreate('leads', { ...leadData, created_at: now, updated_at: now });
+  },
+  async update(leadId, updates) {
+    return dbUpdate('leads', leadId, { ...updates, updated_at: new Date().toISOString() });
+  },
+};
+
+
+
 // ─── EXPORT TO GLOBAL SCOPE ────────────────────────────────────────────────────
 // All services available globally on window for page scripts
 window.SHW = {
@@ -1327,6 +1446,11 @@ window.SHW = {
   fmt: { date: fmtDate, dateTime: fmtDateTime, time: fmtTime, fileSize: fmtFileSize },
   utils: { daysSince, capitalize, snakeToTitle, buildLookup, clearCache },
   // Services
+  Profiles:        ProfilesService,
+  Customers:       CustomersService,
+  Employees:       EmployeesService,
+  CRMLeads:        CRMLeadsService,
+  Conversations:   MessagesService,
   Properties:      PropertiesService,
   Visits:          VisitsService,
   Alerts:          AlertsService,
